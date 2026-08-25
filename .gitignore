@@ -1,0 +1,10 @@
+venv/
+env/
+__pycache__/
+*.pyc
+db.sqlite3
+.env
+# Ignorar todos los archivos generados en las carpetas migrations
+*/migrations/*.py
+# Mantener el archivo __init__.py obligatorio del paquete
+!*/migrations/__init__.py
