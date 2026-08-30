@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gestión de Clubes{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-utilities.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-reboot.min.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-light">
+    <!-- Navegación (opcional) -->
+ 
+
+    <!-- Contenido Principal -->
+    <main class="py-4">
+        <div class="container">
+            {% block contenido_principal %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer (opcional) -->
+    <footer class="text-center py-4 mt-5">
+        <p class="mb-0">Trabajo Integrador · Programación Web II · 2026</p>
+    </footer>
+
+    <!-- Bootstrap JS Bundle (incluye Popper) -->
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

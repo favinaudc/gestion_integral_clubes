@@ -4,6 +4,6 @@ from . import views
 app_name = 'clubes'
 
 urlpatterns = [
-    path('', views.clubes, name='clubes_listado'),
-    path('club/<int:club_id>/categorias/', views.categorias, name='club_categorias'),
+    path('', views.clubes, name='list'),
+    path('club/<int:club_id>/categorias/', views.categorias, name='categorias'),
 ]
