@@ -13,12 +13,12 @@
     
     {% block extra_css %}{% endblock %}
 </head>
-<body class="bg-light">
+<body class="bg-light d-flex flex-column min-vh-100">
     <!-- Navegación (opcional) -->
  
 
     <!-- Contenido Principal -->
-    <main>
+    <main class="flex-grow-1">
         <div>
             {% block contenido_principal %}{% endblock %}
         </div>

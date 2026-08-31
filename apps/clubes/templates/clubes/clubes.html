@@ -4,7 +4,8 @@
 
 {% block contenido_apps %}
 
-    <div class="container bg-white p-4 rounded shadow-sm">
+    <div class="card border-0 shadow-sm rounded-4 p-2 bg-white">
+        <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="h3 mb-0">Instituciones Deportivas Registradas</h1>
             <span class="badge bg-primary fs-6">{{ clubes|length }} Clubes</span>
@@ -51,6 +52,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
         </div>
     </div>
 

@@ -1,40 +1,30 @@
  {% extends 'base_apps.html' %}
  {% block contenido_apps %}
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 col-md-8 col-lg-6">
-                
-                <!-- Tarjeta Principal de Bienvenida -->
-                <div class="card border-0 shadow-sm rounded-4 text-center p-4 p-md-5 bg-white">
-                    <div class="card-body">
-                        
-                        <!-- Badge/Insignia superior -->
-                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2 mb-3">
-                            Plataforma de Gestión Deportiva
-                        </span>
+        
+    <!-- Tarjeta Principal de Bienvenida -->
+    <div class="card border-0 shadow-sm rounded-4 text-center p-2 bg-white">
+        <div class="card-body">
+            
+            <!-- Badge/Insignia superior -->
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2 mb-3">
+                Plataforma de Gestión Deportiva
+            </span>
 
-                        <h1 class="h2 fw-bold mb-3 text-dark">Bienvenido al Sistema</h1>
-                        
-                        <p class="text-secondary mb-4">
-                            Administración centralizada de instituciones deportivas, disciplinas y seguimiento de categorías por edades.
-                        </p>
+            <h1 class="h2 fw-bold mb-3 text-dark">Bienvenido al Sistema</h1>
+            
+            <p class="text-secondary mb-4">
+                Administración centralizada de instituciones deportivas, disciplinas y seguimiento de categorías por edades.
+            </p>
 
-                        <!-- Botón de Acción Principal -->
-                        <div class="d-grid gap-2 col-sm-8 mx-auto">
-                            <a href="{% url 'clubes:list' %}" class="btn btn-primary btn-lg shadow-sm">
-                                Ver Clubes Registrados
-                            </a>
-                        </div>
-
-                    </div>
-                    
-                    <!-- Pie sutil -->
-                    <div class="card-footer bg-transparent border-0 text-muted small mt-3">
-                        Trabajo Integrador · Programación Web II
-                    </div>
-                </div>
-
+            <!-- Botón de Acción Principal -->
+            <div class="d-grid gap-2 col-sm-8 mx-auto">
+                <a href="{% url 'clubes:list' %}" class="btn btn-primary btn-lg shadow-sm">
+                    Ver Clubes Registrados
+                </a>
             </div>
+
         </div>
+        
     </div>
+
 {% endblock %}
