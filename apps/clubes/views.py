@@ -1,5 +1,10 @@
 from django.shortcuts import render
 from django.http import Http404
+from django.views.generic import CreateView
+from django.urls import reverse_lazy    
+from models import *
+from .forms import CicloForm
+
 
 # Create your views here.
 
@@ -76,3 +81,9 @@ def categorias(request, club_id):
     }
 
     return render(request, 'clubes/categorias.html', context)
+
+class CicloCreateView(CreateView):
+    model = Ciclo
+    form_class = CicloForm  
+    template_name = 'clubes/ciclo_form.html'
+    success_url = reverse_lazy('clubes:list')  # Redirige a la lista de clubes después de crear un ciclo  
