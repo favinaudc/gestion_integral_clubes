@@ -1,0 +1,19 @@
+
+cree el models para las clases segun el diagrama orm que hicieron en:
+  Ruta: apps/clubes/models.py
+
+    1. Usuario (cuit_cuil, password, email, nombre, apellido, is_active, is_staff)
+    2. Club (nombre, cuit)
+    3. Socio (usuario_cuit [1:1], club [FK], fecha_nacimiento, es_deportista, 
+              es_tutor, apto_medico, tutor_responsable [FK reflexiva])
+    4. Entrenador (usuario_cuit [1:1], club [FK])
+    5. Disciplina (nombre, club [FK])
+    6. Categoria (nombre, edad_minima, edad_maxima, disciplina [FK])
+    7. Ciclo (anio, fecha_inicio, fecha_fin, estado_activo)
+    8. Fichaje (socio [FK], disciplina [FK], categoria [FK], ciclo [FK])
+    9. PlantillaExamen (nombre, es_activo, disciplina [FK])
+   10. ParametroEvaluacion (nombre, unidad_medida, tipo_dato)
+   11. ResultadoExamen (fecha_test, observaciones, fichaje [FK], plantilla [FK])
+   12. MetricaRegistrada (valor_entero, valor_decimal, valor_tiempo, 
+                          resultado_examen [FK], parametro [FK])
+
