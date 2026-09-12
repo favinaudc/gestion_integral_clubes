@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.http import Http404
-from django.views.generic import CreateView
+from django.views.generic import CreateView, ListView, UpdateView, DeleteView
 from django.urls import reverse_lazy    
-from models import *
+from .models import *
 from .forms import CicloForm
 
 
@@ -86,4 +86,9 @@ class CicloCreateView(CreateView):
     model = Ciclo
     form_class = CicloForm  
     template_name = 'clubes/ciclo_form.html'
-    success_url = reverse_lazy('clubes:list')  # Redirige a la lista de clubes después de crear un ciclo  
+    success_url = reverse_lazy('clubes:listar_ciclos')  # Redirige a la lista de clubes después de crear un ciclo
+
+class CicloListView(ListView):
+    model = Ciclo
+    template_name = 'clubes/ciclo_list.html'
+    context_object_name = 'ciclos'  # Nombre del contexto para acceder a los ciclos en la plantilla

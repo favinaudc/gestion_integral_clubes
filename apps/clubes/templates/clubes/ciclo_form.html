@@ -1,5 +1,5 @@
 {% extends 'base_apps.html' %}
-
+{% load crispy_forms_tags %}
 {% block title %}Crear Ciclo{% endblock %}  
 
 {% block contenido_apps %}  
@@ -8,12 +8,12 @@
             <h1 class="h3 mb-4">Crear Nuevo Ciclo</h1>
             <form method="post" novalidate>
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-primary">Guardar</button>
+                {% crispy form %}
+                
             </form>
         </div>
     </div>
 
-{% include "includes/boton_volver.html" with url_name='clubes:clubes' boton_titulo='Volver a Clubes' %}
+{% include "includes/boton_volver.html" with url_name='clubes:list' boton_titulo='Volver a Clubes' %}
 
 {% endblock %}

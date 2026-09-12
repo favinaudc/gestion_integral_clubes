@@ -6,4 +6,7 @@ app_name = 'clubes'
 urlpatterns = [
     path('', views.clubes, name='list'),
     path('club/<int:club_id>/categorias/', views.categorias, name='categorias'),
+    path('ciclos/', views.CicloListView.as_view(), name='listar_ciclos'),
+    path('ciclos/create/', views.CicloCreateView.as_view(), name='crear_ciclo'),
+    
 ]
