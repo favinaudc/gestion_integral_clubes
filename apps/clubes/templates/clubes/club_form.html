@@ -1,0 +1,21 @@
+{% extends 'base_apps.html' %}
+{% load crispy_forms_tags %}
+{% block title %}
+{% if object %}Editar {{ object|capfirst }}{% else %}Crear Nuevo Registro{% endif %}
+{% endblock %}  
+
+{% block contenido_apps %}  
+    <div class="card border-0 shadow-sm rounded-4 p-2 bg-white">
+        <div class="card-body">
+            <h1 class="h3 mb-4">Crear Nuevo Club</h1>
+                <form method="post" novalidate> 
+                {% csrf_token %}
+                {% crispy form %}
+                
+            </form>
+        </div>
+    </div>
+
+{% include "includes/boton_volver.html" with url_name='clubes:list' boton_titulo='Volver a Clubes' %}
+
+{% endblock %}

@@ -7,7 +7,7 @@
     <div class="card border-0 shadow-sm rounded-4 p-2 bg-white">
         <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h3 mb-0">Ciclos Deportivos Registrados</h1>
+            <h1 class="h3 mb-0">Clubes Deportivos Registrados</h1>
            
         </div>
 
@@ -16,32 +16,36 @@
                 <thead class="table-light">
                     <tr>
                         
-                        <th scope="col">Año</th>
-                        <th scope="col" class="text-center">Fecha de Inicio</th>
-                        <th scope="col" class="text-center">Fecha de Fin</th>
+                        <th scope="col">Nombre Club</th>
+                        <th scope="col" class="text-center">Dirección</th>
+                        <th scope="col" class="text-center">Email</th>
+                        <th scope="col" class="text-center">Teléfono</th>
+                        <th scope="col" class="text-center">Fecha de Fundación</th>
                         <th scope="col" class="text-center" style="width: 180px;">Estado</th>
                         <th scope="col" class="text-center">Editar</th> <!-- prueba de updateview -->
                         <th scope="col" class="text-center">Eliminar</th> <!-- prueba de deleteview -->
                     </tr>
                 </thead>
                 <tbody>
-                    {% for ciclo in ciclos %}
+                    {% for club in clubes %}
                         <tr>
-                            <td class="text-center fw-bold">{{ ciclo.año }}</td>
-                            <td>{{ ciclo.fecha_inicio }}</td>
-                            <td>{{ ciclo.fecha_fin }}</td>
+                            <td class="text-center fw-bold">{{ club.nombre }}</td>
+                            <td>{{ club.direccion }}</td>
+                            <td>{{ club.email }}</td>
+                            <td>{{ club.telefono }}</td>
+                            <td>{{ club.fecha_fundacion }}</td>
                             <td class="text-center">
-                                <span class="badge bg-{% if ciclo.activo %}success{% else %}secondary{% endif %} rounded-pill">
-                                    {% if ciclo.activo %}Activo{% else %}Inactivo{% endif %}
+                                <span class="badge bg-{% if club.activo %}success{% else %}secondary{% endif %} rounded-pill">
+                                    {% if club.activo %}Activo{% else %}Inactivo{% endif %}
                                 </span>
                             </td>
                             <td class="text-center">
-                                <a href="{% url 'clubes:editar_ciclo' ciclo.pk %}" class="btn btn-sm btn-outline-primary">
+                                <a href="{% url 'clubes:editar_club' club.pk %}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-edit">Editar</i>
                                 </a>
                             </td>
                             <td class="text-center">
-                                <a href="{% url 'clubes:eliminar_ciclo' ciclo.pk %}" class="btn btn-sm btn-outline-danger">
+                                <a href="{% url 'clubes:eliminar_club' club.pk %}" class="btn btn-sm btn-outline-danger">
                                     <i class="fas fa-trash">Eliminar</i> <!-- boton eliminar -->
                                 </a>
                             </td>

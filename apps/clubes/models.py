@@ -17,11 +17,11 @@ class Ciclo(models.Model):
     
 class Club(models.Model):
    
-    nombre = models.CharField(max_length=100, help_text="Ingrese el nombre del club")
-    direccion = models.CharField(max_length=200, help_text="Ingrese la dirección del club")
-    telefono = models.CharField(max_length=15, help_text="Ingrese el teléfono del club")
-    email = models.EmailField(help_text="Ingrese el correo electrónico del club")
-    fecha_fundacion = models.DateField(help_text="Ingrese la fecha de fundación del club")
+    nombre = models.CharField(max_length=100)
+    direccion = models.CharField(max_length=200)
+    telefono = models.CharField(max_length=15)
+    email = models.EmailField()
+    fecha_fundacion = models.DateField()
 
     def __str__(self):
         return self.nombre    
@@ -29,9 +29,9 @@ class Club(models.Model):
 
 
 class Socio(models.Model):
-    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE )
     fecha_nacimiento = models.DateField(help_text="@Ingrese la fecha de nacimiento del usuario")
-    club_id = models.ManyToManyField(Club)
+    club_id = models.ForeignKey(Club, on_delete=models.CASCADE)
     es_deportista = models.BooleanField(default=False, help_text="@Indica si el socio es deportista o no")   
     es_tutor = models.BooleanField(default=False, help_text="@Indica si el socio es tutor o no")
     apto_medico = models.BooleanField(default=False, help_text="@Indica si el socio tiene apto médico o no")
@@ -43,7 +43,8 @@ class Socio(models.Model):
 class Entrenador(models.Model):
    
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
-    club_id = models.ManyToManyField(Club)
+    club_id = models.ManyToManyField(Club, related_name='entrenadores')
+    # volver a agregar los related_name para poder acceder Qué problema ayudan a resolver select_related() y prefetch_related()
     #especialidad = models.CharField(max_length=100, help_text="@Ingrese la especialidad del entrenador")
     experiencia = models.IntegerField(validators=[MinValueValidator(0)], help_text="@Ingrese la cantidad de años de experiencia del entrenador")
 
@@ -53,8 +54,8 @@ class Disciplina(models.Model):
    
     nombre = models.CharField(max_length=100, help_text="@Ingrese el nombre de la disciplina")  
     descripcion = models.TextField(help_text="@Ingrese la descripción de la disciplina")
-    club_id = models.ManyToManyField(Club)
-    entrenador_id = models.ManyToManyField(Entrenador)
+    club_id = models.ManyToManyField(Club, related_name='disciplinas')
+    entrenador_id = models.ManyToManyField(Entrenador, related_name='disciplinas'  )
 
     def __str__(self):
         return self.nombre

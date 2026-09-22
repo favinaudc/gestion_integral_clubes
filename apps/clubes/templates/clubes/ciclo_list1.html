@@ -1,0 +1,21 @@
+{% extends 'base_apps.html' %}
+{% load render_table from django_tables2 %}
+
+<title>{% block title %}Listado de Ciclos{% endblock %}</title>
+
+{% block contenido_apps %}
+    <div class="card border-0 shadow-sm rounded-4 p-2 bg-white">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Ciclos Deportivos Registrados</h1>
+            </div>
+
+            <div class="table-responsive">
+                <!-- ¡Aquí ocurre la magia! Django genera toda la tabla y títulos automáticamente -->
+                {% render_table ciclos %}
+            </div>
+        </div>
+    </div>
+
+    {% include "includes/boton_volver.html" with url_name='inicio' boton_titulo='Volver al inicio' %}
+{% endblock %}
