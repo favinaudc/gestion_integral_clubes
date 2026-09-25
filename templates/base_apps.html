@@ -1,8 +1,203 @@
 {% extends "base.html" %}
+{% block base_extra_css %}
+<style>
+    :root {
+        --bg-body: #f4f7fe;
+        --bg-card: #ffffff;
+        --text-main: #2b3674;
+        --text-muted: #a3aed1;
+        --primary: #4318ff;
+        --primary-light: #f4f7fe;
+        --success: #05cd99;
+        --warning: #ffce20;
+        --border-color: #e9edf7;
+        --sidebar-width-expanded: 280px;
+        --sidebar-width-collapsed: 85px; /* Ancho justo para centrar el icono */
+    }
+
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: var(--bg-body);
+        color: var(--text-main);
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Clases utilitarias personalizadas */
+    .text-main { color: var(--text-main) !important; }
+    .text-muted-custom { color: var(--text-muted) !important; }
+    
+    /* Layout principal para Base Apps */
+    .app-container {
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    /* Estilos del Sidebar Colapsable */
+    .sidebar-custom {
+        width: var(--sidebar-width-collapsed);
+        background-color: var(--bg-card);
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid var(--border-color);
+        padding: 2rem 0; /* Padding lateral en 0 para anclar los íconos */
+        z-index: 100;
+        transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Animamos SOLO el ancho */
+        overflow-x: hidden;
+        white-space: nowrap; /* Evita que el texto baje de línea al animarse */
+    }
+
+    /* Efectos Hover o Click (expanded) */
+    .sidebar-custom:hover,
+    .sidebar-custom.expanded {
+        width: var(--sidebar-width-expanded);
+        /* Quitamos el cambio de padding para evitar el salto de layout */
+    }
+
+    .sidebar-logo {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start; /* Siempre a la izquierda */
+        padding: 0 27px; /* Padding matemáticamente fijo para centrar en 85px */
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-main);
+        text-decoration: none;
+        margin-bottom: 2.5rem;
+    }
+
+    .sidebar-logo i { 
+        color: var(--primary); 
+        font-size: 1.8rem; 
+        min-width: 30px; /* Ancho de caja fijo */
+        text-align: center;
+    }
+
+    .nav-link-custom {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start; /* Siempre a la izquierda */
+        padding: 12px 17px;
+        margin: 0 10px 0.5rem 10px; /* Margen fijo para el efecto píldora */
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 600;
+        border-radius: 12px;
+        transition: background-color 0.2s ease, color 0.2s ease; /* Sin transiciones de layout */
+    }
+
+    .nav-link-custom:hover, .nav-link-custom.active {
+        color: var(--primary);
+        background-color: var(--primary-light);
+    }
+
+    .nav-link-custom.active { position: relative; }
+    .nav-link-custom.active::before {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 10%;
+        height: 80%;
+        width: 4px;
+        background-color: var(--primary);
+        border-radius: 4px;
+    }
+
+    .nav-link-custom i {
+        font-size: 1.2rem;
+        min-width: 30px; /* Ancho de caja fijo */
+        text-align: center;
+    }
+
+    /* Control de la visibilidad de los textos (Magia de la transición) */
+    .sidebar-text {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease;
+        margin-left: 14px; /* Separación fija con el ícono */
+    }
+
+    .sidebar-custom:hover .sidebar-text,
+    .sidebar-custom.expanded .sidebar-text {
+        opacity: 1;
+        visibility: visible;
+        transition-delay: 0.1s; /* Retraso muy sutil para suavizar */
+    }
+
+    /* Contenedor del Perfil de usuario abajo */
+    .user-profile-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start; /* Siempre a la izquierda */
+        padding: 0 22px; /* Padding matemáticamente fijo para el círculo (40px) */
+        transition: background-color 0.3s ease;
+        width: 100%;
+    }
+
+    /* Main Content Area */
+    .main-wrapper {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        background-color: var(--bg-body);
+    }
+
+    /* Tarjetas base para tu contenido */
+    .card-custom {
+        background-color: var(--bg-card);
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0px 18px 40px rgba(112, 144, 176, 0.12);
+        padding: 1.5rem;
+    }
+</style>
+{% endblock %}
 
 {% block contenido_principal %}
-    {% include "navbar.html" %}
-    <div class="p-4">
-        {% block contenido_apps %}{% endblock contenido_apps %}
+    <div class="app-container">
+        
+        <!-- Sidebar a la izquierda -->
+        {% include "sidebar.html" %}
+        
+        <!-- Wrapper para navbar y contenido -->
+        <main class="main-wrapper">
+            
+            {% include "navbar.html" %}
+            
+            <!-- Contenedor con padding para las vistas (Deportistas, Evaluaciones, etc) -->
+            <div class="p-4 px-md-5">
+                {% block contenido_apps %}
+                <!-- Acá van a renderizarse las tarjetas y tablas de tus otras vistas -->
+                {% endblock contenido_apps %}
+            </div>
+
+            <footer class="text-center py-4 mt-auto text-muted-custom" style="font-size: 0.9rem; font-weight: 500;">
+                <p class="mb-0">Trabajo Integrador · Programación Web II · 2026</p>
+            </footer>
+        </main>
+
     </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const toggleBtn = document.getElementById('sidebarToggleBtn');
+        const sidebar = document.querySelector('.sidebar-custom');
+        
+        if (toggleBtn && sidebar) {
+            // Animación del botón al pasar el mouse (opcional, fachero)
+            toggleBtn.addEventListener('mouseover', () => toggleBtn.style.color = "var(--primary)");
+            toggleBtn.addEventListener('mouseout', () => toggleBtn.style.color = "inherit");
+
+            // Evento click
+            toggleBtn.addEventListener('click', function() {
+                // Alternamos la clase 'expanded' que definimos en el CSS del base.html
+                sidebar.classList.toggle('expanded');
+            });
+        }
+    });
+</script>
 {% endblock %}
