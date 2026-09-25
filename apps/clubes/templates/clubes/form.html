@@ -1,0 +1,25 @@
+{% extends 'base_apps.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    {% if object %}Editar {{ object|capfirst }}{% else %}Crear Nuevo Registro{% endif %}
+{% endblock %} 
+
+{% block contenido_apps %}     
+    <div class="card border-0 shadow-sm rounded-4 p-2 bg-white">
+        <div class="card-body">
+            <!-- Título dinámico según si es creación o edición -->
+            <h1 class="h3 mb-4">
+                {% if object %}Editar Registro{% else %}Crear Nuevo Registro{% endif %}
+            </h1>
+            
+            <form method="post" novalidate> 
+                {% csrf_token %}
+                {% crispy form %}
+            </form>
+        </div>
+    </div>
+
+    
+
+{% endblock %}
