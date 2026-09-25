@@ -3,22 +3,25 @@ from . import views
 
 app_name = 'clubes'
 
-urlpatterns = [
-    path('', views.clubes, name='list'),
-    path('club/<int:club_id>/categorias/', views.categorias, name='categorias'),
+ciclos_urls = [
     path('ciclos/', views.CicloListView.as_view(), name='listar_ciclos'),
-    
     path('ciclos/<int:pk>/editar/', views.CicloUpdateView.as_view(), name='editar_ciclo'),
     path('ciclos/<int:pk>/eliminar/', views.CicloDeleteView.as_view(), name='eliminar_ciclo'),
     path('ciclos/create/', views.CicloCreateView.as_view(), name='crear_ciclo'),
-    path('clubes/', views.ClubListView.as_view(), name='listar_clubes'),
-    path('clubes/<int:pk>/editar/', views.ClubUpdateView.as_view(), name='editar_club'),
-    path('clubes/<int:pk>/eliminar/', views.ClubDeleteView.as_view(), name='eliminar_club'),
-    path('clubes/create/', views.ClubCreateView.as_view(), name='crear_club'), 
+]
+
+socios_urls = [
     path('socios/', views.SocioListView.as_view(), name='listar_socios'),
+    path('socios/create/', views.SocioCreateView.as_view(), name='crear_socio'), 
     path('socios/<int:pk>/editar/', views.SocioUpdateView.as_view(), name='editar_socio'),
     path('socios/<int:pk>/eliminar/', views.SocioDeleteView.as_view(), name='eliminar_socio'),
-    path('socios/create/', views.SocioCreateView.as_view(), name='crear_socio'), 
+]
+
+urlpatterns = [
+    path('', views.ClubListView.as_view(), name='listar_clubes'),
+    path('club/create/', views.ClubCreateView.as_view(), name='crear_club'), 
+    path('club/<int:pk>/editar/', views.ClubUpdateView.as_view(), name='editar_club'),
+    path('club/<int:pk>/eliminar/', views.ClubDeleteView.as_view(), name='eliminar_club'),    
     path('entrenadores/', views.EntrenadorListView.as_view(), name='listar_entrenadores'),
     path('entrenadores/<int:pk>/editar/', views.EntrenadorUpdateView.as_view(), name='editar_entrenador'),
     path('entrenadores/<int:pk>/eliminar/', views.EntrenadorDeleteView.as_view(), name='eliminar_entrenador'),
@@ -50,7 +53,6 @@ urlpatterns = [
     path('metricas_registradas/', views.MetricaRegistradaListView.as_view(), name='listar_metricas_registradas'),  
     path('metricas_registradas/<int:pk>/editar/', views.MetricaRegistradaUpdateView.as_view(), name='editar_metrica_registrada'),
     path('metricas_registradas/<int:pk>/eliminar/', views.MetricaRegistradaDeleteView.as_view(), name='eliminar_metrica_registrada'),
-    path('metricas_registradas/create/', views.MetricaRegistradaCreateView.as_view(), name='crear_metrica_registrada')
-     
-    
-]
+    path('metricas_registradas/create/', views.MetricaRegistradaCreateView.as_view(), name='crear_metrica_registrada')]
+
+urlpatterns += ciclos_urls + socios_urls

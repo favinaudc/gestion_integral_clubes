@@ -30,8 +30,7 @@ class CicloForm(forms.ModelForm):
         
         # Inicializar el FormHelper
         self.helper = FormHelper()
-        self.helper.form_method = 'post'
-        
+
         # Definir el Layout
         self.helper.layout = Layout(
             # Los 3 campos dentro de una misma Row divididos en 3 Columnas (col-md-4 cada una para repartir el espacio)

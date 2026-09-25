@@ -1,6 +1,7 @@
+from django.template import context
 from django.shortcuts import render
 from django.http import Http404
-from django.views.generic import CreateView, ListView, UpdateView, DeleteView
+from django.views.generic import CreateView, ListView, UpdateView, DeleteView, DetailView
 from django.urls import reverse_lazy    
 from .models import *
 from .forms import CicloForm, ClubForm, SocioForm, EntrenadorForm, DisciplinaForm, CategoriaForm, FichajeForm, ParametroEvaluacionForm, PlanillaExamenForm, ResultadoExamenForm, MetricaRegistradaForm
@@ -8,130 +9,75 @@ from django_tables2 import SingleTableView
 from .tables import CicloTable
 # Create your views here.
 
-CLUBES_DB = {
-    1: {
-        'nombre': 'Club Social y Deportivo Rawson',
-        'disciplinas': [
-            {
-                'nombre': 'Rugby',
-                'categorias': ['M6', 'M8', 'M14', 'M16', 'Primera']
-            },
-            {
-                'nombre': 'Hockey',
-                'categorias': ['Infantiles', 'Sub-14', 'Sub-16', 'Primera']
-            }
-        ]
-    },
-    2: {
-        'nombre': 'Club Atlético Trelew',
-        'disciplinas': [
-            {
-                'nombre': 'Fútbol',
-                'categorias': ['Escuelita', 'Novena', 'Séptima', 'Primera']
-            },
-            {
-                'nombre': 'Básquet',
-                'categorias': ['Mini', 'U13', 'U15', 'U17', 'Primera']
-            }
-        ]
-    },
-    3: {
-        'nombre': 'Puerto Madryn Rugby Club',
-        'disciplinas': [
-            {
-                'nombre': 'Rugby',
-                'categorias': ['M10', 'M12', 'M16', 'M18', 'Plantel Superior']
-            }
-        ]
-    }
-}
-
-def clubes(request):
-    lista_clubes = []
-    
-    for club_id, datos in CLUBES_DB.items():
-        total_disciplinas = len(datos['disciplinas'])
-        # Sumamos la cantidad de categorías de cada disciplina
-        total_categorias = sum(len(d['categorias']) for d in datos['disciplinas'])
-        
-        lista_clubes.append({
-            'id': club_id,
-            'nombre': datos['nombre'],
-            'total_disciplinas': total_disciplinas,
-            'total_categorias': total_categorias,
-        })
-
-    context = {
-        'clubes': lista_clubes,
-    }
-
-    return render(request, 'clubes/clubes.html', context)
-
-def categorias(request, club_id):
-
-    club = CLUBES_DB.get(club_id) 
-    
-    if not club:
-        raise Http404(f"No se encontró información para el club con ID {club_id}")
-
-    context = {
-        'club_id': club_id,
-        'nombre_club': club['nombre'],
-        'disciplinas': club['disciplinas'],
-    }
-
-    return render(request, 'clubes/categorias.html', context)
-
 class SharedFormMixin:
-    template_name = 'templates/form.html'  # Plantilla por defecto para los formularios
-    
-              
+    template_name = 'clubes/form_template.html'  # Plantilla por defecto para los formularios
 
-class CicloCreateView(CreateView):
+class CicloCreateView(SharedFormMixin, CreateView):
     model = Ciclo
     form_class = CicloForm  
-    template_name = 'clubes/ciclo_form.html'
+    # template_name = 'clubes/ciclo_form.html'
     success_url = reverse_lazy('clubes:listar_ciclos')  # Redirige a la lista de clubes después de crear un ciclo
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = 'Crear ciclo'
+        return context
 
 class CicloListView(ListView):
     model = Ciclo
-    template_name = 'clubes/ciclo/ciclo_list.html'
+    template_name = 'clubes/ciclo/ciclos_list.html'
     context_object_name = 'ciclos'  # Nombre del contexto para acceder a los ciclos en la plantilla
-#class CicloListView(SingleTableView):
- #   model = Ciclo
-  #  table_class = CicloTable
-   # template_name = 'clubes/ciclo_list1.html' # Ruta a tu template
-  #  context_object_name = 'ciclos'
-    #(Si estás usando vistas basadas en funciones tradicionales, simplemente instancias la tabla en tu 
-     #vista pasándole el queryset: table = CicloTable(Ciclo.objects.all()) y la envías en el contexto).
 
-class CicloUpdateView(UpdateView):
+
+class CicloDetailView(DetailView):
+    model = Ciclo
+    template_name = ''
+    context_object_name = 'ciclo'
+
+    
+
+class CicloUpdateView(SharedFormMixin, UpdateView):
     model = Ciclo
     form_class = CicloForm
-    template_name = 'clubes/ciclo_form.html'  # apunto a reutilizar el formulario de creacion
+    # template_name = 'clubes/ciclo_form.html'  # apunto a reutilizar el formulario de creacion
     success_url = reverse_lazy('clubes:listar_ciclos')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = f'Editar ciclo {self.object}'
+        return context
 
 class CicloDeleteView(DeleteView):
     model = Ciclo
     template_name = 'clubes/ciclo_confirm_delete.html'  # Plantilla por defecto que busca Django
     success_url = reverse_lazy('clubes:listar_ciclos')  # Redirige a la lista después de eliminar    
 
-class ClubCreateView(CreateView):
+class ClubCreateView(SharedFormMixin, CreateView):
     model = Club
     form_class = ClubForm
-    template_name = 'clubes/club_form.html'  # Plantilla para el formulario de creación
+    # template_name = 'clubes/club_form.html'  # Plantilla para el formulario de creación
     success_url = reverse_lazy('clubes:listar_clubes')  # Redirige a la lista de clubes después de crear un club
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = 'Crear nuevo club'
+        return context
 
 class ClubListView(ListView):
     model = Club
     template_name = 'clubes/club_list.html'
     context_object_name = 'clubes'  # Nombre del contexto para acceder a los clubes en la plantilla  
 
-class ClubUpdateView(UpdateView):
+class ClubUpdateView(SharedFormMixin, UpdateView):
     model = Club
     form_class = ClubForm
-    template_name = 'clubes/club_form.html'  # Plantilla para el formulario de edición
+    # template_name = 'clubes/club_form.html'  # Plantilla para el formulario de edición
     success_url = reverse_lazy('clubes:listar_clubes')  # Redirige a la lista de clubes después de editar un club
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = f'Editar club {self.object}'
+        return context
 
 class ClubDeleteView(DeleteView):
     model = Club
