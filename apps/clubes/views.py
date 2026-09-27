@@ -119,18 +119,18 @@ class CicloDeleteView(DeleteView):
 class ClubCreateView(CreateView):
     model = Club
     form_class = ClubForm
-    template_name = 'clubes/club_form.html'  # Plantilla para el formulario de creación
+    template_name = 'clubes/club/club_form.html'  # Plantilla para el formulario de creación
     success_url = reverse_lazy('clubes:listar_clubes')  # Redirige a la lista de clubes después de crear un club
 
 class ClubListView(ListView):
     model = Club
-    template_name = 'clubes/club_list.html'
+    template_name = 'clubes/club/club_list.html'
     context_object_name = 'clubes'  # Nombre del contexto para acceder a los clubes en la plantilla  
 
 class ClubUpdateView(UpdateView):
     model = Club
     form_class = ClubForm
-    template_name = 'clubes/club_form.html'  # Plantilla para el formulario de edición
+    template_name = 'clubes/club/club_form.html'  # Reutiliza el formulario de creación
     success_url = reverse_lazy('clubes:listar_clubes')  # Redirige a la lista de clubes después de editar un club
 
 class ClubDeleteView(DeleteView):
@@ -153,12 +153,12 @@ class SocioUpdateView(UpdateView):
     model = Socio
     form_class = SocioForm
     template_name = 'clubes/socio/socio_form.html'  # apunto a reutilizar el formulario de creacion
-    success_url = reverse_lazy('clubes:socio_list')  # Redirige a la lista de socios después de editar un socio
+    success_url = reverse_lazy('clubes:listar_socios')  # Redirige a la lista de socios después de editar un socio
 
 class SocioDeleteView(DeleteView):
     model = Socio
     template_name = 'clubes/socio/socio_confirm_delete.html'  # Plantilla por defecto que busca Django
-    success_url = reverse_lazy('clubes:socio_list')  # Redirige a la lista después de eliminar un socio
+    success_url = reverse_lazy('clubes:listar_socios')  # Redirige a la lista después de eliminar un socio
 
 class EntrenadorCreateView(CreateView):
     model = Entrenador
