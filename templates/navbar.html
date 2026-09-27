@@ -1,20 +1,102 @@
-   
-   
-   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'inicio' %}">🏛️ Gestión de Clubes</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'inicio' %}">Inicio</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'clubes:list' %}">Clubes</a>
-                    </li>
-                </ul>
-            </div>
+<style>
+    .topbar-custom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 3rem; /* Espaciado premium */
+        background-color: var(--bg-body);
+    }
+
+    .search-bar-custom {
+        background-color: var(--bg-card);
+        border-radius: 30px;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 300px;
+        box-shadow: 0px 10px 20px rgba(112, 144, 176, 0.08);
+    }
+
+    .search-bar-custom input {
+        border: none;
+        outline: none;
+        background: transparent;
+        width: 100%;
+        color: var(--text-main);
+        font-size: 0.9rem;
+    }
+
+    .search-bar-custom i { color: var(--text-muted); }
+
+    .topbar-actions-custom {
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+        background-color: var(--bg-card);
+        padding: 8px 16px;
+        border-radius: 30px;
+        box-shadow: 0px 10px 20px rgba(112, 144, 176, 0.08);
+    }
+
+    .action-icon-custom {
+        color: var(--text-muted);
+        font-size: 1.2rem;
+        position: relative;
+        cursor: pointer;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+    
+    .action-icon-custom:hover { color: var(--primary); }
+
+    .badge-notification-custom {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: #e63946;
+        color: white;
+        font-size: 0.6rem;
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--bg-card);
+    }
+</style>
+
+<header class="topbar-custom w-100">
+    
+    <div class="d-flex align-items-center gap-3">
+        <!-- Botón de Hamburguesa / Toggle -->
+        <button id="sidebarToggleBtn" class="btn btn-light border-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px; border-radius: 50%; background-color: var(--bg-card); transition: 0.3s;">
+            <i class="fa-solid fa-bars text-muted-custom" style="font-size: 1.2rem;"></i>
+        </button>
+        <h3 class="fw-bold mb-0 text-main" style="font-size: 1.5rem;">
+            Resumen de Rendimiento - 2026
+        </h3>
+    </div>
+    
+    <div class="d-flex align-items-center gap-4">
+        
+        <!-- Barra de búsqueda -->
+        <div class="search-bar-custom">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" placeholder="Buscar atleta...">
         </div>
-    </nav>
+
+        <!-- Acciones (Notificaciones) -->
+        <div class="topbar-actions-custom">
+            <a href="#" class="action-icon-custom">
+                <i class="fa-regular fa-bell"></i>
+                <span class="badge-notification-custom">2</span>
+            </a>
+            <a href="#" class="action-icon-custom">
+                <i class="fa-solid fa-circle-info"></i>
+            </a>
+        </div>
+
+    </div>
+</header>

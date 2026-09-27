@@ -7,5 +7,8 @@ db.sqlite3
 .python-version
 # Ignorar todos los archivos generados en las carpetas migrations
 */migrations/*.py
+*/migrations
 # Mantener el archivo __init__.py obligatorio del paquete
 !*/migrations/__init__.py
+
+.vscode
