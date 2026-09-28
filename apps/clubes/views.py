@@ -178,6 +178,8 @@ class FichajeCreateView(CreateView):
     template_name = 'clubes/form.html'  # Plantilla para el formulario de creación
     success_url = reverse_lazy('clubes:listar_fichajes')  # Redirige a la lista de fichajes después de crear un fichaje
 
+    
+
 class FichajeListView(ListView):
     model = Fichaje
     template_name = 'clubes/fichaje_list.html'

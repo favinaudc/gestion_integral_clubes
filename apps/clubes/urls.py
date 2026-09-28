@@ -16,24 +16,31 @@ socios_urls = [
     path('socios/<int:pk>/editar/', views.SocioUpdateView.as_view(), name='editar_socio'),
     path('socios/<int:pk>/eliminar/', views.SocioDeleteView.as_view(), name='eliminar_socio'),
 ]
+entrenadores_urls = [
+    path('entrenadores/', views.EntrenadorListView.as_view(), name='listar_entrenadores'),
+    path('entrenadores/<int:pk>/editar/', views.EntrenadorUpdateView.as_view(), name='editar_entrenador'),
+    path('entrenadores/<int:pk>/eliminar/', views.EntrenadorDeleteView.as_view(), name='eliminar_entrenador'),
+    path('entrenadores/create/', views.EntrenadorCreateView.as_view(), name='crear_entrenador'),
+]
+disciplinas_urls =[
+    path('disciplinas/', views.DisciplinaListView.as_view(), name='listar_disciplinas'),
+    path('disciplinas/<int:pk>/editar/', views.DisciplinaUpdateView.as_view(), name='editar_disciplina'),
+    path('disciplinas/<int:pk>/eliminar/', views.DisciplinaDeleteView.as_view(), name='eliminar_disciplina'),
+    path('disciplinas/create/', views.DisciplinaCreateView.as_view(), name='crear_disciplina'),
+]
+categorias_urls =[
+    path('categorias/', views.CategoriaListView.as_view(), name='listar_categorias'),
+    path('categorias/<int:pk>/editar/', views.CategoriaUpdateView.as_view(), name='editar_categoria'),
+    path('categorias/<int:pk>/eliminar/', views.CategoriaDeleteView.as_view(), name='eliminar_categoria'),
+    path('categorias/create/', views.CategoriaCreateView.as_view(), name='crear_categoria'),  
+]
 
 urlpatterns = [
     path('', views.ClubListView.as_view(), name='listar_clubes'),
     path('club/create/', views.ClubCreateView.as_view(), name='crear_club'), 
     path('club/<int:pk>/editar/', views.ClubUpdateView.as_view(), name='editar_club'),
     path('club/<int:pk>/eliminar/', views.ClubDeleteView.as_view(), name='eliminar_club'),    
-    path('entrenadores/', views.EntrenadorListView.as_view(), name='listar_entrenadores'),
-    path('entrenadores/<int:pk>/editar/', views.EntrenadorUpdateView.as_view(), name='editar_entrenador'),
-    path('entrenadores/<int:pk>/eliminar/', views.EntrenadorDeleteView.as_view(), name='eliminar_entrenador'),
-    path('entrenadores/create/', views.EntrenadorCreateView.as_view(), name='crear_entrenador'),
-    path('disciplinas/', views.DisciplinaListView.as_view(), name='listar_disciplinas'),
-    path('disciplinas/<int:pk>/editar/', views.DisciplinaUpdateView.as_view(), name='editar_disciplina'),
-    path('disciplinas/<int:pk>/eliminar/', views.DisciplinaDeleteView.as_view(), name='eliminar_disciplina'),
-    path('disciplinas/create/', views.DisciplinaCreateView.as_view(), name='crear_disciplina'),
-    path('categorias/', views.CategoriaListView.as_view(), name='listar_categorias'),
-    path('categorias/<int:pk>/editar/', views.CategoriaUpdateView.as_view(), name='editar_categoria'),
-    path('categorias/<int:pk>/eliminar/', views.CategoriaDeleteView.as_view(), name='eliminar_categoria'),
-    path('categorias/create/', views.CategoriaCreateView.as_view(), name='crear_categoria'),    
+    
     path('fichajes/', views.FichajeListView.as_view(), name='listar_fichajes'), 
     path('fichajes/<int:pk>/editar/', views.FichajeUpdateView.as_view(), name='editar_fichaje'),
     path('fichajes/<int:pk>/eliminar/', views.FichajeDeleteView.as_view(), name='eliminar_fichaje'),
@@ -55,4 +62,4 @@ urlpatterns = [
     path('metricas_registradas/<int:pk>/eliminar/', views.MetricaRegistradaDeleteView.as_view(), name='eliminar_metrica_registrada'),
     path('metricas_registradas/create/', views.MetricaRegistradaCreateView.as_view(), name='crear_metrica_registrada')]
 
-urlpatterns += ciclos_urls + socios_urls
+urlpatterns += ciclos_urls + socios_urls + entrenadores_urls + disciplinas_urls + categorias_urls

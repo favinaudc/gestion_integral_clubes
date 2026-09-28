@@ -39,6 +39,26 @@ class Socio(models.Model):
     def __str__(self):
         return f"{self.usuario.nombre} {self.usuario.apellido}"
     
+    @property
+    def es_menor_edad(self):
+        if not self.fecha_nacimiento:
+            raise(ValueError,'Debe definir fecha de nacimiento.')
+        hoy = date.today()
+        edad = (
+            hoy.year
+            - self.fecha_nacimiento.year
+            -(
+                (hoy.month, hoy.day)
+                <(self.fecha_nacimiento.month, self.fecha_nacimiento.day)
+            )
+        )
+        return edad < 18
+    
+    def save(self):
+        if self.es_menor_edad:
+            if self.tutor_responsable_id is None:
+                raise(ReferenceError,'Al ser menos de edad debe tener responsable/tutor asociado.')
+    
 class Entrenador(models.Model):
    
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
@@ -53,12 +73,21 @@ class Disciplina(models.Model):
    
     nombre = models.CharField(max_length=100, help_text="@Ingrese el nombre de la disciplina")  
     descripcion = models.TextField(help_text="@Ingrese la descripción de la disciplina")
-    club_id = models.ManyToManyField(Club, related_name='disciplinas')
+    clubes_id = models.ManyToManyField(Club, through='DisciplinaClub', related_name='disciplinas')
     entrenador_id = models.ManyToManyField(Entrenador, related_name='disciplinas'  )
-
+   
     def __str__(self):
         return self.nombre
+    
+class DisciplinaClub(models.Model):
+    disciplina_id =models.ForeignKey(Disciplina, on_delete=models.CASCADE)
+    club_id = models.ForeignKey(Club, on_delete=models.CASCADE)
 
+    class Meta: 
+       constraints=[
+           models.UniqueConstraint(fields=['club_id','disciplina_id'], name='unique_disciplina_por_club')
+       ]
+    
 class Categoria(models.Model):
    
     nombre = models.CharField(max_length=100, help_text="@Ingrese el nombre de la categoría")
@@ -69,16 +98,27 @@ class Categoria(models.Model):
     disciplina_id = models.ManyToManyField(Disciplina)
 
     def __str__(self):
-        return self.nombre    
+        return self.nombre  
+    
+    def save(self):
+        if self.edad_minima >= self.edad_maxima:
+            raise(ValueError,'La edad minima no puede ser mayor o igual que la edad maxima.') 
 
 class Fichaje(models.Model):
   
-    socio_id = models.ForeignKey(Socio, on_delete=models.CASCADE)
+    socio_id = models.ForeignKey(Socio, on_delete=models.CASCADE, related_name='fichajes')
     disciplina_id = models.ForeignKey(Disciplina, on_delete=models.CASCADE)
     categoria_id = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     fecha_fichaje = models.DateField(help_text="@Ingrese la fecha de fichaje del socio")
     is_active = models.BooleanField(default=True, help_text="@Indica si el fichaje está activo o no")
     ciclo_id = models.ForeignKey(Ciclo, on_delete=models.CASCADE)
+
+    def save(self, *args,**kwargs):
+        super().save(*args, **kwargs)
+
+        if self.socio_id and not self.socio_id.es_deportista:
+            self.socio_id.es_deportista = True
+            self.socio_id.save(update_fields=['es_deportista'])
 
     def __str__(self):
         return f"{self.socio_id.usuario.nombre} {self.socio_id.usuario.apellido} - {self.disciplina_id.nombre} - {self.categoria_id.nombre} - {self.ciclo_id.año}" 
