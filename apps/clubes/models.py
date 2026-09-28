@@ -42,7 +42,7 @@ class Socio(models.Model):
     @property
     def es_menor_edad(self):
         if not self.fecha_nacimiento:
-            raise(ValueError,'Debe definir fecha de nacimiento.')
+            raise ValueError('Debe definir fecha de nacimiento.')
         hoy = date.today()
         edad = (
             hoy.year
@@ -57,7 +57,7 @@ class Socio(models.Model):
     def save(self):
         if self.es_menor_edad:
             if self.tutor_responsable_id is None:
-                raise(ReferenceError,'Al ser menos de edad debe tener responsable/tutor asociado.')
+                raise ValueError('Al ser menos de edad debe tener responsable/tutor asociado.')
     
 class Entrenador(models.Model):
    
