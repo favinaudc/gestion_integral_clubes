@@ -5,10 +5,10 @@ __pycache__/
 db.sqlite3
 .env
 .python-version
-# Ignorar todos los archivos generados en las carpetas migrations
-*/migrations/*.py
-*/migrations
+# Ignorar todos los archivos generados en las carpetas migrations de las apps
+apps/*/migrations/*.py
+apps/*/migrations/*.pyc
 # Mantener el archivo __init__.py obligatorio del paquete
-!*/migrations/__init__.py
+!apps/*/migrations/__init__.py
 
 .vscode
