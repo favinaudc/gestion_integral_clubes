@@ -30,3 +30,14 @@ def login_view(request):
 
     # Si la petición es GET (solo entrar a la página), renderizamos el formulario
     return render(request, 'customauth/login.html')
+
+
+def cerrar_sesion(request):
+    # Destruye la sesión actual del usuario
+    logout(request)
+    
+    # Opcional: le mandamos un mensajito de despedida
+    messages.info(request, "Has cerrado sesión exitosamente.")
+    
+    # Lo redirigimos de vuelta a la pantalla de login
+    return redirect('auth:login')
