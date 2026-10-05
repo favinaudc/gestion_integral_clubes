@@ -1,73 +1,31 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block contenido_principal %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-8 col-lg-5">
-            
-            <!-- Tarjeta de Login -->
-            <div class="card login-card bg-white p-4 p-md-5">
-                
-                <!-- Encabezado / Branding -->
-                <div class="text-center mb-5">
-                    <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle mb-3" style="width: 70px; height: 70px;">
-                        <i class="bi bi-diagram-3-fill text-primary" style="font-size: 2rem;"></i>
-                    </div>
-                    <h2 class="fw-bold text-dark mb-1">¡Bienvenido de vuelta!</h2>
-                    <p class="text-secondary">Gestión Integral de Clubes</p>
-                </div>
+<div class="bg-light d-flex align-items-center justify-content-center min-vh-100">
+    <div class="text-center px-4">
+        <!-- Ícono principal -->
+        <div class="mb-4">
+            <i class="bi bi-cone-striped text-primary" style="font-size: 5rem;"></i>
+        </div>
+        
+        <!-- Título y mensaje -->
+        <h1 class="display-4 fw-bold text-dark mb-3">Portal en Construcción</h1>
+        <p class="lead text-secondary mb-4 mx-auto" style="max-width: 600px;">
+            Estamos preparando nuestra nueva landing page. Muy pronto vas a poder consultar la oferta deportiva, categorías y las últimas novedades de todas las instituciones adheridas.
+        </p>
+        
+        <!-- Identidad del sistema (Multi-club) -->
+        <div class="d-inline-flex align-items-center bg-white shadow-sm rounded-pill px-4 py-2 border border-primary-subtle mb-5">
+            <i class="bi bi-diagram-3-fill text-primary me-2"></i>
+            <span class="text-dark fw-medium">Gestión Integral de Clubes</span>
+        </div>
 
-                <!-- Formulario -->
-                <form action="#" method="POST">
-                    <!-- En Django acá iría el {% csrf_token %} -->
-                    
-                    <div class="mb-4">
-                        <label for="cuit_cuil" class="form-label text-secondary fw-medium small">CUIT / CUIL</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0 text-muted">
-                                <i class="bi bi-person"></i>
-                            </span>
-                            <input type="text" class="form-control bg-light border-start-0 ps-0" id="cuit_cuil" name="cuit_cuil" placeholder="Ingresá tu usuario" required>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <label for="password" class="form-label text-secondary fw-medium small mb-0">Contraseña</label>
-                            <a href="#" class="text-decoration-none small">¿Olvidaste tu contraseña?</a>
-                        </div>
-                        <div class="input-group mt-2">
-                            <span class="input-group-text bg-light border-end-0 text-muted">
-                                <i class="bi bi-lock"></i>
-                            </span>
-                            <input type="password" class="form-control bg-light border-start-0 ps-0" id="password" name="password" placeholder="••••••••" required>
-                        </div>
-                    </div>
-
-                    <!-- Recordarme -->
-                    <div class="mb-4 form-check">
-                        <input type="checkbox" class="form-check-input" id="remember">
-                        <label class="form-check-label text-secondary small" for="remember">Mantener sesión iniciada</label>
-                    </div>
-
-                    <!-- Botón Submit -->
-                    <div class="d-grid gap-2 mt-5">
-                        <button type="submit" class="btn btn-primary btn-lg py-2 rounded-pill fw-medium shadow-sm">
-                            Iniciar Sesión <i class="bi bi-arrow-right ms-2"></i>
-                        </button>
-                    </div>
-                </form>
-
-                <!-- Acceso al Portal Público (Para volver a la landing) -->
-                <div class="text-center mt-5">
-                    <p class="text-muted small mb-0">
-                        <a href="#" class="text-decoration-none text-secondary">
-                            <i class="bi bi-house-door me-1"></i> Volver al Portal Público
-                        </a>
-                    </p>
-                </div>
-
-            </div>
+        <!-- Acceso a usuarios registrados -->
+        <div class="mt-2 border-top pt-4 mx-auto" style="max-width: 450px;">
+            <a href="{% url 'auth:login' %}" class="btn btn-outline-primary w-100 rounded-pill fw-medium py-2">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Si ya tenés un usuario, iniciá sesión haciendo clic acá
+            </a>
         </div>
     </div>
 </div>

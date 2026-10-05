@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = 'customauth.Usuario'
 
 # Application definition
 
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'apps.clubes',
     'apps.customauth',
+    'apps.web',
     'django_tables2',
 
 ]
