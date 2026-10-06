@@ -1,0 +1,21 @@
+ {% extends 'base_apps.html' %}
+ 
+    <title>{% block title %}Eliminar Ciclo{% endblock %}</title>
+
+{% block contenido_apps %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <h2>Eliminar Ciclo</h2>
+
+            <p>¿Estás seguro de que deseas eliminar el ciclo: <strong>{{ object }}</strong>?</p>
+
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+                <a href="{% url 'clubes:listar_ciclos' %}" class="btn btn-secondary">Cancelar</a>
+            </form>
+        </div>
+    </div>  
+</div>    
+{% endblock %}

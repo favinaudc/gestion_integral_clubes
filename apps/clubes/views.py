@@ -87,153 +87,209 @@ class ClubDeleteView(DeleteView):
 class SocioCreateView(SharedFormMixin, CreateView):
     model = Socio
     form_class = SocioForm
-    template_name = 'clubes/socio/socio_form.html'
     success_url = reverse_lazy('clubes:listar_socios')  # Redirige a la lista de socios después de crear un socio      
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = f'Crear socio{self.object}'
+        return context
+    
 class SocioListView(ListView):
     model = Socio
     template_name = 'clubes/socio/socio_list.html'
     context_object_name = 'socios'  # Nombre del contexto para acceder a los socios en la plantilla
 
-class SocioUpdateView(UpdateView):
+class SocioUpdateView(SharedFormMixin, UpdateView):
     model = Socio
     form_class = SocioForm
-    template_name = 'clubes/socio/socio_form.html'  # apunto a reutilizar el formulario de creacion
     success_url = reverse_lazy('clubes:listar_socios')  # Redirige a la lista de socios después de editar un socio
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context ['titulo'] = f'Editar socio{self.object}'
+        return context
 
 class SocioDeleteView(DeleteView):
     model = Socio
     template_name = 'clubes/socio/socio_confirm_delete.html'  # Plantilla por defecto que busca Django
     success_url = reverse_lazy('clubes:listar_socios')  # Redirige a la lista después de eliminar un socio
 
-class EntrenadorCreateView(CreateView):
+class EntrenadorCreateView(SharedFormMixin, CreateView):
     model = Entrenador
     form_class = EntrenadorForm
     template_name = 'clubes/form.html'  # Plantilla para el formulario de creación
     success_url = reverse_lazy('clubes:listar_entrenadores')  # Redirige a la lista de entrenadores después de crear un entrenador  
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = f'Crear entrenador{self.object}'
+        return context
 
 class EntrenadorListView(ListView):
     model = Entrenador
     template_name = 'clubes/entrenador_list.html'
     context_object_name = 'entrenadores'  # Nombre del contexto para acceder a los entrenadores en la plantilla 
 
-class EntrenadorUpdateView(UpdateView):
+class EntrenadorUpdateView(SharedFormMixin, UpdateView):
     model = Entrenador
     form_class = EntrenadorForm
     template_name = 'clubes/entrenador_form.html'  # Plantilla para el formulario de edición
     success_url = reverse_lazy('clubes:listar_entrenadores')  # Redirige a la lista de entrenadores después de editar un entrenador 
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo']= f'Editar entrenador{self.object}'
+        return context
 
 class EntrenadorDeleteView(DeleteView):
     model = Entrenador
     template_name = 'clubes/entrenador_confirm_delete.html'  # Plantilla por defecto que busca Django
     success_url = reverse_lazy('clubes:listar_entrenadores')  # Redirige a la lista después de eliminar un entrenador   
 
-class DisciplinaCreateView(CreateView):
+class DisciplinaCreateView(SharedFormMixin, CreateView):
     model = Disciplina
     form_class = DisciplinaForm
-    template_name = 'clubes/form.html'  # Plantilla para el formulario de creación
     success_url = reverse_lazy('clubes:listar_disciplinas')  # Redirige a la lista de disciplinas después de crear una disciplina
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] =f'Crear disciplina{self.object}'
+        return context
 
 class DisciplinaListView(ListView):
     model = Disciplina
     template_name = 'clubes/disciplina_list.html'
     context_object_name = 'disciplinas'  # Nombre del contexto para acceder a las disciplinas en la plantilla   
 
-class DisciplinaUpdateView(UpdateView):
+class DisciplinaUpdateView(SharedFormMixin, UpdateView):
     model = Disciplina
     form_class = DisciplinaForm
-    template_name = 'clubes/disciplina_form.html'  # Plantilla para el formulario de edición
     success_url = reverse_lazy('clubes:listar_disciplinas')  # Redirige a la lista de disciplinas después de editar una disciplina
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = f'Editar disciplina{self.object}'
+        return context
 
 class DisciplinaDeleteView(DeleteView):
     model = Disciplina
     template_name = 'clubes/disciplina_confirm_delete.html'  # Plantilla por defecto que busca Django
     success_url = reverse_lazy('clubes:listar_disciplinas')  # Redirige a la lista después de eliminar una disciplina
 
-class CategoriaCreateView(CreateView):  
+class CategoriaCreateView(SharedFormMixin,CreateView):  
     model = Categoria
     form_class = CategoriaForm
-    template_name = 'clubes/form.html'  # Plantilla para el formulario de creación
     success_url = reverse_lazy('clubes:listar_categorias')  # Redirige a la lista de categorías después de crear una categoría
+
+    def get_context_data(self, **kwargs):
+        context =super().get_context_data(**kwargs)
+        context['titulo'] =f'Crear categoria{self.object}'
+        return context
 
 class CategoriaListView(ListView):
     model = Categoria
     template_name = 'clubes/categoria_list.html'
     context_object_name = 'categorias'  # Nombre del contexto para acceder a las categorías en la plantilla
 
-class CategoriaUpdateView(UpdateView):
+class CategoriaUpdateView(SharedFormMixin, UpdateView):
     model = Categoria
     form_class = CategoriaForm
-    template_name = 'clubes/categoria_form.html'  # Plantilla para el formulario de edición
     success_url = reverse_lazy('clubes:listar_categorias')  # Redirige a la lista de categorías después de editar una categoría
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] =f'Editar categoria{self.object}'
+        return context
 
 class CategoriaDeleteView(DeleteView):
     model = Categoria
     template_name = 'clubes/categoria_confirm_delete.html'  # Plantilla por defecto que busca Django
     success_url = reverse_lazy('clubes:listar_categorias')  # Redirige a la lista después de eliminar una categoría
 
-class FichajeCreateView(CreateView):
+class FichajeCreateView(SharedFormMixin, CreateView):
     model = Fichaje
     form_class = FichajeForm
-    template_name = 'clubes/form.html'  # Plantilla para el formulario de creación
     success_url = reverse_lazy('clubes:listar_fichajes')  # Redirige a la lista de fichajes después de crear un fichaje
 
-    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = f'Crear fichaje{self.object}'
+        return context
 
 class FichajeListView(ListView):
     model = Fichaje
     template_name = 'clubes/fichaje_list.html'
     context_object_name = 'fichajes'  # Nombre del contexto para acceder a los fichajes en la plantilla
 
-class FichajeUpdateView(UpdateView):
+class FichajeUpdateView(SharedFormMixin, UpdateView):
     model = Fichaje
     form_class = FichajeForm
-    template_name = 'clubes/fichaje_form.html'  # Plantilla para el formulario de edición
     success_url = reverse_lazy('clubes:listar_fichajes')  # Redirige a la lista de fichajes después de editar un fichaje
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = f'Editar fichaje{self.object}'
+        return context
 
 class FichajeDeleteView(DeleteView):
     model = Fichaje
     template_name = 'clubes/fichaje_confirm_delete.html'  # Plantilla por defecto que busca Django
     success_url = reverse_lazy('clubes:listar_fichajes')  # Redirige a la lista después de eliminar un fichaje
 
-class PlanillaExamenCreateView(CreateView):
+class PlanillaExamenCreateView(SharedFormMixin, CreateView):
     model = PlanillaExamen
     form_class = PlanillaExamenForm
-    template_name = 'clubes/form.html'  # Plantilla para el formulario de creación
     success_url = reverse_lazy('clubes:listar_planilla_examen')  # Redirige a la lista de planillas de examen después de crear una planilla
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = f'Crear planilla de examen{self.object}'
+        return context
 
 class PlanillaExamenListView(ListView):
     model = PlanillaExamen
     template_name = 'clubes/planilla_examen_list.html'
     context_object_name = 'planillas'  # Nombre del contexto para acceder a las planillas de examen en la plantilla
 
-class PlanillaExamenUpdateView(UpdateView):
+class PlanillaExamenUpdateView(SharedFormMixin, UpdateView):
     model = PlanillaExamen
     form_class = PlanillaExamenForm
-    template_name = 'clubes/planilla_examen_form.html'  # Plantilla para el formulario de edición
     success_url = reverse_lazy('clubes:listar_planilla_examen')  # Redirige a la lista de planillas de examen después de editar una planilla
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = f'Editar planilla de examen{self.object}'
+        return context
 
 class PlanillaExamenDeleteView(DeleteView):
     model = PlanillaExamen
     template_name = 'clubes/planilla_examen_confirm_delete.html'  # Plantilla por defecto que busca Django
     success_url = reverse_lazy('clubes:listar_planilla_examen')  # Redirige a la lista después de eliminar una planilla de examen
 
-class ParametroEvaluacionCreateView(CreateView):
+class ParametroEvaluacionCreateView(SharedFormMixin, CreateView):
     model = ParametroEvaluacion
     form_class = ParametroEvaluacionForm
-    template_name = 'clubes/form.html'  # Plantilla para el formulario de creación
     success_url = reverse_lazy('clubes:listar_parametros_evaluacion')  # Redirige a la lista de parámetros de evaluación después de crear un parámetro
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] =f'Crear parametro de elvaluacion{self.object}'
+        return context
+    
 class ParametroEvaluacionListView(ListView):
     model = ParametroEvaluacion
     template_name = 'clubes/parametro_evaluacion_list.html'
     context_object_name = 'parametros'  # Nombre del contexto para acceder a los parámetros de evaluación en la plantilla
 
-class ParametroEvaluacionUpdateView(UpdateView):
+class ParametroEvaluacionUpdateView(SharedFormMixin, UpdateView):
     model = ParametroEvaluacion
     form_class = ParametroEvaluacionForm
-    template_name = 'clubes/parametro_evaluacion_form.html'  # Plantilla para el formulario de edición
     success_url = reverse_lazy('clubes:listar_parametros_evaluacion')  # Redirige a la lista de parámetros de evaluación después de editar un parámetro
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = f'Editar parámetro de evaluación {self.object}'
+        return context
 
 class ParametroEvaluacionDeleteView(DeleteView):
     model = ParametroEvaluacion
@@ -320,22 +376,30 @@ class ParametroEvaluacionDetailView(ListView):
         parametro_id = self.kwargs.get('parametro_id')
         return ParametroEvaluacion.objects.filter(id=parametro_id)
 
-class ResultadoExamenCreateView(CreateView):
+class ResultadoExamenCreateView(SharedFormMixin, CreateView):
     model = PlanillaExamen
     form_class = ResultadoExamenForm
-    template_name = 'clubes/resultado_examen_form.html'  # Plantilla para el formulario de creación
     success_url = reverse_lazy('clubes:listar_planilla_examen')  # Redirige a la lista de planillas de examen después de crear una planilla
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = f'Crear resultado de examen{self.object}'
+        return context
+    
 class ResultadoExamenListView(ListView):
     model = PlanillaExamen
     template_name = 'clubes/resultado_examen_list.html'
     context_object_name = 'resultados'  # Nombre del contexto para acceder a los resultados de examen en la plantilla
 
-class ResultadoExamenUpdateView(UpdateView):
+class ResultadoExamenUpdateView(SharedFormMixin, UpdateView):
     model = PlanillaExamen
     form_class = ResultadoExamenForm
-    template_name = 'clubes/resultado_examen_form.html'  # Plantilla para el formulario de edición
     success_url = reverse_lazy('clubes:listar_resultados_examen')  # Redirige a la lista de resultados de examen después de editar un resultado
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = f'Editar resultado de examen {self.object}'
+        return context
 
 class ResultadoExamenDeleteView(DeleteView):
     model = PlanillaExamen
@@ -352,22 +416,30 @@ class ResultadoExamenDetailView(ListView):
         fichaje_id = self.kwargs.get('fichaje_id')
         return PlanillaExamen.objects.filter(fichaje_id=fichaje_id)
 
-class MetricaRegistradaCreateView(CreateView):
+class MetricaRegistradaCreateView(SharedFormMixin, CreateView):
     model = MetricaRegistrada
     form_class = MetricaRegistradaForm
-    template_name = 'clubes/metrica_registrada_form.html'  # Plantilla para el formulario de creación
     success_url = reverse_lazy('clubes:listar_metricas_registradas')  # Redirige a la lista de métricas registradas después de crear una métrica
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = f'Crear métrica registrada{self.object}'
+        return context
+    
 class MetricaRegistradaListView(ListView):
     model = MetricaRegistrada
     template_name = 'clubes/metrica_registrada_list.html'
     context_object_name = 'metricas'  # Nombre del contexto para acceder a las métricas registradas en la plantilla
 
-class MetricaRegistradaUpdateView(UpdateView):
+class MetricaRegistradaUpdateView(SharedFormMixin, UpdateView):
     model = MetricaRegistrada
     form_class = MetricaRegistradaForm
-    template_name = 'clubes/metrica_registrada_form.html'  # Plantilla para el formulario de edición
     success_url = reverse_lazy('clubes:listar_metricas_registradas')  # Redirige a la lista de métricas registradas después de editar una métrica
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = f'Editar métrica registrada {self.object}'
+        return context
 
 class MetricaRegistradaDeleteView(DeleteView):
     model = MetricaRegistrada
