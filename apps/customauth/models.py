@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from django.contrib.auth.models import Group
 
 # 1. El Manager Personalizado
 class UsuarioManager(BaseUserManager):
@@ -38,6 +39,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     
     is_active = models.BooleanField(default=True, help_text="Indica si el usuario está activo o no")
     is_staff = models.BooleanField(default=False, help_text="Indica si el usuario es staff (Administrador) o no")
+    grupo_activo = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
 
     objects = UsuarioManager()
 
