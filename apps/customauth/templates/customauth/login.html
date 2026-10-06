@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block base_extra_css %}
+<style>
+    /* Fondo con un sutil gradiente moderno */
+    body {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    /* Sombras suaves para dar profundidad */
+    .login-card {
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        border-radius: 1rem;
+        border: none;
+    }
+    /* Ajuste del input para que quede más elegante */
+    .form-control:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        border-color: #0d6efd;
+    }
+</style>
+{% endblock %}
+
+{% block contenido_principal %}
+<div class="container d-flex align-items-center justify-content-center min-vh-100">
+    <div class="row justify-content-center w-100">
+        <div class="col-12 col-md-8 col-lg-5">
+            
+            <!-- Tarjeta de Login -->
+            <div class="card login-card bg-white p-4 p-md-5">
+                
+                <!-- Encabezado / Branding -->
+                <div class="text-center mb-5">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle mb-3" style="width: 70px; height: 70px;">
+                        <!-- Reemplazado por FontAwesome -->
+                        <i class="fa-solid fa-diagram-project text-primary" style="font-size: 2rem;"></i>
+                    </div>
+                    <h2 class="fw-bold text-dark mb-1">¡Bienvenido!</h2>
+                    <p class="text-secondary">Gestión Integral de Clubes</p>
+                </div>
+
+                <!-- Formulario -->
+                <form action="{% url 'auth:login' %}" method="POST">
+                    {% csrf_token %}
+                    
+                    <!-- Bloque para mostrar errores de inicio de sesión -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-danger small py-2 text-center" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <div class="mb-4">
+                        <label for="cuit_cuil" class="form-label text-secondary fw-medium small">CUIT / CUIL</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted">
+                                <!-- Reemplazado por FontAwesome -->
+                                <i class="fa-solid fa-user"></i>
+                            </span>
+                            <input type="text" class="form-control bg-light border-start-0 ps-0" id="cuit_cuil" name="cuit_cuil" placeholder="Ingresá tu usuario" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label for="password" class="form-label text-secondary fw-medium small mb-0">Contraseña</label>
+                            <!-- <a href="#" class="text-decoration-none small">¿Olvidaste tu contraseña?</a> -->
+                        </div>
+                        <div class="input-group mt-2">
+                            <span class="input-group-text bg-light border-end-0 text-muted">
+                                <!-- Reemplazado por FontAwesome -->
+                                <i class="fa-solid fa-lock"></i>
+                            </span>
+                            <input type="password" class="form-control bg-light border-start-0 ps-0" id="password" name="password" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <!-- Recordarme 
+                    <div class="mb-4 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember">
+                        <label class="form-check-label text-secondary small" for="remember">Mantener sesión iniciada</label>
+                    </div>
+                    -->
+
+                    <!-- Botón Submit -->
+                    <div class="d-grid gap-2 mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg py-2 rounded-pill fw-medium shadow-sm">
+                            <!-- Reemplazado por FontAwesome -->
+                            Iniciar Sesión <i class="fa-solid fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Acceso al Portal Público -->
+                <div class="text-center mt-5">
+                    <p class="text-muted small mb-0">
+                        <a href="{% url 'web:main' %}" class="text-decoration-none text-secondary">
+                            <!-- Reemplazado por FontAwesome -->
+                            <i class="fa-solid fa-house me-1"></i> Volver al Portal Público
+                        </a>
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

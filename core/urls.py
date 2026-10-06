@@ -20,7 +20,7 @@ from .views import inicio
 
 
 urlpatterns = [
-    path('', inicio, name='inicio'),  # Ruta raíz que redirige a las URLs de la aplicación "clubes"
+    path('', include('apps.web.urls')),  # Ruta raíz que redirige a las URLs de la aplicación "clubes"
     path('admin/', admin.site.urls),
     path('clubes/', include('apps.clubes.urls')),
     path('auth/', include('apps.customauth.urls')),
