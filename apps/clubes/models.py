@@ -54,10 +54,11 @@ class Socio(models.Model):
         )
         return edad < 18
     
-    def save(self):
+    def save(self, *args, **kwargs):
         if self.es_menor_edad:
             if self.tutor_responsable_id is None:
                 raise ValueError('Al ser menos de edad debe tener responsable/tutor asociado.')
+        super().save(*args, **kwargs)
     
 class Entrenador(models.Model):
    
@@ -100,9 +101,10 @@ class Categoria(models.Model):
     def __str__(self):
         return self.nombre  
     
-    def save(self):
+    def save(self, *args, **kwargs):
         if self.edad_minima >= self.edad_maxima:
-            raise(ValueError,'La edad minima no puede ser mayor o igual que la edad maxima.') 
+            raise ValueError('La edad minima no puede ser mayor o igual que la edad maxima.') 
+        super().save(*args, **kwargs)
 
 class Fichaje(models.Model):
   
