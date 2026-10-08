@@ -112,15 +112,15 @@ class ClubForm(forms.ModelForm):
 
 class SocioForm(forms.ModelForm):
     usuario = forms.ModelChoiceField(
-            queryset=Usuario.objects.all(), widget=forms.Select(attrs={
-                'class': 'form-control'
+            queryset=Usuario.objects.all(), required=False, widget=forms.Select(attrs={
+                'class': 'form-control',
                 }))
     fecha_nacimiento = forms.DateField(
             widget=forms.DateInput(attrs={
                 'class': 'form-control', 'type': 'date'
                 }))
-    club_id = forms.ModelMultipleChoiceField(
-            queryset=Club.objects.all(), widget=forms.SelectMultiple(attrs={
+    club_id = forms.ModelChoiceField(
+            queryset=Club.objects.all(), widget=forms.Select(attrs={
                 'class': 'form-control'
                 }))
     es_deportista = forms.BooleanField(

@@ -28,7 +28,7 @@ class Club(models.Model):
 
 
 class Socio(models.Model):
-    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE )
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='socio', null=True, blank=True)
     fecha_nacimiento = models.DateField(help_text="@Ingrese la fecha de nacimiento del usuario")
     club_id = models.ForeignKey(Club, on_delete=models.CASCADE)
     es_deportista = models.BooleanField(default=False, help_text="@Indica si el socio es deportista o no")   
@@ -37,7 +37,9 @@ class Socio(models.Model):
     tutor_responsable_id = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, help_text="@Ingrese el tutor responsable del socio")
 
     def __str__(self):
-        return f"{self.usuario.nombre} {self.usuario.apellido}"
+        if self.usuario_id is None:
+            return f"Socio #{self.pk}" if self.pk is not None else "Socio sin usuario"
+        return str(self.usuario)
     
     @property
     def es_menor_edad(self):
@@ -54,10 +56,11 @@ class Socio(models.Model):
         )
         return edad < 18
     
-    def save(self):
+    def save(self, *args, **kwargs):
         if self.es_menor_edad:
             if self.tutor_responsable_id is None:
                 raise ValueError('Al ser menos de edad debe tener responsable/tutor asociado.')
+        return super().save(*args, **kwargs)
     
 class Entrenador(models.Model):
    

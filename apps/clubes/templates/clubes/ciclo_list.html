@@ -37,12 +37,12 @@
                             </td>
                             <td class="text-center">
                                 <a href="{% url 'clubes:editar_ciclo' ciclo.pk %}" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-edit">Editar</i>
+                                    <i class="bi bi-pencil-square" aria-hidden="true"></i> Editar
                                 </a>
                             </td>
                             <td class="text-center">
                                 <a href="{% url 'clubes:eliminar_ciclo' ciclo.pk %}" class="btn btn-sm btn-outline-danger">
-                                    <i class="fas fa-trash">Eliminar</i> <!-- boton eliminar -->
+                                    <i class="bi bi-trash" aria-hidden="true"></i> Eliminar
                                 </a>
                             </td>
                         </tr>
@@ -59,6 +59,6 @@
         </div>
     </div>
 
-{% include "includes/boton_volver.html" with url_name='inicio' boton_titulo='Volver al inicio' %}
+{% comment %} {% include "includes/boton_volver.html" with url_name='inicio' boton_titulo='Volver al inicio' %} {% endcomment %}
 
    {% endblock %}

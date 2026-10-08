@@ -16,10 +16,10 @@ class CicloTable(tables.Table):
         template_code='''
             <div class="text-center">
                 <a href="{% url 'clubes:editar_ciclo' record.pk %}" class="btn btn-sm btn-outline-primary me-1">
-                    <i class="fas fa-edit"></i> Editar
+                    <i class="bi bi-pencil-square" aria-hidden="true"></i> Editar
                 </a>
                 <a href="{% url 'clubes:eliminar_ciclo' record.pk %}" class="btn btn-sm btn-outline-danger">
-                    <i class="fas fa-trash"></i> Eliminar
+                    <i class="bi bi-trash" aria-hidden="true"></i> Eliminar
                 </a>
             </div>
         ''',

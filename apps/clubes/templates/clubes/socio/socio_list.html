@@ -1,66 +1,110 @@
- {% extends 'base_apps.html' %}
- 
-    <title>{% block title %}Listado de Ciclos{% endblock %}</title>
+{% extends 'base_apps.html' %}
+
+{% block title %}Listado de Socios{% endblock %}
 
 {% block contenido_apps %}
-
     <div class="card border-0 shadow-sm rounded-4 p-2 bg-white">
         <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h3 mb-0">Socios registrados</h1>
-            <a href="{% url 'clubes:crear_socio' %}" class="btn btn-primary">
-                Crear socio
-            </a>
-        </div>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Socios registrados</h1>
+                <a href="{% url 'clubes:crear_socio' %}" class="btn btn-primary">
+                    Crear socio
+                </a>
+            </div>
 
-        <div class="table-responsive">
-            <table class="table table-hover table-bordered align-middle">
-                <thead class="table-light">
-                    <tr>
-                        
-                        <th scope="col">Año</th>
-                        <th scope="col" class="text-center">Fecha de Inicio</th>
-                        <th scope="col" class="text-center">Fecha de Fin</th>
-                        <th scope="col" class="text-center" style="width: 180px;">Estado</th>
-                        <th scope="col" class="text-center">Editar</th> <!-- prueba de updateview -->
-                        <th scope="col" class="text-center">Eliminar</th> <!-- prueba de deleteview -->
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for ciclo in ciclos %}
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered align-middle">
+                    <thead class="table-light">
                         <tr>
-                            <td class="text-center fw-bold">{{ ciclo.año }}</td>
-                            <td>{{ ciclo.fecha_inicio }}</td>
-                            <td>{{ ciclo.fecha_fin }}</td>
-                            <td class="text-center">
-                                <span class="badge bg-{% if ciclo.activo %}success{% else %}secondary{% endif %} rounded-pill">
-                                    {% if ciclo.activo %}Activo{% else %}Inactivo{% endif %}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <a href="{% url 'clubes:editar_ciclo' ciclo.pk %}" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-edit">Editar</i>
-                                </a>
-                            </td>
-                            <td class="text-center">
-                                <a href="{% url 'clubes:eliminar_ciclo' ciclo.pk %}" class="btn btn-sm btn-outline-danger">
-                                    <i class="fas fa-trash">Eliminar</i> <!-- boton eliminar -->
-                                </a>
-                            </td>
+                            <th scope="col" class="text-center">ID</th>
+                            <th scope="col">Usuario</th>
+                            <th scope="col">Fecha de nacimiento</th>
+                            <th scope="col">Club</th>
+                            <th scope="col">Perfil</th>
+                            <th scope="col" class="text-center">Apto médico</th>
+                            <th scope="col">Tutor responsable</th>
+                            <th scope="col" class="text-center">Acciones</th>
                         </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center text-muted py-3">
-                                No hay ciclos deportivos cargados en el sistema.
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        {% for socio in socios %}
+                            <tr>
+                                <td class="text-center fw-semibold">#{{ socio.pk }}</td>
+                                <td>
+                                    {% if socio.usuario %}
+                                        <div class="fw-semibold">{{ socio.usuario.cuit_cuil }}</div>
+                                        {% if socio.usuario.email %}
+                                            <small class="text-muted">{{ socio.usuario.email }}</small>
+                                        {% else %}
+                                            <small class="text-muted">Sin correo</small>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="badge bg-secondary">Sin usuario</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ socio.fecha_nacimiento|date:"d/m/Y" }}
+                                    <div>
+                                        <small class="text-muted">
+                                            {% if socio.es_menor_edad %}Menor de edad{% else %}Mayor de edad{% endif %}
+                                        </small>
+                                    </div>
+                                </td>
+                                <td>{{ socio.club_id.nombre }}</td>
+                                <td>
+                                    {% if socio.es_deportista %}
+                                        <span class="badge bg-primary">Deportista</span>
+                                    {% endif %}
+                                    {% if socio.es_tutor %}
+                                        <span class="badge bg-info text-dark">Tutor</span>
+                                    {% endif %}
+                                    {% if not socio.es_deportista and not socio.es_tutor %}
+                                        <span class="badge bg-light text-dark">Socio</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if socio.apto_medico %}
+                                        <span class="badge bg-success">Vigente</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">No registrado</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if socio.tutor_responsable_id %}
+                                        {% if socio.tutor_responsable_id.usuario %}
+                                            {{ socio.tutor_responsable_id.usuario.cuit_cuil }}
+                                        {% else %}
+                                            Socio #{{ socio.tutor_responsable_id.pk }}
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">Sin tutor asignado</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center text-nowrap">
+                                    <a href="{% url 'clubes:editar_socio' socio.pk %}"
+                                       class="btn btn-sm btn-outline-primary"
+                                       aria-label="Editar socio #{{ socio.pk }}"
+                                       title="Editar socio">
+                                        <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                    </a>
+                                    <a href="{% url 'clubes:eliminar_socio' socio.pk %}"
+                                       class="btn btn-sm btn-outline-danger"
+                                       aria-label="Eliminar socio #{{ socio.pk }}"
+                                       title="Eliminar socio">
+                                        <i class="bi bi-trash" aria-hidden="true"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-3">
+                                    No hay socios registrados.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
-{% include "includes/boton_volver.html" with url_name='inicio' boton_titulo='Volver al inicio' %}
-
-   {% endblock %}
+{% endblock %}
