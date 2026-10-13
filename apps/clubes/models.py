@@ -54,10 +54,11 @@ class Socio(models.Model):
         )
         return edad < 18
     
-    def save(self):
+    def save(self, *args, **kwargs):
         if self.es_menor_edad:
             if self.tutor_responsable is None:
                 raise ValueError('Al ser menos de edad debe tener responsable/tutor asociado.')
+        super().save(*args, **kwargs)
     
 class Entrenador(models.Model):
     nombre = models.CharField(max_length=50, help_text="@Ingrese el nombre del entrenador")
