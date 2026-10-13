@@ -166,9 +166,27 @@
             
             <!-- Contenedor con padding para las vistas (Deportistas, Evaluaciones, etc) -->
             <div class="p-4 px-md-5">
+                
+                <!-- CSS para ocultar el contenedor si el bloque de Django queda vacío -->
+                <style>
+                    .action-cards-container:empty {
+                        display: none;
+                        margin-bottom: 0 !important;
+                    }
+                </style>
+
+                <!-- El contenedor ya está escrito acá, listo para usarse -->
+                <div class="row g-3 mb-4 action-cards-container">
+                    {% block action_cards %}
+                    <!-- Los partials de tus tarjetas modulares se inyectarán acá -->
+                    {% endblock action_cards %}
+                </div>
+
+                <!-- Contenido principal (Tablas, gráficos, etc) -->
                 {% block contenido_apps %}
                 <!-- Acá van a renderizarse las tarjetas y tablas de tus otras vistas -->
                 {% endblock contenido_apps %}
+                
             </div>
 
             <footer class="text-center py-4 mt-auto text-muted-custom" style="font-size: 0.9rem; font-weight: 500;">
