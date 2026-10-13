@@ -16,32 +16,30 @@
                 <thead class="table-light">
                     <tr>
                         
-                        <th scope="col">Año</th>
-                        <th scope="col" class="text-center">Fecha de Inicio</th>
-                        <th scope="col" class="text-center">Fecha de Fin</th>
-                        <th scope="col" class="text-center" style="width: 180px;">Estado</th>
+                        <th scope="col">Socio</th>
+                        <th scope="col" class="text-center">Disciplina</th>
+                        <th scope="col" class="text-center">Categoria</th>
+                        <th scope="col" class="text-center">Fecha de Fichaje</th>
+                        <th scope="col" class="text-center">Ciclo</th>
                         <th scope="col" class="text-center">Editar</th> <!-- prueba de updateview -->
                         <th scope="col" class="text-center">Eliminar</th> <!-- prueba de deleteview -->
                     </tr>
                 </thead>
                 <tbody>
-                    {% for ciclo in ciclos %}
+                    {% for fichaje in fichajes %}
                         <tr>
-                            <td class="text-center fw-bold">{{ ciclo.año }}</td>
-                            <td>{{ ciclo.fecha_inicio }}</td>
-                            <td>{{ ciclo.fecha_fin }}</td>
+                            <td class="text-center fw-bold">{{ fichaje.socio }}</td>
+                            <td>{{ fichaje.disciplina }}</td>
+                            <td>{{ fichaje.categoria }}</td>
+                            <td>{{ fichaje.fecha_fichaje }}</td>
+                            <td>{{ fichaje.ciclo }}</td>
                             <td class="text-center">
-                                <span class="badge bg-{% if ciclo.activo %}success{% else %}secondary{% endif %} rounded-pill">
-                                    {% if ciclo.activo %}Activo{% else %}Inactivo{% endif %}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <a href="{% url 'clubes:editar_ciclo' ciclo.pk %}" class="btn btn-sm btn-outline-primary">
+                                <a href="{% url 'clubes:editar_ciclo' fichaje.ciclo.pk %}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-edit">Editar</i>
                                 </a>
                             </td>
                             <td class="text-center">
-                                <a href="{% url 'clubes:eliminar_ciclo' ciclo.pk %}" class="btn btn-sm btn-outline-danger">
+                                <a href="{% url 'clubes:eliminar_ciclo' fichaje.ciclo.pk %}" class="btn btn-sm btn-outline-danger">
                                     <i class="fas fa-trash">Eliminar</i> <!-- boton eliminar -->
                                 </a>
                             </td>
@@ -59,6 +57,6 @@
         </div>
     </div>
 
-{% include "includes/boton_volver.html" with url_name='inicio' boton_titulo='Volver al inicio' %}
+
 
    {% endblock %}

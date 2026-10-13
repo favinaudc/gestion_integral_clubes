@@ -18,32 +18,40 @@
                 <thead class="table-light">
                     <tr>
                         
-                        <th scope="col">Año</th>
-                        <th scope="col" class="text-center">Fecha de Inicio</th>
-                        <th scope="col" class="text-center">Fecha de Fin</th>
-                        <th scope="col" class="text-center" style="width: 180px;">Estado</th>
-                        <th scope="col" class="text-center">Editar</th> <!-- prueba de updateview -->
-                        <th scope="col" class="text-center">Eliminar</th> <!-- prueba de deleteview -->
+                        <th scope="col">usuario</th>
+                        <th scope="col" class="text-center">Fecha de nacimiento</th>
+                        <th scope="col" class="text-center">club</th>
+                        <th scope="col" class="text-center">deportista</th>
+                        <th scope="col" class="text-center">tutor</th> <!-- prueba de updateview -->
+                        <th scope="col" class="text-center">apto medico</th> <!-- prueba de deleteview -->
+                        <th scope="col" class="text-center">tutor responsable</th> 
+                        <th scope="col" class="text-center">editar</th> 
+                        <th scope="col" class="text-center">eliminar</th> 
                     </tr>
                 </thead>
                 <tbody>
-                    {% for ciclo in ciclos %}
+                    {% for socio in socios %}
                         <tr>
-                            <td class="text-center fw-bold">{{ ciclo.año }}</td>
-                            <td>{{ ciclo.fecha_inicio }}</td>
-                            <td>{{ ciclo.fecha_fin }}</td>
+                            <td class="text-center fw-bold">{{ socio.usuario }}</td>
+                            <td>{{ socio.fecha_nacimiento }}</td>
+                            <td>{{ socio.club }}</td>
+                            <td>{{ socio.deportista }}</td>
+                            <td>{{ socio.tutor }}</td>
                             <td class="text-center">
-                                <span class="badge bg-{% if ciclo.activo %}success{% else %}secondary{% endif %} rounded-pill">
-                                    {% if ciclo.activo %}Activo{% else %}Inactivo{% endif %}
-                                </span>
+                                {% if socio.apto_medico %}
+                                    <span class="badge bg-success">Sí</span>
+                                {% else %}
+                                    <span class="badge bg-danger">No</span>
+                                {% endif %}
                             </td>
+                            <td>{{ socio.tutor_responsable }}</td>                                
                             <td class="text-center">
-                                <a href="{% url 'clubes:editar_ciclo' ciclo.pk %}" class="btn btn-sm btn-outline-primary">
+                                <a href="{% url 'clubes:editar_socio' socio.pk %}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-edit">Editar</i>
                                 </a>
                             </td>
                             <td class="text-center">
-                                <a href="{% url 'clubes:eliminar_ciclo' ciclo.pk %}" class="btn btn-sm btn-outline-danger">
+                                <a href="{% url 'clubes:eliminar_socio' socio.pk %}" class="btn btn-sm btn-outline-danger">
                                     <i class="fas fa-trash">Eliminar</i> <!-- boton eliminar -->
                                 </a>
                             </td>
@@ -51,7 +59,7 @@
                     {% empty %}
                         <tr>
                             <td colspan="5" class="text-center text-muted py-3">
-                                No hay ciclos deportivos cargados en el sistema.
+                                No hay socios registrados en el sistema.
                             </td>
                         </tr>
                     {% endfor %}
@@ -61,6 +69,6 @@
         </div>
     </div>
 
-{% include "includes/boton_volver.html" with url_name='inicio' boton_titulo='Volver al inicio' %}
+
 
    {% endblock %}

@@ -16,32 +16,33 @@
                 <thead class="table-light">
                     <tr>
                         
-                        <th scope="col">Año</th>
-                        <th scope="col" class="text-center">Fecha de Inicio</th>
-                        <th scope="col" class="text-center">Fecha de Fin</th>
-                        <th scope="col" class="text-center" style="width: 180px;">Estado</th>
+                        <th scope="col">Nombre</th>
+                        <th scope="col" class="text-center">descripcion</th>
+                        <th scope="col" class="text-center">edad minima</th>
+                        <th scope="col" class="text-center">edad maxima</th>
+                        <th scope="col" class="text-center">club</th>
+                        <th scope="col" class="text-center">disciplina</th>
                         <th scope="col" class="text-center">Editar</th> <!-- prueba de updateview -->
                         <th scope="col" class="text-center">Eliminar</th> <!-- prueba de deleteview -->
                     </tr>
                 </thead>
                 <tbody>
-                    {% for ciclo in ciclos %}
+                    {% for categoria in ccategorias %}
                         <tr>
-                            <td class="text-center fw-bold">{{ ciclo.año }}</td>
-                            <td>{{ ciclo.fecha_inicio }}</td>
-                            <td>{{ ciclo.fecha_fin }}</td>
+                            <td class="text-center fw-bold">{{ categoria.nombre }}</td>
+                            <td>{{ categoria.descripcion }}</td>
+                            <td>{{ categoria.edad_minima }}</td>
+                            <td>{{ categoria.edad_maxima }}</td>
+                            <td>{{ categoria.club }}</td>
+                            <td>{{ categoria.disciplina }}</td>
                             <td class="text-center">
-                                <span class="badge bg-{% if ciclo.activo %}success{% else %}secondary{% endif %} rounded-pill">
-                                    {% if ciclo.activo %}Activo{% else %}Inactivo{% endif %}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <a href="{% url 'clubes:editar_ciclo' ciclo.pk %}" class="btn btn-sm btn-outline-primary">
+                                <a href="{% url 'clubes:editar_categoria' categoria.pk %}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-edit">Editar</i>
                                 </a>
                             </td>
+                
                             <td class="text-center">
-                                <a href="{% url 'clubes:eliminar_ciclo' ciclo.pk %}" class="btn btn-sm btn-outline-danger">
+                                <a href="{% url 'clubes:eliminar_categoria' categoria.pk %}" class="btn btn-sm btn-outline-danger">
                                     <i class="fas fa-trash">Eliminar</i> <!-- boton eliminar -->
                                 </a>
                             </td>
@@ -49,7 +50,7 @@
                     {% empty %}
                         <tr>
                             <td colspan="5" class="text-center text-muted py-3">
-                                No hay ciclos deportivos cargados en el sistema.
+                                No hay categorías deportivas cargadas en el sistema.
                             </td>
                         </tr>
                     {% endfor %}
@@ -59,6 +60,6 @@
         </div>
     </div>
 
-{% include "includes/boton_volver.html" with url_name='inicio' boton_titulo='Volver al inicio' %}
+
 
    {% endblock %}

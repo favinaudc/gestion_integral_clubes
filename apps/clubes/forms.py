@@ -119,8 +119,8 @@ class SocioForm(forms.ModelForm):
             widget=forms.DateInput(attrs={
                 'class': 'form-control', 'type': 'date'
                 }))
-    club_id = forms.ModelMultipleChoiceField(
-            queryset=Club.objects.all(), widget=forms.SelectMultiple(attrs={
+    club = forms.ModelChoiceField(
+            queryset=Club.objects.all(), widget=forms.Select(attrs={
                 'class': 'form-control'
                 }))
     es_deportista = forms.BooleanField(
@@ -134,12 +134,12 @@ class SocioForm(forms.ModelForm):
     apto_medico = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={
             'class': 'form-check-input'
             }))
-    tutor_responsable_id = forms.ModelChoiceField(queryset=Socio.objects.all(), required=False, widget=forms.Select(attrs={
+    tutor_responsable = forms.ModelChoiceField(queryset=Socio.objects.all(), required=False, widget=forms.Select(attrs={
             'class': 'form-control'
             }))
     class Meta: 
         model = Socio
-        fields = ['usuario', 'fecha_nacimiento', 'club_id', 'es_deportista', 'es_tutor', 'apto_medico', 'tutor_responsable_id']
+        fields = ['usuario', 'fecha_nacimiento', 'club', 'es_deportista', 'es_tutor', 'apto_medico', 'tutor_responsable']
 
     def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
@@ -152,7 +152,7 @@ class SocioForm(forms.ModelForm):
                     css_class='row'
                 ),
                 Row(
-                    Column('club_id', css_class='form-group col-md-6 mb-3'),
+                    Column('club', css_class='form-group col-md-6 mb-3'),
                     Column('es_deportista', css_class='form-group col-md-6 mb-3'),
                     css_class='row'
                 ),
@@ -162,7 +162,7 @@ class SocioForm(forms.ModelForm):
                     css_class='row'
                 ),
                 Row(
-                    Column('tutor_responsable_id', css_class='form-group col-md-6 mb-3'),
+                    Column('tutor_responsable', css_class='form-group col-md-6 mb-3'),
                     css_class='row'
                 ),
                 Row(
@@ -223,8 +223,8 @@ class EntrenadorForm(forms.ModelForm):
             queryset=Usuario.objects.all(), widget=forms.Select(attrs={
                 'class': 'form-control'
                 }))
-    club_id = forms.ModelMultipleChoiceField(
-            queryset=Club.objects.all(), widget=forms.SelectMultiple(attrs={
+    club = forms.ModelChoiceField(
+            queryset=Club.objects.all(), widget=forms.Select(attrs={
                 'class': 'form-control'
                 }))
     experiencia = forms.IntegerField(
@@ -232,18 +232,33 @@ class EntrenadorForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Ingrese la cantidad de años de experiencia del entrenador'
             }) )
+    nombre = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ingrese el nombre del entrenador'
+        }) )
+    apellido = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ingrese el apellido del entrenador'
+        }) )
     class Meta: 
         model = Entrenador
-        fields = ['usuario', 'club_id', 'experiencia']
+        fields = ['usuario', 'club', 'experiencia', 'nombre', 'apellido']
 
     def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.helper = FormHelper()
             self.helper.form_method = 'post'
             self.helper.layout = Layout(
+                 Row(
+                    Column('nombre', css_class='form-group col-md-6 mb-3'),
+                    Column('apellido', css_class='form-group col-md-6 mb-3'),
+                    css_class='row'
+                    ),
                 Row(
                     Column('usuario', css_class='form-group col-md-6 mb-3'),
-                    Column('club_id', css_class='form-group col-md-6 mb-3'),
+                    Column('club', css_class='form-group col-md-6 mb-3'),
                     css_class='row'
                 ),
                 Row(
@@ -264,22 +279,28 @@ class DisciplinaForm(forms.ModelForm):
             'class': 'form-control',
             'placeholder': 'Ingrese el nombre de la disciplina'
         }) )
+        
     descripcion = forms.CharField(
         widget=forms.Textarea(attrs={
             'class': 'form-control',
             'placeholder': 'Ingrese la descripción de la disciplina'
         }) )
-    club_id = forms.ModelMultipleChoiceField(
-            queryset=Club.objects.all(), widget=forms.SelectMultiple(attrs={
-                'class': 'form-control'
-                }))
-    entrenador_id = forms.ModelMultipleChoiceField(
-            queryset=Entrenador.objects.all(), widget=forms.SelectMultiple(attrs={
-                'class': 'form-control'
-                }))
+    club = forms.ModelChoiceField(
+        label = "Club",
+        queryset=Club.objects.all(), widget=forms.Select(attrs={
+            'class': 'form-control'
+            }))
+    entrenador = forms.ModelChoiceField(
+        label = "Entrenador",
+        queryset=Entrenador.objects.all(), widget=forms.Select(attrs={
+            'class': 'form-control'
+            }))
     class Meta: 
         model = Disciplina
-        fields = ['nombre', 'descripcion', 'club_id', 'entrenador_id']
+        fields = ['nombre', 'descripcion', 'club', 'entrenador']
+        widgets = {
+            'descripcion': forms.Textarea(attrs={'rows': 1, 'cols' : 1}),   
+        }
 
     def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
@@ -287,13 +308,15 @@ class DisciplinaForm(forms.ModelForm):
             self.helper.form_method = 'post'
             self.helper.layout = Layout(
                 Row(
-                    Column('nombre', css_class='form-group col-md-6 mb-3'),
-                    Column('descripcion', css_class='form-group col-md-6 mb-3'),
+                    Column('nombre', css_class='form-group col-md-4 mb-3'),
+                    Column('club', css_class='form-group col-md-4 mb-3'),
+                    Column('entrenador', css_class='form-group col-md-4 mb-3'),
+                   
                     css_class='row'
                 ),
                 Row(
-                    Column('club_id', css_class='form-group col-md-6 mb-3'),
-                    Column('entrenador_id', css_class='form-group col-md-6 mb-3'),
+                    Column('descripcion', css_class='form-group col-md-12 mb-3'),
+                    
                     css_class='row'
                 ),
                 Row(
@@ -325,36 +348,37 @@ class CategoriaForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Ingrese la edad máxima de la categoría'
             }) )
-    club_id = forms.ModelMultipleChoiceField(
-            queryset=Club.objects.all(), widget=forms.SelectMultiple(attrs={
-                'class': 'form-control'
-                }))
-    disciplina_id = forms.ModelMultipleChoiceField(
-            queryset=Disciplina.objects.all(), widget=forms.SelectMultiple(attrs={
-                'class': 'form-control'
-                }))
+    club = forms.ModelChoiceField(
+        label = "Club",
+        queryset=Club.objects.all(), widget=forms.Select(attrs={
+            'class': 'form-control'
+            }))
+    disciplina = forms.ModelChoiceField(
+        label = "Disciplina",
+        queryset=Disciplina.objects.all(), widget=forms.Select(attrs={
+            'class': 'form-control'
+            }))
     class Meta: 
         model = Categoria
-        fields = ['nombre', 'descripcion', 'edad_minima', 'edad_maxima', 'club_id', 'disciplina_id']
+        fields = ['nombre', 'descripcion', 'edad_minima', 'edad_maxima', 'club', 'disciplina']
     def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.helper = FormHelper()
             self.helper.form_method = 'post'
             self.helper.layout = Layout(
                 Row(
-                    Column('nombre', css_class='form-group col-md-6 mb-3'),
-                    Column('descripcion', css_class='form-group col-md-6 mb-3'),
+                    Column('nombre', css_class='form-group col-md-4 mb-3'),
+                    Column('edad_minima', css_class='form-group col-md-4 mb-3'),
+                    Column('edad_maxima', css_class='form-group col-md-4 mb-3'),
                     css_class='row'
                 ),
                 Row(
-                    Column('edad_minima', css_class='form-group col-md-6 mb-3'),
-                    Column('edad_maxima', css_class='form-group col-md-6 mb-3'),
+                    Column('club', css_class='form-group col-md-6 mb-3'),
+                    Column('disciplina', css_class='form-group col-md-6 mb-3'),
                     css_class='row'
                 ),
                 Row(
-                    Column('club_id', css_class='form-group col-md-6 mb-3'),
-                    Column('disciplina_id', css_class='form-group col-md-6 mb-3'),
-                    css_class='row'
+                    Column('descripcion', css_class='form-group col-md-12 mb-3'),
                 ),
                 Row(
                     Column(
@@ -364,15 +388,15 @@ class CategoriaForm(forms.ModelForm):
                 )
             )
 class FichajeForm(forms.ModelForm):
-    socio_id = forms.ModelChoiceField(
+    socio = forms.ModelChoiceField(
             queryset=Socio.objects.all(), widget=forms.Select(attrs={
                 'class': 'form-control'
                 }))
-    disciplina_id = forms.ModelChoiceField(
+    disciplina = forms.ModelChoiceField(
             queryset=Disciplina.objects.all(), widget=forms.Select(attrs={
                 'class': 'form-control'
                 }))
-    categoria_id = forms.ModelChoiceField(
+    categoria = forms.ModelChoiceField(
             queryset=Categoria.objects.all(), widget=forms.Select(attrs={
                 'class': 'form-control'
                 }))
@@ -380,34 +404,31 @@ class FichajeForm(forms.ModelForm):
             widget=forms.DateInput(attrs={
                 'class': 'form-control', 'type': 'date'
                 }))
-    is_active = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={
-            'class': 'form-check-input'
-            }))
-    ciclo_id = forms.ModelChoiceField(
+    ciclo = forms.ModelChoiceField(
             queryset=Ciclo.objects.all(), widget=forms.Select(attrs={
                 'class': 'form-control'
                 }))
     class Meta: 
         model = Fichaje
-        fields = ['socio_id', 'disciplina_id', 'categoria_id', 'fecha_fichaje', 'is_active', 'ciclo_id']   
+        fields = ['socio', 'disciplina', 'categoria', 'fecha_fichaje', 'ciclo']   
     def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.helper = FormHelper()
             self.helper.form_method = 'post'
             self.helper.layout = Layout(
                 Row(
-                    Column('socio_id', css_class='form-group col-md-6 mb-3'),
-                    Column('disciplina_id', css_class='form-group col-md-6 mb-3'),
+                    Column('socio', css_class='form-group col-md-6 mb-3'),
+                    Column('disciplina', css_class='form-group col-md-6 mb-3'),
                     css_class='row'
                 ),
                 Row(
-                    Column('categoria_id', css_class='form-group col-md-6 mb-3'),
+                    Column('categoria', css_class='form-group col-md-6 mb-3'),
                     Column('fecha_fichaje', css_class='form-group col-md-6 mb-3'),
                     css_class='row'
                 ),
                 Row(
                     Column('is_active', css_class='form-group col-md-6 mb-3'),
-                    Column('ciclo_id', css_class='form-group col-md-6 mb-3'),
+                    Column('ciclo', css_class='form-group col-md-6 mb-3'),
                     css_class='row'
                 ),
                 Row(
@@ -458,7 +479,7 @@ class ParametroEvaluacionForm(forms.ModelForm):
                 )
             )
 class PlanillaExamenForm(forms.ModelForm):
-    fichaje_id = forms.ModelChoiceField(
+    fichaje = forms.ModelChoiceField(
             queryset=Fichaje.objects.all(), widget=forms.Select(attrs={
                 'class': 'form-control'
                 }))
@@ -471,34 +492,34 @@ class PlanillaExamenForm(forms.ModelForm):
             'class': 'form-control',
             'placeholder': 'Ingrese el nombre del examen'
         }) )
-    diciplina_id = forms.ModelChoiceField(
+    diciplina = forms.ModelChoiceField(
             queryset=Disciplina.objects.all(), widget=forms.Select(attrs={
                 'class': 'form-control'
                 }))
-    parametro_id = forms.ModelMultipleChoiceField(
-            queryset=ParametroEvaluacion.objects.all(), widget=forms.SelectMultiple(attrs={
+    parametro = forms.ModelChoiceField(
+            queryset=ParametroEvaluacion.objects.all(), widget=forms.Select(attrs={
                 'class': 'form-control'
                 }))
     class Meta: 
         model = PlanillaExamen
-        fields = ['fichaje_id', 'fecha_examen', 'nombre', 'diciplina_id', 'parametro_id']
+        fields = ['fichaje', 'fecha_examen', 'nombre', 'diciplina', 'parametro']
     def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.helper = FormHelper()
             self.helper.form_method = 'post'
             self.helper.layout = Layout(
                 Row(
-                    Column('fichaje_id', css_class='form-group col-md-6 mb-3'),
+                    Column('fichaje', css_class='form-group col-md-6 mb-3'),
                     Column('fecha_examen', css_class='form-group col-md-6 mb-3'),
                     css_class='row'
                 ),
                 Row(
                     Column('nombre', css_class='form-group col-md-6 mb-3'),
-                    Column('diciplina_id', css_class='form-group col-md-6 mb-3'),
+                    Column('diciplina', css_class='form-group col-md-6 mb-3'),
                     css_class='row'
                 ),
                 Row(
-                    Column('parametro_id', css_class='form-group col-md-6 mb-3'),
+                    Column('parametro', css_class='form-group col-md-6 mb-3'),
                     css_class='row'
                 ),
                 Row(
@@ -509,11 +530,11 @@ class PlanillaExamenForm(forms.ModelForm):
                 )
             )
 class ResultadoExamenForm(forms.ModelForm):
-    planilla_id = forms.ModelChoiceField(
+    planilla = forms.ModelChoiceField(
             queryset=PlanillaExamen.objects.all(), widget=forms.Select(attrs={
                 'class': 'form-control'
                 }))
-    parametro_id = forms.ModelChoiceField(
+    parametro = forms.ModelChoiceField(
             queryset=ParametroEvaluacion.objects.all(), widget=forms.Select(attrs={
                 'class': 'form-control'
                 }))
@@ -530,15 +551,15 @@ class ResultadoExamenForm(forms.ModelForm):
         }) )
     class Meta: 
         model = ResultadoExamen
-        fields = ['planilla_id', 'parametro_id', 'resultado', 'observaciones']
+        fields = ['planilla', 'parametro', 'resultado', 'observaciones']
     def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.helper = FormHelper()
             self.helper.form_method = 'post'
             self.helper.layout = Layout(
                 Row(
-                    Column('planilla_id', css_class='form-group col-md-6 mb-3'),
-                    Column('parametro_id', css_class='form-group col-md-6 mb-3'),
+                    Column('planilla', css_class='form-group col-md-6 mb-3'),
+                    Column('parametro', css_class='form-group col-md-6 mb-3'),
                     css_class='row'
                 ),
                 Row(
@@ -554,11 +575,11 @@ class ResultadoExamenForm(forms.ModelForm):
                 )
             )
 class MetricaRegistradaForm(forms.ModelForm):
-    resultado_id = forms.ModelChoiceField(
+    resultado = forms.ModelChoiceField(
             queryset=ResultadoExamen.objects.all(), widget=forms.Select(attrs={
                 'class': 'form-control'
                 }))
-    parametro_id = forms.ModelChoiceField(
+    parametro = forms.ModelChoiceField(
             queryset=ParametroEvaluacion.objects.all(), widget=forms.Select(attrs={
                 'class': 'form-control'
                 }))
@@ -580,15 +601,15 @@ class MetricaRegistradaForm(forms.ModelForm):
             }))
     class Meta: 
         model = MetricaRegistrada
-        fields = ['resultado_id', 'parametro_id', 'valor_entero', 'valor_decimal', 'valor_tiempo', 'observaciones'] 
+        fields = ['resultado', 'parametro', 'valor_entero', 'valor_decimal', 'valor_tiempo', 'observaciones'] 
     def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.helper = FormHelper()
             self.helper.form_method = 'post'
             self.helper.layout = Layout(
                 Row(
-                    Column('resultado_id', css_class='form-group col-md-6 mb-3'),
-                    Column('parametro_id', css_class='form-group col-md-6 mb-3'),
+                    Column('resultado', css_class='form-group col-md-6 mb-3'),
+                    Column('parametro', css_class='form-group col-md-6 mb-3'),
                     css_class='row'
                 ),
                 Row(
