@@ -1,11 +1,9 @@
- {% extends 'base_apps.html' %}
+{% extends 'base_apps.html' %}
  
 <title>{% block title %}Listado de Clubes{% endblock %}</title>
 
 {% block action_cards %}
-    
     {% include "includes/action_card.html" with url_name='clubes:crear_club' titulo='Crear Club' descripcion='Crea un nuevo club deportivo en el sistema.' icon_class='bi bi-plus-circle' %}    
-    
 {% endblock action_cards %}
 
 {% block contenido_apps %}
@@ -31,7 +29,7 @@
             
             <!-- Fecha hasta -->
             <div class="col-md-3">
-                <label for="fecha_hasta" class="form-labe">Fundación hasta</label>
+                <label for="fecha_hasta" class="form-label">Fundación hasta</label>
                 <input type="date" name="fecha_hasta" id="fecha_hasta" class="form-control bg-light" value="{{ fecha_hasta }}">
             </div>
             
@@ -51,203 +49,102 @@
         </div>
     </form>
 
-    <!-- Grilla de Tarjetas -->
-    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4" id="contenedorTarjetas">
-        {% for club in clubes %}
-            <div class="col tarjeta-item">
-                <div class="card h-100 shadow-sm border-0 rounded-4 transition-hover">
-                    
-                    <div class="card-body">
-                        <!-- Cabecera de la tarjeta -->
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <h5 class="card-title mb-0 fw-bold nombre-busqueda text-main">{{ club.nombre }}</h5>
-                            <!--<span class="badge bg-{% if club.activo %}success{% else %}secondary{% endif %} rounded-pill">
-                                {% if club.activo %}Activo{% else %}Inactivo{% endif %}
-                            </span>-->
+    {% if clubes %}
+        <!-- Grilla de Tarjetas -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4" id="contenedorTarjetas">
+            {% for club in clubes %}
+                <div class="col tarjeta-item">
+                    <div class="card h-100 shadow-sm border-0 rounded-4 transition-hover">
+                        
+                        <div class="card-body">
+                            <!-- Cabecera de la tarjeta -->
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="card-title mb-0 fw-bold nombre-busqueda text-main">{{ club.nombre }}</h5>
+                            </div>
+                            
+                            <!-- Información con íconos -->
+                            <div class="text-muted" style="font-size: 0.9rem;">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-geo-alt-fill text-primary me-2 width-20 text-center"></i>
+                                    <span class="text-truncate" title="{{ club.direccion }}">{{ club.direccion }}</span>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-envelope-fill text-primary me-2 width-20 text-center"></i>
+                                    <span class="text-truncate" title="{{ club.email }}">{{ club.email }}</span>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-telephone-fill text-primary me-2 width-20 text-center"></i>
+                                    <span>{{ club.telefono }}</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-calendar-event-fill text-primary me-2 width-20 text-center"></i>
+                                    <span>Fundación: {{ club.fecha_fundacion|date:"d/m/Y" }}</span>
+                                </div>
+                            </div>
                         </div>
                         
-                        <!-- Información con íconos -->
-                        <div class="text-muted" style="font-size: 0.9rem;">
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="bi bi-geo-alt-fill text-primary me-2 width-20 text-center"></i>
-                                <span class="text-truncate" title="{{ club.direccion }}">{{ club.direccion }}</span>
+                        <!-- Botonera de acciones -->
+                        <div class="card-footer bg-transparent border-top p-3">
+                            <div class="d-flex justify-content-between gap-2">
+                                <a href="{% url 'clubes:editar_club' club.pk %}" class="btn btn-sm btn-light text-primary flex-fill" title="Editar">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-light text-danger flex-fill" data-bs-toggle="modal" data-bs-target="#modalEliminar{{ club.pk }}" title="Eliminar">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
                             </div>
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="bi bi-envelope-fill text-primary me-2 width-20 text-center"></i>
-                                <span class="text-truncate" title="{{ club.email }}">{{ club.email }}</span>
-                            </div>
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="bi bi-telephone-fill text-primary me-2 width-20 text-center"></i>
-                                <span>{{ club.telefono }}</span>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-calendar-event-fill text-primary me-2 width-20 text-center"></i>
-                                <span>Fundación: {{ club.fecha_fundacion|date:"d/m/Y" }}</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Botonera de acciones -->
-                    <div class="card-footer bg-transparent border-top p-3">
-                        <div class="d-flex justify-content-between gap-2">
-                            <!-- 
-                            <a href="#" class="btn btn-sm btn-light text-info flex-fill" title="Gestionar Club">
-                                <i class="bi bi-gear"></i>
-                            </a>
-                            -->
-                            <a href="{% url 'clubes:editar_club' club.pk %}" class="btn btn-sm btn-light text-primary flex-fill" title="Editar">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <button type="button" class="btn btn-sm btn-light text-danger flex-fill" data-bs-toggle="modal" data-bs-target="#modalEliminar{{ club.pk }}" title="Eliminar">
-                                <i class="bi bi-trash-fill"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- Modal de Eliminación instanciado para este Club específico -->
-            <div class="modal fade" id="modalEliminar{{ club.pk }}" tabindex="-1" aria-labelledby="modalEliminarLabel{{ club.pk }}" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content rounded-4 border-0 shadow">
-                        <div class="modal-body text-center p-4">
-                            <i class="bi bi-exclamation-circle text-danger" style="font-size: 4rem;"></i>
-                            <h5 class="fw-bold text-main mt-3" id="modalEliminarLabel{{ club.pk }}">Confirmar eliminación</h5>
-                            <p class="text-muted mb-1">¿Estás seguro de que querés borrar <br> el club <strong>{{ club.nombre }}</strong>?</p>
-                            <p class="text-danger fw-bold mt-2 mb-0">Esta acción no podrá ser deshecha una vez confirmada.</p>
-                        </div>
-                        <div class="modal-footer border-0 justify-content-center bg-light rounded-bottom-4">
-                            <button type="button" class="btn btn-outline-secondary text-uppercase" data-bs-dismiss="modal">Cancelar</button>
-                            
-                            <!-- Formulario POST necesario para el DeleteView de Django -->
-                            <form action="{% url 'clubes:eliminar_club' club.pk %}" method="POST" class="m-0">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-success text-uppercase px-4">Sí, borrar</button>
-                            </form>
                         </div>
                     </div>
                 </div>
-            </div>
-        {% empty %}
-            <!-- Estado vacío -->
-            <div class="col-12" id="mensajeVacio">
+
+                <!-- Modal de Eliminación instanciado para este Club específico -->
+                <div class="modal fade" id="modalEliminar{{ club.pk }}" tabindex="-1" aria-labelledby="modalEliminarLabel{{ club.pk }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content rounded-4 border-0 shadow">
+                            <div class="modal-body text-center p-4">
+                                <i class="bi bi-exclamation-circle text-danger" style="font-size: 4rem;"></i>
+                                <h5 class="fw-bold text-main mt-3" id="modalEliminarLabel{{ club.pk }}">Confirmar eliminación</h5>
+                                <p class="text-muted mb-1">¿Estás seguro de que querés borrar <br> el club <strong>{{ club.nombre }}</strong>?</p>
+                                <p class="text-danger fw-bold mt-2 mb-0">Esta acción no podrá ser deshecha una vez confirmada.</p>
+                            </div>
+                            <div class="modal-footer border-0 justify-content-center bg-light rounded-bottom-4">
+                                <button type="button" class="btn btn-outline-secondary text-uppercase" data-bs-dismiss="modal">Cancelar</button>
+                                
+                                <!-- Formulario POST necesario para el DeleteView de Django -->
+                                <form action="{% url 'clubes:eliminar_club' club.pk %}" method="POST" class="m-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success text-uppercase px-4">Sí, borrar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    {% else %}
+        <!-- Estado vacío a pantalla completa (Base de datos o Filtro Backend) -->
+        <div class="row mt-4" id="mensajeVacio">
+            <div class="col-12">
                 <div class="text-center text-muted py-5 bg-white rounded-4 shadow-sm border-0">
                     <i class="bi bi-building fs-1 d-block mb-3 text-secondary"></i>
-                    <h5 class="fw-bold">No hay clubes registrados</h5>
-                    <p class="mb-0">Comienza creando el primer club deportivo en el sistema.</p>
+                    {% if q or fecha_desde or fecha_hasta %}
+                        <h5 class="fw-bold">No hay coincidencias</h5>
+                        <p class="mb-0">No existen clubes que cumplan con los filtros aplicados en la búsqueda.</p>
+                    {% else %}
+                        <h5 class="fw-bold">No hay clubes registrados</h5>
+                        <p class="mb-0">Comienza creando el primer club deportivo en el sistema.</p>
+                    {% endif %}
                 </div>
             </div>
-        {% endfor %}
-        
-        <!-- Mensaje oculto para cuando la búsqueda no da resultados -->
-        <div class="col-12 d-none" id="mensajeSinResultados">
-            <div class="text-center text-muted py-4 bg-white rounded-4 border-0">
-                <i class="bi bi-search fs-2 d-block mb-2 text-secondary"></i>
-                <p class="mb-0">No se encontraron clubes que coincidan con la búsqueda.</p>
-            </div>
         </div>
-    </div>
-<!--
-    <div class="card border-0 shadow-sm rounded-4">
-        <div class ="card-title p-3 pb-0 mb-0">            
-            <h6 class="text-uppercase">Clubes Deportivos Registrados</h6>
-            <hr>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover table-bordered align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th scope="col">Nombre Club</th>
-                            <th scope="col" class="text-center">Dirección</th>
-                            <th scope="col" class="text-center">Email</th>
-                            <th scope="col" class="text-center">Teléfono</th>
-                            <th scope="col" class="text-center">Fecha de Fundación</th>
-                            <th scope="col" class="text-center" style="width: 180px;">Estado</th>
-                            <th scope="col" class="text-center">Acciones</th> 
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for club in clubes %}
-                            <tr>
-                                <td class="text-center fw-bold">{{ club.nombre }}</td>
-                                <td>{{ club.direccion }}</td>
-                                <td>{{ club.email }}</td>
-                                <td>{{ club.telefono }}</td>
-                                <td>{{ club.fecha_fundacion }}</td>
-                                <td class="text-center">
-                                    <span class="badge bg-{% if club.activo %}success{% else %}secondary{% endif %} rounded-pill">
-                                        {% if club.activo %}Activo{% else %}Inactivo{% endif %}
-                                    </span>
-                                </td>
-                                <td class="text-start">
-                                    <a href="#" class="text-info">
-                                        <i class="bi bi-eye" aria-hidden="true"></i> Ver
-                                    </a>
-                                    <br>
-                                    <a href="{% url 'clubes:editar_club' club.pk %}">
-                                        <i class="bi bi-pencil-square" aria-hidden="true"></i> Editar
-                                    </a>
-                                    <br>
-                                    <a href="{% url 'clubes:eliminar_club' club.pk %}" class="text-danger">
-                                        <i class="bi bi-trash" aria-hidden="true"></i> Eliminar
-                                    </a>
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="5" class="text-center text-muted py-3">
-                                    No hay ciclos deportivos cargados en el sistema.
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
--->
+    {% endif %}
+
 {% endblock %}
 
 {% block extra_js %}
 {{ block.super }}
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const inputBuscador = document.getElementById('buscadorClubes');
-        const tarjetas = document.querySelectorAll('.tarjeta-item');
-        const mensajeSinResultados = document.getElementById('mensajeSinResultados');
-
-        if (inputBuscador) {
-            inputBuscador.addEventListener('keyup', function(e) {
-                const textoBusqueda = e.target.value.toLowerCase().trim();
-                let tarjetasVisibles = 0;
-
-                tarjetas.forEach(tarjeta => {
-                    // Busca el elemento que contiene el nombre dentro de esta tarjeta
-                    const nombreClub = tarjeta.querySelector('.nombre-busqueda').textContent.toLowerCase();
-                    
-                    if (nombreClub.includes(textoBusqueda)) {
-                        tarjeta.classList.remove('d-none');
-                        tarjetasVisibles++;
-                    } else {
-                        tarjeta.classList.add('d-none');
-                    }
-                });
-
-                // Controlar el mensaje de "Sin resultados"
-                if (tarjetasVisibles === 0 && textoBusqueda !== "") {
-                    mensajeSinResultados.classList.remove('d-none');
-                } else {
-                    mensajeSinResultados.classList.add('d-none');
-                }
-            });
-        }
-    });
-</script>
-
 <style>
-    /* Efecto hover sutil para las tarjetas (opcional, podés llevarlo a tu base_apps.css) */
     .transition-hover {
         transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
     }

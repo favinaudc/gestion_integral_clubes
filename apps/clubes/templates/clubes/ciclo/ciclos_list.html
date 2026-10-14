@@ -23,8 +23,7 @@
                             <th scope="col" class="text-center">Año</th>
                             <th scope="col" class="text-center">Fecha de Inicio</th>
                             <th scope="col" class="text-center">Fecha de Fin</th>
-                            <!-- <th scope="col" class="text-center">Estado</th> -->
-                            <th scope="col" class="text-center">Acciones</th> <!-- prueba de updateview -->
+                            <th scope="col" class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -33,11 +32,6 @@
                                 <td class="text-center fw-bold">{{ ciclo.año }}</td>
                                 <td class="text-center">{{ ciclo.fecha_inicio }}</td>
                                 <td class="text-center">{{ ciclo.fecha_fin }}</td>
-                                <!--<td class="text-center">
-                                    <span class="badge bg-{% if ciclo.activo %}success{% else %}danger{% endif %} rounded-pill">
-                                        {% if ciclo.activo %}Activo{% else %}Inactivo{% endif %}
-                                    </span>
-                                </td>-->
                                 <td class="text-center">
                                     <a href="{% url 'clubes:editar_ciclo' ciclo.pk %}" class="text-primary">
                                         <i class="bi bi-pencil-square" aria-hidden="true"></i> Editar
@@ -46,12 +40,6 @@
                                     <a href="{% url 'clubes:eliminar_ciclo' ciclo.pk %}" class="text-danger">
                                         <i class="bi bi-trash" aria-hidden="true"></i> Eliminar
                                     </a>
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="5" class="text-center text-muted py-3">
-                                    No hay ciclos deportivos cargados en el sistema.
                                 </td>
                             </tr>
                         {% endfor %}
