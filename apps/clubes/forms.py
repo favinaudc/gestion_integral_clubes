@@ -44,7 +44,7 @@ class CicloForm(forms.ModelForm):
             # Nota: Agregamos una capa o clases utilitarias de Bootstrap para centrar el botón de forma limpia.
             Row(
                 Column(
-                    Submit('submit', 'GUARDAR CICLO', css_class='btn btn-success text-uppercase '),
+                    Submit('submit', 'GUARDAR', css_class='btn btn-success text-uppercase '),
                     css_class='col-md-6 mx-auto text-center mt-3' # 'mx-auto' centra la columna y 'w-100' hace que ocupe el ancho de esa columna central
                 )
             )
@@ -72,7 +72,9 @@ class ClubForm(forms.ModelForm):
             'placeholder': 'Ingrese el correo electrónico del club'
         }) )
     fecha_fundacion = forms.DateField(
-        widget=forms.DateInput(attrs={
+        widget=forms.DateInput(
+            format='%Y-%m-%d',
+            attrs={
             'class': 'form-control', 
             'type': 'date'
         }) )
@@ -103,7 +105,7 @@ class ClubForm(forms.ModelForm):
             ),
             Row(
                 Column(
-                    Submit('submit', 'GUARDAR CLUB', css_class='btn btn-success text-uppercase '),
+                    Submit('submit', 'guardar', css_class='btn btn-success text-uppercase '),
                     
                     css_class='col-md-6 mx-auto text-center mt-3'
                 )

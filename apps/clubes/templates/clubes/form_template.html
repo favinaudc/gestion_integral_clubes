@@ -6,7 +6,7 @@
 {% endblock %} 
 
 {% block contenido_apps %}     
-    <div class="card border-0 shadow-sm rounded-4 p-2 bg-white">
+    <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body">
             <!-- Título dinámico según si es creación o edición -->
             <h6 class="mb-4">
@@ -17,6 +17,8 @@
                 {% csrf_token %}
                 {% crispy form %}
             </form>
+            
         </div>
     </div>
+    {% include "includes/boton_volver.html" with url_name=url_volver boton_titulo='Volver' %}  
 {% endblock %}

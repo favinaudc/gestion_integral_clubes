@@ -2,67 +2,62 @@
  
     <title>{% block title %}Listado de Ciclos{% endblock %}</title>
 
+{% block action_cards %}
+    
+    {% include "includes/action_card.html" with url_name='clubes:crear_ciclo' titulo='Crear ciclo' descripcion='Crea un nuevo ciclo de gestión en el sistema.' icon_class='bi bi-plus-circle' %}    
+    
+{% endblock action_cards %}
+
 {% block contenido_apps %}
 
-    <div class="card border-0 shadow-sm rounded-4 p-2 bg-white">
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class ="card-title p-3 pb-0 mb-0">  
+            <h6 class="text-uppercase">Ciclos Deportivos Registrados</h6>
+            <hr>
+        </div>
         <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h3 mb-0">Ciclos Deportivos Registrados</h1>
-           
-        </div>
-
-        <div class="table-responsive">
-            <table class="table table-hover table-bordered align-middle">
-                <thead class="table-light">
-                    <tr>
-                        
-                        <th scope="col">Año</th>
-                        <th scope="col" class="text-center">Fecha de Inicio</th>
-                        <th scope="col" class="text-center">Fecha de Fin</th>
-                        <th scope="col" class="text-center" style="width: 180px;">Estado</th>
-                        <th scope="col" class="text-center">Editar</th> <!-- prueba de updateview -->
-                        <th scope="col" class="text-center">Eliminar</th> <!-- prueba de deleteview -->
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for ciclo in ciclos %}
+            <div class="table-responsive">
+                <table class="table data-tables">
+                    <thead>
                         <tr>
-                            <td class="text-center fw-bold">{{ ciclo.año }}</td>
-                            <td>{{ ciclo.fecha_inicio }}</td>
-                            <td>{{ ciclo.fecha_fin }}</td>
-                            <td class="text-center">
-                                <span class="badge bg-{% if ciclo.activo %}success{% else %}secondary{% endif %} rounded-pill">
-                                    {% if ciclo.activo %}Activo{% else %}Inactivo{% endif %}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <a href="{% url 'clubes:editar_ciclo' ciclo.pk %}" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-pencil-square" aria-hidden="true"></i> Editar
-                                </a>
-                            </td>
-                            <td class="text-center">
-                                <a href="{% url 'clubes:eliminar_ciclo' ciclo.pk %}" class="btn btn-sm btn-outline-danger">
-                                    <i class="bi bi-trash" aria-hidden="true"></i> Eliminar
-                                </a>
-                            </td>
+                            <th scope="col" class="text-center">Año</th>
+                            <th scope="col" class="text-center">Fecha de Inicio</th>
+                            <th scope="col" class="text-center">Fecha de Fin</th>
+                            <!-- <th scope="col" class="text-center">Estado</th> -->
+                            <th scope="col" class="text-center">Acciones</th> <!-- prueba de updateview -->
                         </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center text-muted py-3">
-                                No hay ciclos deportivos cargados en el sistema.
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        {% for ciclo in ciclos %}
+                            <tr>
+                                <td class="text-center fw-bold">{{ ciclo.año }}</td>
+                                <td class="text-center">{{ ciclo.fecha_inicio }}</td>
+                                <td class="text-center">{{ ciclo.fecha_fin }}</td>
+                                <!--<td class="text-center">
+                                    <span class="badge bg-{% if ciclo.activo %}success{% else %}danger{% endif %} rounded-pill">
+                                        {% if ciclo.activo %}Activo{% else %}Inactivo{% endif %}
+                                    </span>
+                                </td>-->
+                                <td class="text-center">
+                                    <a href="{% url 'clubes:editar_ciclo' ciclo.pk %}" class="text-primary">
+                                        <i class="bi bi-pencil-square" aria-hidden="true"></i> Editar
+                                    </a>
+                                    <br>
+                                    <a href="{% url 'clubes:eliminar_ciclo' ciclo.pk %}" class="text-danger">
+                                        <i class="bi bi-trash" aria-hidden="true"></i> Eliminar
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-3">
+                                    No hay ciclos deportivos cargados en el sistema.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
-<<<<<<< HEAD
-{% comment %} {% include "includes/boton_volver.html" with url_name='inicio' boton_titulo='Volver al inicio' %} {% endcomment %}
-=======
-
->>>>>>> calistoroberto
-
-   {% endblock %}
+{% endblock %}

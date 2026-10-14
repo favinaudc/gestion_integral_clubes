@@ -7,6 +7,7 @@ from .models import *
 from .forms import CicloForm, ClubForm, SocioForm, EntrenadorForm, DisciplinaForm, CategoriaForm, FichajeForm, ParametroEvaluacionForm, PlanillaExamenForm, ResultadoExamenForm, MetricaRegistradaForm
 from django_tables2 import SingleTableView
 from .tables import CicloTable
+from django.db.models import Q
 # Create your views here.
 
 class SharedFormMixin:
@@ -15,12 +16,12 @@ class SharedFormMixin:
 class CicloCreateView(SharedFormMixin, CreateView):
     model = Ciclo
     form_class = CicloForm  
-    # template_name = 'clubes/ciclo_form.html'
     success_url = reverse_lazy('clubes:listar_ciclos')  # Redirige a la lista de clubes después de crear un ciclo
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Crear ciclo'
+        context['url_volver'] = 'clubes:listar_ciclos'
         return context
 
 class CicloListView(ListView):
@@ -55,18 +56,49 @@ class CicloDeleteView(DeleteView):
 class ClubCreateView(SharedFormMixin, CreateView):
     model = Club
     form_class = ClubForm
-    # template_name = 'clubes/club_form.html'  # Plantilla para el formulario de creación
     success_url = reverse_lazy('clubes:listar_clubes')  # Redirige a la lista de clubes después de crear un club
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Crear nuevo club'
+        context['url_volver'] = 'clubes:listar_clubes'
         return context
 
 class ClubListView(ListView):
     model = Club
     template_name = 'clubes/club/club_list.html'
     context_object_name = 'clubes'  # Nombre del contexto para acceder a los clubes en la plantilla  
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        
+        q = self.request.GET.get('q')
+        fecha_desde = self.request.GET.get('fecha_desde')
+        fecha_hasta = self.request.GET.get('fecha_hasta')
+
+        # Filtro de texto (búsqueda en múltiples campos con OR)
+        if q:
+            queryset = queryset.filter(
+                Q(nombre__icontains=q) |
+                Q(direccion__icontains=q) |
+                Q(email__icontains=q)
+            )
+        
+        # Filtros de fecha de fundación (Rango)
+        if fecha_desde:
+            queryset = queryset.filter(fecha_fundacion__gte=fecha_desde)
+            
+        if fecha_hasta:
+            queryset = queryset.filter(fecha_fundacion__lte=fecha_hasta)
+            
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['q'] = self.request.GET.get('q', '')
+        context['fecha_desde'] = self.request.GET.get('fecha_desde', '')
+        context['fecha_hasta'] = self.request.GET.get('fecha_hasta', '')
+        return context
 
 class ClubUpdateView(SharedFormMixin, UpdateView):
     model = Club
@@ -77,6 +109,7 @@ class ClubUpdateView(SharedFormMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = f'Editar club {self.object}'
+        context['url_volver'] = 'clubes:listar_clubes'
         return context
 
 class ClubDeleteView(DeleteView):
