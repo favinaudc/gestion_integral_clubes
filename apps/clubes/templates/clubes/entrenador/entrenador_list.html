@@ -1,0 +1,60 @@
+ {% extends 'base_apps.html' %}
+ 
+    <title>{% block title %}Listado de Entrenadores{% endblock %}</title>
+
+{% block contenido_apps %}
+
+    <div class="card border-0 shadow-sm rounded-4 p-2 bg-white">
+        <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">Entrenadores Registrados</h1>
+           
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle">
+                <thead class="table-light">
+                    <tr>
+                        
+                        <th scope="col">usuario</th>
+                        <th scope="col" class="text-center">club</th>
+                        <th scope="col" class="text-center">experiencia</th>
+                        
+                        <th scope="col" class="text-center">Editar</th> <!-- prueba de updateview -->
+                        <th scope="col" class="text-center">Eliminar</th> <!-- prueba de deleteview -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entrenador in entrenadores %}
+                        <tr>
+                            <td class="text-center fw-bold">{{ entrenador.usuario }}</td>
+                            <td>{{ entrenador.club.all|join:", " }}</td>
+                            <td>{{ entrenador.experiencia }}</td>
+                            
+                            <td class="text-center">
+                                <a href="{% url 'clubes:editar_entrenador' entrenador.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit">Editar</i>
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'clubes:eliminar_entrenador' entrenador.pk %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash">Eliminar</i> <!-- boton eliminar -->
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-3">
+                                No hay entrenadores registrados en el sistema.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        </div>
+    </div>
+
+
+
+   {% endblock %}

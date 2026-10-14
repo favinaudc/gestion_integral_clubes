@@ -13,7 +13,10 @@
                 {{titulo|upper}}
                 <hr>
             </h6>
-            {% crispy form %}
+            <form method="POST"> 
+                {% csrf_token %}
+                {% crispy form %}
+            </form>
         </div>
     </div>
 {% endblock %}

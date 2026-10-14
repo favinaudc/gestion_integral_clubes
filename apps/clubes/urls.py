@@ -66,6 +66,7 @@ metricas_registradas_urls =[
 ]
 
 urlpatterns = [
+    
     path('', views.ClubListView.as_view(), name='listar_clubes'),
     path('club/create/', views.ClubCreateView.as_view(), name='crear_club'), 
     path('club/<int:pk>/editar/', views.ClubUpdateView.as_view(), name='editar_club'),
