@@ -10,20 +10,11 @@ class CicloForm(forms.ModelForm):
             'class': 'form-control',
             'placeholder': 'Escribe tu ciclo correspondiente...'
         }) )
-    fecha_inicio = forms.DateField(
-            widget=forms.DateInput(attrs={
-                'class': 'form-control', 'type': 'date'
-                
-            }) )
-    fecha_fin = forms.DateField(
-            widget=forms.DateInput(attrs={
-                'class': 'form-control', 'type': 'date'
-                
-            }) )
+
     class Meta:
         #aqui campos extra 
         model = Ciclo
-        fields = ['año', 'fecha_inicio', 'fecha_fin']
+        fields = ['año']
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -35,9 +26,7 @@ class CicloForm(forms.ModelForm):
         self.helper.layout = Layout(
             # Los 3 campos dentro de una misma Row divididos en 3 Columnas (col-md-4 cada una para repartir el espacio)
             Row(
-                Column('año', css_class='form-group col-md-4 mb-3'),
-                Column('fecha_inicio', css_class='form-group col-md-4 mb-3'),
-                Column('fecha_fin', css_class='form-group col-md-4 mb-3'),
+                Column('año', css_class='form-group col-md-12 mb-3'),
                 css_class='row'
             ),
             # Botón verde (btn-success), texto en mayúsculas (text-uppercase) y centrado (text-center en un contenedor o clase de Bootstrap)
@@ -278,28 +267,17 @@ class EntrenadorForm(forms.ModelForm):
 class DisciplinaForm(forms.ModelForm):
     nombre = forms.CharField(
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
             'placeholder': 'Ingrese el nombre de la disciplina'
         }) )
         
     descripcion = forms.CharField(
         widget=forms.Textarea(attrs={
-            'class': 'form-control',
             'placeholder': 'Ingrese la descripción de la disciplina'
         }) )
-    club = forms.ModelChoiceField(
-        label = "Club",
-        queryset=Club.objects.all(), widget=forms.Select(attrs={
-            'class': 'form-control'
-            }))
-    entrenador = forms.ModelChoiceField(
-        label = "Entrenador",
-        queryset=Entrenador.objects.all(), widget=forms.Select(attrs={
-            'class': 'form-control'
-            }))
+
     class Meta: 
         model = Disciplina
-        fields = ['nombre', 'descripcion', 'club', 'entrenador']
+        fields = ['nombre', 'descripcion']
         widgets = {
             'descripcion': forms.Textarea(attrs={'rows': 1, 'cols' : 1}),   
         }
@@ -310,10 +288,7 @@ class DisciplinaForm(forms.ModelForm):
             self.helper.form_method = 'post'
             self.helper.layout = Layout(
                 Row(
-                    Column('nombre', css_class='form-group col-md-4 mb-3'),
-                    Column('club', css_class='form-group col-md-4 mb-3'),
-                    Column('entrenador', css_class='form-group col-md-4 mb-3'),
-                   
+                    Column('nombre', css_class='form-group col-md-4 mb-3'),                   
                     css_class='row'
                 ),
                 Row(

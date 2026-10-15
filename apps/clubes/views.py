@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.template import context
 from django.shortcuts import render
 from django.http import Http404
@@ -29,6 +30,14 @@ class CicloListView(ListView):
     template_name = 'clubes/ciclo/ciclos_list.html'
     context_object_name = 'ciclos'  # Nombre del contexto para acceder a los ciclos en la plantilla
 
+    def get_queryset(self):
+        """
+        Anotamos la cantidad de clubes para evitar consultas repetitivas en el template.
+        Ordenamos por año de forma descendente (el más nuevo primero).
+        """
+        return Ciclo.objects.annotate(
+            total_clubes=Count('clubes_participantes')
+        ).order_by('-año')
 
 class CicloDetailView(DetailView):
     model = Ciclo
@@ -191,12 +200,42 @@ class DisciplinaCreateView(SharedFormMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] =f'Crear disciplina'
+        context['url_volver'] = 'clubes:listar_disciplinas'
         return context
 
 class DisciplinaListView(ListView):
     model = Disciplina
     template_name = 'clubes/disciplina/disciplina_list.html'
-    context_object_name = 'disciplinas'  # Nombre del contexto para acceder a las disciplinas en la plantilla   
+    context_object_name = 'disciplinas'
+
+    def get_queryset(self):
+        """
+        Sustituye la consulta global Disciplina.objects.all() por una consulta filtrada.
+        """
+        queryset = super().get_queryset()
+        
+        # Capturar el valor del input de búsqueda (name="q")
+        q = self.request.GET.get('q')
+        
+        if q:
+            # Se utilizan objetos Q para construir la lógica OR en la base de datos
+            queryset = queryset.filter(
+                Q(nombre__icontains=q) | 
+                Q(descripcion__icontains=q)
+            )
+            
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        """
+        Inyecta variables adicionales en el diccionario de contexto.
+        """
+        context = super().get_context_data(**kwargs)
+        
+        # Pasar 'q' de vuelta al template para mantener el texto escrito en el input
+        context['q'] = self.request.GET.get('q', '')
+        
+        return context  
 
 class DisciplinaUpdateView(SharedFormMixin, UpdateView):
     model = Disciplina
