@@ -16,32 +16,32 @@
                 <thead class="table-light">
                     <tr>
                         
-                        <th scope="col">Año</th>
-                        <th scope="col" class="text-center">Fecha de Inicio</th>
-                        <th scope="col" class="text-center">Fecha de Fin</th>
-                        <th scope="col" class="text-center" style="width: 180px;">Estado</th>
+                        <th scope="col">reaultado</th>
+                        <th scope="col" class="text-center">parametro</th>
+                        <th scope="col" class="text-center">valor Entero</th>
+                        <th scope="col" class="text-center">Valor Decimal</th>
+                        <th scope="col" class="text-center">Valor Tiempo</th>
+                        <th scope="col" class="text-center">Observaciones</th>
                         <th scope="col" class="text-center">Editar</th> <!-- prueba de updateview -->
                         <th scope="col" class="text-center">Eliminar</th> <!-- prueba de deleteview -->
                     </tr>
                 </thead>
                 <tbody>
-                    {% for ciclo in ciclos %}
+                    {% for metrica in metricas %}
                         <tr>
-                            <td class="text-center fw-bold">{{ ciclo.año }}</td>
-                            <td>{{ ciclo.fecha_inicio }}</td>
-                            <td>{{ ciclo.fecha_fin }}</td>
+                            <td class="text-center fw-bold">{{ metrica.resultado}}</td>
+                            <td>{{ metrica.parametro}}</td>
+                            <td>{{ metrica.valor_entero }}</td>
+                            <td>{{ metrica.valor_decimal }}</td>
+                            <td>{{ metrica.valor_tiempo }}</td>
+                            <td>{{ metrica.observaciones }}</td>
                             <td class="text-center">
-                                <span class="badge bg-{% if ciclo.activo %}success{% else %}secondary{% endif %} rounded-pill">
-                                    {% if ciclo.activo %}Activo{% else %}Inactivo{% endif %}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <a href="{% url 'clubes:editar_ciclo' ciclo.pk %}" class="btn btn-sm btn-outline-primary">
+                                <a href="{% url 'clubes:editar_metrica' metrica.pk %}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-edit">Editar</i>
                                 </a>
                             </td>
                             <td class="text-center">
-                                <a href="{% url 'clubes:eliminar_ciclo' ciclo.pk %}" class="btn btn-sm btn-outline-danger">
+                                <a href="{% url 'clubes:eliminar_metrica' metrica.pk %}" class="btn btn-sm btn-outline-danger">
                                     <i class="fas fa-trash">Eliminar</i> <!-- boton eliminar -->
                                 </a>
                             </td>
@@ -49,7 +49,7 @@
                     {% empty %}
                         <tr>
                             <td colspan="5" class="text-center text-muted py-3">
-                                No hay ciclos deportivos cargados en el sistema.
+                                No hay métricas registradas en el sistema.
                             </td>
                         </tr>
                     {% endfor %}

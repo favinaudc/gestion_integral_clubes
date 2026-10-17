@@ -1,64 +1,138 @@
- {% extends 'base_apps.html' %}
+{% extends 'base_apps.html' %}
  
-    <title>{% block title %}Listado de Ciclos{% endblock %}</title>
+<title>{% block title %}Listado de Disciplinas{% endblock %}</title>
+
+{% block action_cards %}
+    {% include "includes/action_card.html" with url_name='clubes:crear_disciplina' titulo='Crear Disciplina' descripcion='Agrega una nueva disciplina deportiva al sistema.' icon_class='bi bi-plus-circle' %}    
+{% endblock action_cards %}
 
 {% block contenido_apps %}
-
-    <div class="card border-0 shadow-sm rounded-4 p-2 bg-white">
-        <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h3 mb-0">Ciclos Deportivos Registrados</h1>
-           
+    <!-- Formulario de Búsqueda (Backend) -->
+    <form method="GET" class="card shadow-sm border-0 rounded-4 mb-4 p-3 bg-white">
+        <div class="row g-3 align-items-end">
+            
+            <!-- Búsqueda por texto libre -->
+            <div class="col-md-11">
+                <label for="q" class="form-label">Buscar</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="q" id="q" class="form-control border-start-0 bg-light" 
+                           placeholder="Buscar por nombre o descripción..." value="{{ q }}">
+                </div>
+            </div>
+            
+            <!-- Botones de Acción -->
+            <div class="col-md-1 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100" title="Aplicar filtros">
+                    <i class="bi bi-funnel-fill"></i>
+                </button>
+                <!-- Mostrar botón de limpiar solo si hay filtros activos -->
+                {% if q %}
+                    <a href="{% url 'clubes:listar_disciplinas' %}" class="btn btn-outline-secondary" title="Limpiar filtros">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                {% endif %}
+            </div>
+            
         </div>
+    </form>
 
-        <div class="table-responsive">
-            <table class="table table-hover table-bordered align-middle">
-                <thead class="table-light">
-                    <tr>
+    {% if disciplinas %}
+        <!-- Grilla de Tarjetas -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4" id="contenedorTarjetas">
+            {% for disciplina in disciplinas %}
+                <div class="col tarjeta-item">
+                    <div class="card h-100 shadow-sm border-0 rounded-4 transition-hover">
                         
-                        <th scope="col">Año</th>
-                        <th scope="col" class="text-center">Fecha de Inicio</th>
-                        <th scope="col" class="text-center">Fecha de Fin</th>
-                        <th scope="col" class="text-center" style="width: 180px;">Estado</th>
-                        <th scope="col" class="text-center">Editar</th> <!-- prueba de updateview -->
-                        <th scope="col" class="text-center">Eliminar</th> <!-- prueba de deleteview -->
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for ciclo in ciclos %}
-                        <tr>
-                            <td class="text-center fw-bold">{{ ciclo.año }}</td>
-                            <td>{{ ciclo.fecha_inicio }}</td>
-                            <td>{{ ciclo.fecha_fin }}</td>
-                            <td class="text-center">
-                                <span class="badge bg-{% if ciclo.activo %}success{% else %}secondary{% endif %} rounded-pill">
-                                    {% if ciclo.activo %}Activo{% else %}Inactivo{% endif %}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <a href="{% url 'clubes:editar_ciclo' ciclo.pk %}" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-edit">Editar</i>
+                        <div class="card-body">
+                            <!-- Cabecera de la tarjeta -->
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="card-title mb-0 fw-bold nombre-busqueda text-main">{{ disciplina.nombre }}</h5>
+                            </div>
+                            
+                            <!-- Descripción -->
+                            <div class="text-muted" style="font-size: 0.9rem;">
+                                <p class="mb-0 text-truncate-multiline" title="{{ disciplina.descripcion }}">
+                                    {{ disciplina.descripcion }}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Botonera de acciones -->
+                        <div class="card-footer bg-transparent border-top p-3">
+                            <div class="d-flex justify-content-between gap-2">
+                                <a href="{% url 'clubes:editar_disciplina' disciplina.pk %}" class="btn btn-sm btn-light text-primary flex-fill" title="Editar">
+                                    <i class="bi bi-pencil-square"></i>
                                 </a>
-                            </td>
-                            <td class="text-center">
-                                <a href="{% url 'clubes:eliminar_ciclo' ciclo.pk %}" class="btn btn-sm btn-outline-danger">
-                                    <i class="fas fa-trash">Eliminar</i> <!-- boton eliminar -->
-                                </a>
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center text-muted py-3">
-                                No hay ciclos deportivos cargados en el sistema.
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        </div>
-    </div>
+                                <button type="button" class="btn btn-sm btn-light text-danger flex-fill" data-bs-toggle="modal" data-bs-target="#modalEliminar{{ disciplina.pk }}" title="Eliminar">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-{% include "includes/boton_volver.html" with url_name='inicio' boton_titulo='Volver al inicio' %}
+                <!-- Modal de Eliminación instanciado para esta Disciplina específica -->
+                <div class="modal fade" id="modalEliminar{{ disciplina.pk }}" tabindex="-1" aria-labelledby="modalEliminarLabel{{ disciplina.pk }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content rounded-4 border-0 shadow">
+                            <div class="modal-body text-center p-4">
+                                <i class="bi bi-exclamation-circle text-danger" style="font-size: 4rem;"></i>
+                                <h5 class="fw-bold text-main mt-3" id="modalEliminarLabel{{ disciplina.pk }}">Confirmar eliminación</h5>
+                                <p class="text-muted mb-1">¿Estás seguro de que querés borrar <br> la disciplina <strong>{{ disciplina.nombre }}</strong>?</p>
+                                <p class="text-danger fw-bold mt-2 mb-0">Esta acción no podrá ser deshecha una vez confirmada.</p>
+                            </div>
+                            <div class="modal-footer border-0 justify-content-center bg-light rounded-bottom-4">
+                                <button type="button" class="btn btn-outline-secondary text-uppercase" data-bs-dismiss="modal">Cancelar</button>
+                                
+                                <!-- Formulario POST necesario para el DeleteView de Django -->
+                                <form action="{% url 'clubes:eliminar_disciplina' disciplina.pk %}" method="POST" class="m-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger text-uppercase px-4">Sí, borrar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
 
-   {% endblock %}
+    {% else %}
+        <!-- Estado vacío a pantalla completa (Base de datos o Filtro Backend) -->
+        <div class="row mt-4" id="mensajeVacio">
+            <div class="col-12">
+                <div class="text-center text-muted py-5 bg-white rounded-4 shadow-sm border-0">
+                    <i class="bi bi-diagram-3 fs-1 d-block mb-3 text-secondary"></i>
+                    {% if q %}
+                        <h5 class="fw-bold">No hay coincidencias</h5>
+                        <p class="mb-0">No existen disciplinas que cumplan con los filtros aplicados en la búsqueda.</p>
+                    {% else %}
+                        <h5 class="fw-bold">No hay disciplinas registradas</h5>
+                        <p class="mb-0">Comienza creando la primera disciplina deportiva en el sistema.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<style>
+    .transition-hover {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .transition-hover:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+    }
+    /* Clase auxiliar para truncar descripciones muy largas y que las tarjetas mantengan el mismo alto */
+    .text-truncate-multiline {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
+{% endblock %}

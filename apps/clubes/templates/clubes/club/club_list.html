@@ -1,72 +1,159 @@
- {% extends 'base_apps.html' %}
+{% extends 'base_apps.html' %}
  
-    <title>{% block title %}Listado de Ciclos{% endblock %}</title>
+<title>{% block title %}Listado de Clubes{% endblock %}</title>
+
+{% block action_cards %}
+    {% include "includes/action_card.html" with url_name='clubes:crear_club' titulo='Crear Club' descripcion='Crea un nuevo club deportivo en el sistema.' icon_class='bi bi-plus-circle' %}    
+{% endblock action_cards %}
 
 {% block contenido_apps %}
-
-    <div class="card border-0 shadow-sm rounded-4 p-2 bg-white">
-        <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h3 mb-0">Clubes Deportivos Registrados</h1>
-            <a href="{% url 'clubes:crear_club' %}" class="btn btn-primary">
-                Crear club
-            </a>
+    <!-- Formulario de Búsqueda (Backend) -->
+    <form method="GET" class="card shadow-sm border-0 rounded-4 mb-4 p-3 bg-white">
+        <div class="row g-3 align-items-end">
+            
+            <!-- Búsqueda por texto libre -->
+            <div class="col-md-5">
+                <label for="q" class="form-label">Buscar</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="q" id="q" class="form-control border-start-0 bg-light" 
+                           placeholder="Nombre, dirección o email..." value="{{ q }}">
+                </div>
+            </div>
+            
+            <!-- Fecha desde -->
+            <div class="col-md-3">
+                <label for="fecha_desde" class="form-label">Fundación desde</label>
+                <input type="date" name="fecha_desde" id="fecha_desde" class="form-control bg-light" value="{{ fecha_desde }}">
+            </div>
+            
+            <!-- Fecha hasta -->
+            <div class="col-md-3">
+                <label for="fecha_hasta" class="form-label">Fundación hasta</label>
+                <input type="date" name="fecha_hasta" id="fecha_hasta" class="form-control bg-light" value="{{ fecha_hasta }}">
+            </div>
+            
+            <!-- Botones de Acción -->
+            <div class="col-md-1 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100" title="Aplicar filtros">
+                    <i class="bi bi-funnel-fill"></i>
+                </button>
+                <!-- Mostrar botón de limpiar solo si hay filtros activos -->
+                {% if q or fecha_desde or fecha_hasta %}
+                    <a href="{% url 'clubes:listar_clubes' %}" class="btn btn-outline-secondary" title="Limpiar filtros">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                {% endif %}
+            </div>
+            
         </div>
+    </form>
 
-        <div class="table-responsive">
-            <table class="table table-hover table-bordered align-middle">
-                <thead class="table-light">
-                    <tr>
+    {% if clubes %}
+        <!-- Grilla de Tarjetas -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4" id="contenedorTarjetas">
+            {% for club in clubes %}
+                <div class="col tarjeta-item">
+                    <div class="card h-100 shadow-sm border-0 rounded-4 transition-hover">
                         
-                        <th scope="col">Nombre Club</th>
-                        <th scope="col" class="text-center">Dirección</th>
-                        <th scope="col" class="text-center">Email</th>
-                        <th scope="col" class="text-center">Teléfono</th>
-                        <th scope="col" class="text-center">Fecha de Fundación</th>
-                        <th scope="col" class="text-center" style="width: 180px;">Estado</th>
-                        <th scope="col" class="text-center">Editar</th> <!-- prueba de updateview -->
-                        <th scope="col" class="text-center">Eliminar</th> <!-- prueba de deleteview -->
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for club in clubes %}
-                        <tr>
-                            <td class="text-center fw-bold">{{ club.nombre }}</td>
-                            <td>{{ club.direccion }}</td>
-                            <td>{{ club.email }}</td>
-                            <td>{{ club.telefono }}</td>
-                            <td>{{ club.fecha_fundacion }}</td>
-                            <td class="text-center">
-                                <span class="badge bg-{% if club.activo %}success{% else %}secondary{% endif %} rounded-pill">
-                                    {% if club.activo %}Activo{% else %}Inactivo{% endif %}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <a href="{% url 'clubes:editar_club' club.pk %}" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-pencil-square" aria-hidden="true"></i> Editar
+                        <div class="card-body">
+                            <!-- Cabecera de la tarjeta -->
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="card-title mb-0 fw-bold nombre-busqueda text-main">{{ club.nombre }}</h5>
+                            </div>
+                            
+                            <!-- Información con íconos -->
+                            <div class="text-muted" style="font-size: 0.9rem;">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-geo-alt-fill text-primary me-2 width-20 text-center"></i>
+                                    <span class="text-truncate" title="{{ club.direccion }}">{{ club.direccion }}</span>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-envelope-fill text-primary me-2 width-20 text-center"></i>
+                                    <span class="text-truncate" title="{{ club.email }}">{{ club.email }}</span>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-telephone-fill text-primary me-2 width-20 text-center"></i>
+                                    <span>{{ club.telefono }}</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-calendar-event-fill text-primary me-2 width-20 text-center"></i>
+                                    <span>Fundación: {{ club.fecha_fundacion|date:"d/m/Y" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Botonera de acciones -->
+                        <div class="card-footer bg-transparent border-top p-3">
+                            <div class="d-flex justify-content-between gap-2">
+                                <a href="{% url 'clubes:editar_club' club.pk %}" class="btn btn-sm btn-light text-primary flex-fill" title="Editar">
+                                    <i class="bi bi-pencil-square"></i>
                                 </a>
-                            </td>
-                            <td class="text-center">
-                                <a href="{% url 'clubes:eliminar_club' club.pk %}" class="btn btn-sm btn-outline-danger">
-                                    <i class="bi bi-trash" aria-hidden="true"></i> Eliminar
-                                </a>
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center text-muted py-3">
-                                No hay ciclos deportivos cargados en el sistema.
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        </div>
-    </div>
+                                <button type="button" class="btn btn-sm btn-light text-danger flex-fill" data-bs-toggle="modal" data-bs-target="#modalEliminar{{ club.pk }}" title="Eliminar">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    {% comment %}
-    {% include "includes/boton_volver.html" with url_name='inicio' boton_titulo='Volver al inicio' %}
-    {% endcomment %}
+                <!-- Modal de Eliminación instanciado para este Club específico -->
+                <div class="modal fade" id="modalEliminar{{ club.pk }}" tabindex="-1" aria-labelledby="modalEliminarLabel{{ club.pk }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content rounded-4 border-0 shadow">
+                            <div class="modal-body text-center p-4">
+                                <i class="bi bi-exclamation-circle text-danger" style="font-size: 4rem;"></i>
+                                <h5 class="fw-bold text-main mt-3" id="modalEliminarLabel{{ club.pk }}">Confirmar eliminación</h5>
+                                <p class="text-muted mb-1">¿Estás seguro de que querés borrar <br> el club <strong>{{ club.nombre }}</strong>?</p>
+                                <p class="text-danger fw-bold mt-2 mb-0">Esta acción no podrá ser deshecha una vez confirmada.</p>
+                            </div>
+                            <div class="modal-footer border-0 justify-content-center bg-light rounded-bottom-4">
+                                <button type="button" class="btn btn-outline-secondary text-uppercase" data-bs-dismiss="modal">Cancelar</button>
+                                
+                                <!-- Formulario POST necesario para el DeleteView de Django -->
+                                <form action="{% url 'clubes:eliminar_club' club.pk %}" method="POST" class="m-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success text-uppercase px-4">Sí, borrar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
 
-   {% endblock %}
+    {% else %}
+        <!-- Estado vacío a pantalla completa (Base de datos o Filtro Backend) -->
+        <div class="row mt-4" id="mensajeVacio">
+            <div class="col-12">
+                <div class="text-center text-muted py-5 bg-white rounded-4 shadow-sm border-0">
+                    <i class="bi bi-building fs-1 d-block mb-3 text-secondary"></i>
+                    {% if q or fecha_desde or fecha_hasta %}
+                        <h5 class="fw-bold">No hay coincidencias</h5>
+                        <p class="mb-0">No existen clubes que cumplan con los filtros aplicados en la búsqueda.</p>
+                    {% else %}
+                        <h5 class="fw-bold">No hay clubes registrados</h5>
+                        <p class="mb-0">Comienza creando el primer club deportivo en el sistema.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<style>
+    .transition-hover {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .transition-hover:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+    }
+    .width-20 {
+        width: 20px;
+    }
+</style>
+{% endblock %}

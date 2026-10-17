@@ -12,99 +12,62 @@
                 </a>
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-hover table-bordered align-middle">
-                    <thead class="table-light">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle">
+                <thead class="table-light">
+                    <tr>
+                        
+                        <th scope="col">usuario</th>
+                        <th scope="col" class="text-center">Fecha de nacimiento</th>
+                        <th scope="col" class="text-center">club</th>
+                        <th scope="col" class="text-center">deportista</th>
+                        <th scope="col" class="text-center">tutor</th> <!-- prueba de updateview -->
+                        <th scope="col" class="text-center">apto medico</th> <!-- prueba de deleteview -->
+                        <th scope="col" class="text-center">tutor responsable</th> 
+                        <th scope="col" class="text-center">editar</th> 
+                        <th scope="col" class="text-center">eliminar</th> 
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for socio in socios %}
                         <tr>
-                            <th scope="col" class="text-center">ID</th>
-                            <th scope="col">Usuario</th>
-                            <th scope="col">Fecha de nacimiento</th>
-                            <th scope="col">Club</th>
-                            <th scope="col">Perfil</th>
-                            <th scope="col" class="text-center">Apto médico</th>
-                            <th scope="col">Tutor responsable</th>
-                            <th scope="col" class="text-center">Acciones</th>
+                            <td class="text-center fw-bold">{{ socio.usuario }}</td>
+                            <td>{{ socio.fecha_nacimiento }}</td>
+                            <td>{{ socio.club }}</td>
+                            <td>{{ socio.deportista }}</td>
+                            <td>{{ socio.tutor }}</td>
+                            <td class="text-center">
+                                {% if socio.apto_medico %}
+                                    <span class="badge bg-success">Sí</span>
+                                {% else %}
+                                    <span class="badge bg-danger">No</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ socio.tutor_responsable }}</td>                                
+                            <td class="text-center">
+                                <a href="{% url 'clubes:editar_socio' socio.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit">Editar</i>
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'clubes:eliminar_socio' socio.pk %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash">Eliminar</i> <!-- boton eliminar -->
+                                </a>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {% for socio in socios %}
-                            <tr>
-                                <td class="text-center fw-semibold">#{{ socio.pk }}</td>
-                                <td>
-                                    {% if socio.usuario %}
-                                        <div class="fw-semibold">{{ socio.usuario.cuit_cuil }}</div>
-                                        {% if socio.usuario.email %}
-                                            <small class="text-muted">{{ socio.usuario.email }}</small>
-                                        {% else %}
-                                            <small class="text-muted">Sin correo</small>
-                                        {% endif %}
-                                    {% else %}
-                                        <span class="badge bg-secondary">Sin usuario</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {{ socio.fecha_nacimiento|date:"d/m/Y" }}
-                                    <div>
-                                        <small class="text-muted">
-                                            {% if socio.es_menor_edad %}Menor de edad{% else %}Mayor de edad{% endif %}
-                                        </small>
-                                    </div>
-                                </td>
-                                <td>{{ socio.club_id.nombre }}</td>
-                                <td>
-                                    {% if socio.es_deportista %}
-                                        <span class="badge bg-primary">Deportista</span>
-                                    {% endif %}
-                                    {% if socio.es_tutor %}
-                                        <span class="badge bg-info text-dark">Tutor</span>
-                                    {% endif %}
-                                    {% if not socio.es_deportista and not socio.es_tutor %}
-                                        <span class="badge bg-light text-dark">Socio</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-center">
-                                    {% if socio.apto_medico %}
-                                        <span class="badge bg-success">Vigente</span>
-                                    {% else %}
-                                        <span class="badge bg-secondary">No registrado</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if socio.tutor_responsable_id %}
-                                        {% if socio.tutor_responsable_id.usuario %}
-                                            {{ socio.tutor_responsable_id.usuario.cuit_cuil }}
-                                        {% else %}
-                                            Socio #{{ socio.tutor_responsable_id.pk }}
-                                        {% endif %}
-                                    {% else %}
-                                        <span class="text-muted">Sin tutor asignado</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-center text-nowrap">
-                                    <a href="{% url 'clubes:editar_socio' socio.pk %}"
-                                       class="btn btn-sm btn-outline-primary"
-                                       aria-label="Editar socio #{{ socio.pk }}"
-                                       title="Editar socio">
-                                        <i class="bi bi-pencil-square" aria-hidden="true"></i>
-                                    </a>
-                                    <a href="{% url 'clubes:eliminar_socio' socio.pk %}"
-                                       class="btn btn-sm btn-outline-danger"
-                                       aria-label="Eliminar socio #{{ socio.pk }}"
-                                       title="Eliminar socio">
-                                        <i class="bi bi-trash" aria-hidden="true"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="8" class="text-center text-muted py-3">
-                                    No hay socios registrados.
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-3">
+                                No hay socios registrados en el sistema.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         </div>
     </div>
-{% endblock %}
+
+
+
+   {% endblock %}

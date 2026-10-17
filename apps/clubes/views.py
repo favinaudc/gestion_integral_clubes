@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.template import context
 from django.shortcuts import render
 from django.http import Http404
@@ -7,6 +8,7 @@ from .models import *
 from .forms import CicloForm, ClubForm, SocioForm, EntrenadorForm, DisciplinaForm, CategoriaForm, FichajeForm, ParametroEvaluacionForm, PlanillaExamenForm, ResultadoExamenForm, MetricaRegistradaForm
 from django_tables2 import SingleTableView
 from .tables import CicloTable
+from django.db.models import Q
 # Create your views here.
 
 class SharedFormMixin:
@@ -15,12 +17,12 @@ class SharedFormMixin:
 class CicloCreateView(SharedFormMixin, CreateView):
     model = Ciclo
     form_class = CicloForm  
-    # template_name = 'clubes/ciclo_form.html'
     success_url = reverse_lazy('clubes:listar_ciclos')  # Redirige a la lista de clubes después de crear un ciclo
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Crear ciclo'
+        context['url_volver'] = 'clubes:listar_ciclos'
         return context
 
 class CicloListView(ListView):
@@ -28,6 +30,14 @@ class CicloListView(ListView):
     template_name = 'clubes/ciclo/ciclos_list.html'
     context_object_name = 'ciclos'  # Nombre del contexto para acceder a los ciclos en la plantilla
 
+    def get_queryset(self):
+        """
+        Anotamos la cantidad de clubes para evitar consultas repetitivas en el template.
+        Ordenamos por año de forma descendente (el más nuevo primero).
+        """
+        return Ciclo.objects.annotate(
+            total_clubes=Count('clubes_participantes')
+        ).order_by('-año')
 
 class CicloDetailView(DetailView):
     model = Ciclo
@@ -49,24 +59,55 @@ class CicloUpdateView(SharedFormMixin, UpdateView):
 
 class CicloDeleteView(DeleteView):
     model = Ciclo
-    template_name = 'clubes/ciclo_confirm_delete.html'  # Plantilla por defecto que busca Django
+    template_name = 'clubes/ciclo/ciclo_confirm_delete.html'  # Plantilla por defecto que busca Django
     success_url = reverse_lazy('clubes:listar_ciclos')  # Redirige a la lista después de eliminar    
 
 class ClubCreateView(SharedFormMixin, CreateView):
     model = Club
     form_class = ClubForm
-    # template_name = 'clubes/club_form.html'  # Plantilla para el formulario de creación
     success_url = reverse_lazy('clubes:listar_clubes')  # Redirige a la lista de clubes después de crear un club
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Crear nuevo club'
+        context['url_volver'] = 'clubes:listar_clubes'
         return context
 
 class ClubListView(ListView):
     model = Club
     template_name = 'clubes/club/club_list.html'
     context_object_name = 'clubes'  # Nombre del contexto para acceder a los clubes en la plantilla  
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        
+        q = self.request.GET.get('q')
+        fecha_desde = self.request.GET.get('fecha_desde')
+        fecha_hasta = self.request.GET.get('fecha_hasta')
+
+        # Filtro de texto (búsqueda en múltiples campos con OR)
+        if q:
+            queryset = queryset.filter(
+                Q(nombre__icontains=q) |
+                Q(direccion__icontains=q) |
+                Q(email__icontains=q)
+            )
+        
+        # Filtros de fecha de fundación (Rango)
+        if fecha_desde:
+            queryset = queryset.filter(fecha_fundacion__gte=fecha_desde)
+            
+        if fecha_hasta:
+            queryset = queryset.filter(fecha_fundacion__lte=fecha_hasta)
+            
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['q'] = self.request.GET.get('q', '')
+        context['fecha_desde'] = self.request.GET.get('fecha_desde', '')
+        context['fecha_hasta'] = self.request.GET.get('fecha_hasta', '')
+        return context
 
 class ClubUpdateView(SharedFormMixin, UpdateView):
     model = Club
@@ -77,6 +118,7 @@ class ClubUpdateView(SharedFormMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = f'Editar club {self.object}'
+        context['url_volver'] = 'clubes:listar_clubes'
         return context
 
 class ClubDeleteView(DeleteView):
@@ -91,7 +133,7 @@ class SocioCreateView(SharedFormMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = f'Crear socio{self.object}'
+        context['titulo'] = f'Crear socio'
         return context
     
 class SocioListView(ListView):
@@ -106,7 +148,7 @@ class SocioUpdateView(SharedFormMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context ['titulo'] = f'Editar socio{self.object}'
+        context ['titulo'] = f'Editar socio {self.object}'
         return context
 
 class SocioDeleteView(DeleteView):
@@ -117,28 +159,32 @@ class SocioDeleteView(DeleteView):
 class EntrenadorCreateView(SharedFormMixin, CreateView):
     model = Entrenador
     form_class = EntrenadorForm
-    template_name = 'clubes/form.html'  # Plantilla para el formulario de creación
+   
     success_url = reverse_lazy('clubes:listar_entrenadores')  # Redirige a la lista de entrenadores después de crear un entrenador  
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = f'Crear entrenador{self.object}'
+        context['titulo'] = f'Crear entrenador'
         return context
 
 class EntrenadorListView(ListView):
     model = Entrenador
-    template_name = 'clubes/entrenador_list.html'
+    template_name = 'clubes/entrenador/entrenador_list.html'
     context_object_name = 'entrenadores'  # Nombre del contexto para acceder a los entrenadores en la plantilla 
+
+    def get_queryset(self):
+        entrenadores = Entrenador.objects.prefetch_related('club').all() 
+        return entrenadores
+         # Prefetch related para optimizar consultas
 
 class EntrenadorUpdateView(SharedFormMixin, UpdateView):
     model = Entrenador
     form_class = EntrenadorForm
-    template_name = 'clubes/entrenador_form.html'  # Plantilla para el formulario de edición
     success_url = reverse_lazy('clubes:listar_entrenadores')  # Redirige a la lista de entrenadores después de editar un entrenador 
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo']= f'Editar entrenador{self.object}'
+        context['titulo']= f'Editar entrenador'
         return context
 
 class EntrenadorDeleteView(DeleteView):
@@ -153,13 +199,43 @@ class DisciplinaCreateView(SharedFormMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] =f'Crear disciplina{self.object}'
+        context['titulo'] =f'Crear disciplina'
+        context['url_volver'] = 'clubes:listar_disciplinas'
         return context
 
 class DisciplinaListView(ListView):
     model = Disciplina
-    template_name = 'clubes/disciplina_list.html'
-    context_object_name = 'disciplinas'  # Nombre del contexto para acceder a las disciplinas en la plantilla   
+    template_name = 'clubes/disciplina/disciplina_list.html'
+    context_object_name = 'disciplinas'
+
+    def get_queryset(self):
+        """
+        Sustituye la consulta global Disciplina.objects.all() por una consulta filtrada.
+        """
+        queryset = super().get_queryset()
+        
+        # Capturar el valor del input de búsqueda (name="q")
+        q = self.request.GET.get('q')
+        
+        if q:
+            # Se utilizan objetos Q para construir la lógica OR en la base de datos
+            queryset = queryset.filter(
+                Q(nombre__icontains=q) | 
+                Q(descripcion__icontains=q)
+            )
+            
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        """
+        Inyecta variables adicionales en el diccionario de contexto.
+        """
+        context = super().get_context_data(**kwargs)
+        
+        # Pasar 'q' de vuelta al template para mantener el texto escrito en el input
+        context['q'] = self.request.GET.get('q', '')
+        
+        return context  
 
 class DisciplinaUpdateView(SharedFormMixin, UpdateView):
     model = Disciplina
@@ -168,7 +244,7 @@ class DisciplinaUpdateView(SharedFormMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = f'Editar disciplina{self.object}'
+        context['titulo'] = f'Editar disciplina'
         return context
 
 class DisciplinaDeleteView(DeleteView):
@@ -183,12 +259,23 @@ class CategoriaCreateView(SharedFormMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context =super().get_context_data(**kwargs)
-        context['titulo'] =f'Crear categoria{self.object}'
+        context['titulo'] =f'Crear categoria'
         return context
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        
+        # Envuelve el objeto en una lista [ ] para que sea iterable
+        club = form.cleaned_data.get('club')
+        if club:
+            # Si es un solo objeto, ponlo entre corchetes
+            self.object.club.set([club]) 
+            
+        return response
 
 class CategoriaListView(ListView):
     model = Categoria
-    template_name = 'clubes/categoria_list.html'
+    template_name = 'clubes/categoria/categoria_list.html'
     context_object_name = 'categorias'  # Nombre del contexto para acceder a las categorías en la plantilla
 
 class CategoriaUpdateView(SharedFormMixin, UpdateView):
@@ -198,7 +285,7 @@ class CategoriaUpdateView(SharedFormMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] =f'Editar categoria{self.object}'
+        context['titulo'] =f'Editar categoria {self.object}'
         return context
 
 class CategoriaDeleteView(DeleteView):
@@ -213,12 +300,12 @@ class FichajeCreateView(SharedFormMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = f'Crear fichaje{self.object}'
+        context['titulo'] = f'Crear fichaje'
         return context
 
 class FichajeListView(ListView):
     model = Fichaje
-    template_name = 'clubes/fichaje_list.html'
+    template_name = 'clubes/fichaje/fichaje_list.html'
     context_object_name = 'fichajes'  # Nombre del contexto para acceder a los fichajes en la plantilla
 
 class FichajeUpdateView(SharedFormMixin, UpdateView):
@@ -228,7 +315,7 @@ class FichajeUpdateView(SharedFormMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = f'Editar fichaje{self.object}'
+        context['titulo'] = f'Editar fichaje {self.object}'
         return context
 
 class FichajeDeleteView(DeleteView):
@@ -243,12 +330,12 @@ class PlanillaExamenCreateView(SharedFormMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = f'Crear planilla de examen{self.object}'
+        context['titulo'] = f'Crear planilla de examen'
         return context
 
 class PlanillaExamenListView(ListView):
     model = PlanillaExamen
-    template_name = 'clubes/planilla_examen_list.html'
+    template_name = 'clubes/planillaexamen/planilla_examen_list.html'
     context_object_name = 'planillas'  # Nombre del contexto para acceder a las planillas de examen en la plantilla
 
 class PlanillaExamenUpdateView(SharedFormMixin, UpdateView):
@@ -258,7 +345,7 @@ class PlanillaExamenUpdateView(SharedFormMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = f'Editar planilla de examen{self.object}'
+        context['titulo'] = f'Editar planilla de examen {self.object}'
         return context
 
 class PlanillaExamenDeleteView(DeleteView):
@@ -278,7 +365,7 @@ class ParametroEvaluacionCreateView(SharedFormMixin, CreateView):
     
 class ParametroEvaluacionListView(ListView):
     model = ParametroEvaluacion
-    template_name = 'clubes/parametro_evaluacion_list.html'
+    template_name = 'clubes/paramevalua/parametro_evaluacion_list.html'
     context_object_name = 'parametros'  # Nombre del contexto para acceder a los parámetros de evaluación en la plantilla
 
 class ParametroEvaluacionUpdateView(SharedFormMixin, UpdateView):
@@ -303,8 +390,8 @@ class PlanillaExamenDetailView(ListView):
 
     def get_queryset(self):
         # Filtra las planillas de examen por el ID del fichaje proporcionado en la URL
-        fichaje_id = self.kwargs.get('fichaje_id')
-        return PlanillaExamen.objects.filter(fichaje_id=fichaje_id)
+        fichaje = self.kwargs.get('fichaje')
+        return PlanillaExamen.objects.filter(fichaje=fichaje)
 
 class FichajeDetailView(ListView):
     model = Fichaje
@@ -313,8 +400,8 @@ class FichajeDetailView(ListView):
 
     def get_queryset(self):
         # Filtra los fichajes por el ID del socio proporcionado en la URL
-        socio_id = self.kwargs.get('socio_id')
-        return Fichaje.objects.filter(socio_id=socio_id)
+        socio = self.kwargs.get('socio')
+        return Fichaje.objects.filter(socio=socio)
 
 class DisciplinaDetailView(ListView):
     model = Disciplina
@@ -323,8 +410,8 @@ class DisciplinaDetailView(ListView):
 
     def get_queryset(self):
         # Filtra las disciplinas por el ID del club proporcionado en la URL
-        club_id = self.kwargs.get('club_id')
-        return Disciplina.objects.filter(club_id=club_id)
+        club = self.kwargs.get('club')
+        return Disciplina.objects.filter(club=club)
 
 class CategoriaDetailView(ListView):
     model = Categoria
@@ -333,8 +420,8 @@ class CategoriaDetailView(ListView):
 
     def get_queryset(self):
         # Filtra las categorías por el ID de la disciplina proporcionado en la URL
-        disciplina_id = self.kwargs.get('disciplina_id')
-        return Categoria.objects.filter(disciplina_id=disciplina_id)
+        disciplina = self.kwargs.get('disciplina')
+        return Categoria.objects.filter(disciplina=disciplina)
 
 class EntrenadorDetailView(ListView):
     model = Entrenador
@@ -343,8 +430,8 @@ class EntrenadorDetailView(ListView):
 
     def get_queryset(self):
         # Filtra los entrenadores por el ID del club proporcionado en la URL
-        club_id = self.kwargs.get('club_id')
-        return Entrenador.objects.filter(club_id=club_id)
+        club = self.kwargs.get('club')
+        return Entrenador.objects.filter(club=club)
 
 class SocioDetailView(ListView):
     model = Socio
@@ -353,8 +440,8 @@ class SocioDetailView(ListView):
 
     def get_queryset(self):
         # Filtra los socios por el ID del club proporcionado en la URL
-        club_id = self.kwargs.get('club_id')
-        return Socio.objects.filter(club_id=club_id)
+        club = self.kwargs.get('club')
+        return Socio.objects.filter(club=club)
 
 class ClubDetailView(ListView):
     model = Club
@@ -363,8 +450,8 @@ class ClubDetailView(ListView):
 
     def get_queryset(self):
         # Filtra los clubes por el ID proporcionado en la URL
-        club_id = self.kwargs.get('club_id')
-        return Club.objects.filter(id=club_id)
+        club = self.kwargs.get('club')
+        return Club.objects.filter(id=club)
 
 class ParametroEvaluacionDetailView(ListView):
     model = ParametroEvaluacion
@@ -373,8 +460,8 @@ class ParametroEvaluacionDetailView(ListView):
 
     def get_queryset(self):
         # Filtra los parámetros de evaluación por el ID proporcionado en la URL
-        parametro_id = self.kwargs.get('parametro_id')
-        return ParametroEvaluacion.objects.filter(id=parametro_id)
+        parametro = self.kwargs.get('parametro')
+        return ParametroEvaluacion.objects.filter(id=parametro)
 
 class ResultadoExamenCreateView(SharedFormMixin, CreateView):
     model = PlanillaExamen
@@ -413,8 +500,8 @@ class ResultadoExamenDetailView(ListView):
 
     def get_queryset(self):
         # Filtra los resultados de examen por el ID del fichaje proporcionado en la URL
-        fichaje_id = self.kwargs.get('fichaje_id')
-        return PlanillaExamen.objects.filter(fichaje_id=fichaje_id)
+        fichaje = self.kwargs.get('fichaje')
+        return PlanillaExamen.objects.filter(fichaje=fichaje)
 
 class MetricaRegistradaCreateView(SharedFormMixin, CreateView):
     model = MetricaRegistrada
@@ -428,7 +515,7 @@ class MetricaRegistradaCreateView(SharedFormMixin, CreateView):
     
 class MetricaRegistradaListView(ListView):
     model = MetricaRegistrada
-    template_name = 'clubes/metrica_registrada_list.html'
+    template_name = 'clubes/metrica/metrica_registrada_list.html'
     context_object_name = 'metricas'  # Nombre del contexto para acceder a las métricas registradas en la plantilla
 
 class MetricaRegistradaUpdateView(SharedFormMixin, UpdateView):
