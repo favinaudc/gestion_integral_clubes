@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     'apps.clubes',
-    'apps.customauth',
+    #'apps.customauth',
+    'apps.customauth.apps.CustomauthConfig',
     'apps.web',
     'django_tables2',
 
