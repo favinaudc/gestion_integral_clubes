@@ -3,6 +3,14 @@ from . import views
 
 app_name = 'clubes'
 
+urlpatterns = [
+    path('', views.ClubListView.as_view(), name='listar_clubes'),
+    path('club/create/', views.ClubCreateView.as_view(), name='crear_club'), 
+    path('club/<int:pk>/editar/', views.ClubUpdateView.as_view(), name='editar_club'),
+    path('club/<int:pk>/eliminar/', views.ClubDeleteView.as_view(), name='eliminar_club'),
+    path('club/<int:pk>/gestionar/', views.GestionarClubView.as_view() , name='gestionar_club')
+]
+
 ciclos_urls = [
     path('ciclos/', views.CicloListView.as_view(), name='listar_ciclos'),
     path('ciclos/<int:pk>/editar/', views.CicloUpdateView.as_view(), name='editar_ciclo'),
@@ -63,14 +71,6 @@ metricas_registradas_urls =[
     path('metricas_registradas/<int:pk>/editar/', views.MetricaRegistradaUpdateView.as_view(), name='editar_metrica_registrada'),
     path('metricas_registradas/<int:pk>/eliminar/', views.MetricaRegistradaDeleteView.as_view(), name='eliminar_metrica_registrada'),
     path('metricas_registradas/create/', views.MetricaRegistradaCreateView.as_view(), name='crear_metrica_registrada')
-]
-
-urlpatterns = [
-    
-    path('', views.ClubListView.as_view(), name='listar_clubes'),
-    path('club/create/', views.ClubCreateView.as_view(), name='crear_club'), 
-    path('club/<int:pk>/editar/', views.ClubUpdateView.as_view(), name='editar_club'),
-    path('club/<int:pk>/eliminar/', views.ClubDeleteView.as_view(), name='eliminar_club'),
 ]
 
 urlpatterns += ciclos_urls + socios_urls + entrenadores_urls + disciplinas_urls + categorias_urls +fichaje_urls + parametros_evaluacion_urls + plantillas_examen_urls + resultados_examen_urls + metricas_registradas_urls
