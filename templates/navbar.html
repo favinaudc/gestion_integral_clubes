@@ -76,9 +76,9 @@
     </div>
     
     <div class="d-flex align-items-center gap-4">
-        <div class="topbar-actions-custom">
-            <!-- Dropdown de Roles -->
-            {% if request.user.is_authenticated and request.user.groups.count > 1%}
+        {% if request.user.is_authenticated and request.user.groups.count > 1%}
+            <div class="topbar-actions-custom">
+                <!-- Dropdown de Roles -->
                 <div class="dropdown">
                     <button class="btn border-0 shadow-none d-flex align-items-center gap-2 p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: var(--text-main); font-size: 0.95rem;">
                         <i class="bi bi-person-badge text-muted"></i>
@@ -103,8 +103,8 @@
                         {% endfor %}
                     </ul>
                 </div> 
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
         <!-- Botón de Hamburguesa / Toggle -->        
         <button id="sidebarToggleBtn" class="btn btn-light border-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px; border-radius: 50%; background-color: var(--bg-card); transition: 0.3s;">
             <i class="bi bi-list text-muted-custom" style="font-size: 1.2rem;" aria-hidden="true"></i>

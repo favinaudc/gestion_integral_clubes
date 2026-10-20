@@ -1,15 +1,11 @@
 from pyexpat.errors import messages
-
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
-from django.views.generic import DeleteView
-from django.views.generic import UpdateView
 from django.db.models import Q
 from apps.clubes.models import Club
-from django.views.generic import ListView
-from django.views.generic import CreateView
-from ..views.shared_views import SharedFormMixin
+from django.views.generic import CreateView, ListView, UpdateView, DeleteView, DetailView
+from ..mixins import SharedFormMixin
 from ..forms import ClubForm
 
 class ClubCreateView(SharedFormMixin, CreateView):
@@ -23,15 +19,10 @@ class ClubCreateView(SharedFormMixin, CreateView):
         context['url_volver'] = 'clubes:listar_clubes'
         return context
 
-class ClubDetailView(ListView):
+class ClubDetailView(DetailView):
     model = Club
     template_name = 'clubes/club_detail.html'
     context_object_name = 'clubes'  # Nombre del contexto para acceder a los clubes en la plantilla
-
-    def get_queryset(self):
-        # Filtra los clubes por el ID proporcionado en la URL
-        club = self.kwargs.get('club')
-        return Club.objects.filter(id=club)
 
 class ClubListView(ListView):
     model = Club

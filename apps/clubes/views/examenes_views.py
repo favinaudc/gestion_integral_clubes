@@ -1,13 +1,11 @@
 from django.views.generic import DetailView
-from apps.clubes.models import MetricaRegistrada
 from django.views.generic import CreateView
 from django.views.generic import UpdateView
 from django.urls import reverse_lazy
-from apps.clubes.models import ParametroEvaluacion
 from django.views.generic import DeleteView
 from django.views.generic import ListView
-from apps.clubes.models import PlanillaExamen
-from ..views.shared_views import SharedFormMixin
+from apps.clubes.models import MetricaRegistrada, PlanillaExamen, ParametroEvaluacion
+from ..mixins import SharedFormMixin
 from ..forms import PlanillaExamenForm, ParametroEvaluacionForm, ResultadoExamenForm, MetricaRegistradaForm
 
 class PlanillaExamenCreateView(SharedFormMixin, CreateView):

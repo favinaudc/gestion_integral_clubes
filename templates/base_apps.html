@@ -147,6 +147,10 @@
         display: flex;
         flex-direction: column;
         background-color: var(--bg-body);
+        /* FIX: Permite que el contenedor colapse y no rompa el layout */
+        min-width: 0; 
+        /* FIX: Previene que el contenido interno desborde hacia la derecha */
+        overflow-x: hidden;
     }
 
     .card-custom {
@@ -291,23 +295,6 @@
         if (bestMatch) {
             bestMatch.classList.add('active');
         }
-    });
-
-    // Inicialización global de DataTables
-    $(document).ready(function() {
-        // Aplica DataTables a cualquier etiqueta <table class="table data-tables">
-        $('.data-tables').DataTable({
-            language: {
-                url: 'https://cdn.datatables.net/plug-ins/2.0.8/i18n/es-ES.json',
-            },
-            pageLength: 10,
-            lengthMenu: [5, 10, 25, 50],
-            responsive: true,
-            // Clases de Bootstrap inyectadas automáticamente a la tabla subyacente
-            classes: {
-                table: 'table table-hover table-bordered align-middle'
-            }
-        });
     });
 </script>
 {% endblock %}

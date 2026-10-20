@@ -40,6 +40,18 @@
     <!-- Bootstrap JS Bundle (incluye Popper) -->
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script>
+        $(document).ready(function() {
+            // Inicializa cualquier tabla que tenga la clase 'data-tables'
+            $('.data-tables').DataTable({
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/2.0.8/i18n/es-ES.json',
+                },
+                "pageLength": 10, // Cantidad de filas por defecto
+                "responsive": true
+            });
+        });
+    </script>
     
     {% block extra_js %}{% endblock %}
 </body>

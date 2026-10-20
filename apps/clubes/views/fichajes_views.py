@@ -4,7 +4,7 @@ from django.views.generic import UpdateView
 from django.urls import reverse_lazy
 from apps.clubes.models import Fichaje
 from django.views.generic import DeleteView
-from ..views.shared_views import SharedFormMixin
+from ..mixins import SharedFormMixin
 from ..forms import FichajeForm
 
 class FichajeCreateView(SharedFormMixin, CreateView):
