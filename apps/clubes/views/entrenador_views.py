@@ -4,8 +4,8 @@ from django.views.generic import UpdateView
 from apps.clubes.models import Entrenador
 from django.views.generic import ListView
 from django.views.generic import CreateView
-from apps.clubes.views import SharedFormMixin
-
+from ..views.shared_views import SharedFormMixin
+from ..forms import EntrenadorForm
 
 class EntrenadorCreateView(SharedFormMixin, CreateView):
     model = Entrenador

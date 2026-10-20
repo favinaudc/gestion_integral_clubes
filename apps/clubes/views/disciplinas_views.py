@@ -5,8 +5,8 @@ from django.db.models import Q
 from apps.clubes.models import Disciplina
 from django.views.generic import ListView
 from django.views.generic import CreateView
-from apps.clubes.views import SharedFormMixin
-
+from ..views.shared_views import SharedFormMixin
+from ..forms import DisciplinaForm
 
 class DisciplinaCreateView(SharedFormMixin, CreateView):
     model = Disciplina

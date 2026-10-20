@@ -1,11 +1,11 @@
 from django.views.generic import CreateView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
-from apps.clubes.views import SharedFormMixin
 from django.urls import reverse_lazy
 from apps.clubes.models import Fichaje
 from django.views.generic import DeleteView
-
+from ..views.shared_views import SharedFormMixin
+from ..forms import FichajeForm
 
 class FichajeCreateView(SharedFormMixin, CreateView):
     model = Fichaje

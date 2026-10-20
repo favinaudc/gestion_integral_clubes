@@ -1,11 +1,11 @@
 from django.views.generic import UpdateView
 from django.views.generic import ListView
 from django.views.generic import CreateView
-from apps.clubes.views import SharedFormMixin
 from django.urls import reverse_lazy
 from apps.clubes.models import Socio
 from django.views.generic import DeleteView
-
+from ..views.shared_views import SharedFormMixin
+from ..forms import SocioForm
 
 class SocioCreateView(SharedFormMixin, CreateView):
     model = Socio

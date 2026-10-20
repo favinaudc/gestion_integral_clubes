@@ -1,12 +1,12 @@
 from django.urls import path, include
-from views.club_views import *
-from views.ciclos_views import *
-from views.socios_views import *
-from views.entrenador_views import *
-from views.disciplinas_views import *
-from views.categorias_views import *
-from views.fichajes_views import *
-from views.examenes_views import *
+from .views.club_views import *
+from .views.ciclos_views import *
+from .views.socios_views import *
+from .views.entrenador_views import *
+from .views.disciplinas_views import *
+from .views.categorias_views import *
+from .views.fichajes_views import *
+from .views.examenes_views import *
 
 
 app_name = 'clubes'

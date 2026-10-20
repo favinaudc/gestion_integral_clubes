@@ -4,7 +4,8 @@ from django.views.generic import UpdateView
 from apps.clubes.models import Categoria
 from django.views.generic import ListView
 from django.views.generic import CreateView
-from apps.clubes.views import SharedFormMixin
+from ..views.shared_views import SharedFormMixin
+from ..forms import CategoriaForm
 
 
 class CategoriaCreateView(SharedFormMixin,CreateView):  

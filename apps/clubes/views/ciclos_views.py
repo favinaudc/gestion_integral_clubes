@@ -6,8 +6,8 @@ from django.db.models import Count
 from apps.clubes.models import Ciclo
 from django.views.generic import ListView
 from django.views.generic import CreateView
-from apps.clubes.views import SharedFormMixin
-
+from ..views.shared_views import SharedFormMixin
+from ..forms import CicloForm
 
 class CicloCreateView(SharedFormMixin, CreateView):
     model = Ciclo
