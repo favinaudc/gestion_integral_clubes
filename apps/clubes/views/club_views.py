@@ -1,4 +1,6 @@
-from django.shortcuts import render
+from pyexpat.errors import messages
+
+from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
 from django.views.generic import DeleteView
@@ -87,7 +89,17 @@ class ClubDeleteView(DeleteView):
 
 class GestionarClubView(View):
     template_name = 'clubes/club/club_gestion.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        club_id = kwargs.get('pk')
+        club = Club.objects.filter(id=club_id).first()
+        if not club:
+            messages.error(request, "El club no existe.")
+            return redirect('clubes:listar_clubes')
+        return super().dispatch(request, *args, **kwargs)
     
     def get(self, request, *args, **kwargs):
-        context = {}
+        club_id = kwargs.get('pk')
+        club = Club.objects.filter(id=club_id).first()
+        context = {'club': club}
         return render(request, self.template_name, context)

@@ -26,7 +26,7 @@ y ejecuta la asignación del grupo sin acoplar código dentro de las vistas o fo
 def asignar_rol_por_defecto(sender, instance, created, **kwargs):
     if created:
         # Obtiene o crea el grupo 'usuario'
-        grupo_base, _ = Group.objects.get(name='usuario')
+        grupo_base, _ = Group.objects.get_or_create(name='USUARIO')
         
         # Lo añade a la relación ManyToMany de PermissionsMixin
         instance.groups.add(grupo_base)

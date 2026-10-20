@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group
 
-class Comman(BaseCommand):
+class Command(BaseCommand):
     help = 'Carga de elementos iniciales del sistema.'
 
     def handle(self, *args, **kwargs):
