@@ -11,6 +11,7 @@ from django.contrib.auth.models import Group
 from apps.customauth.forms import NuevoPerfilForm, NuevoUsuarioForm, UsuarioExistenteForm
 from apps.customauth.models import PerfilClub, Usuario
 from ..mixins import SharedFormMixin
+from apps.customauth.mixins import ValidarRolClubMixin
 from ..forms import ClubForm
 
 class ClubCreateView(SharedFormMixin, CreateView):
@@ -88,7 +89,8 @@ class ClubDeleteView(DeleteView):
     success_url = reverse_lazy('clubes:listar_clubes')  # Redirige a la lista después de eliminar un club
 
 
-class GestionarClubView(View):
+class GestionarClubView(ValidarRolClubMixin, View): 
+    rol_requerido = ['CLUB_ADMIN']
     template_name = 'clubes/club/club_gestion.html'
 
     def dispatch(self, request, *args, **kwargs):
@@ -130,7 +132,7 @@ def asociar_usuario_club(request, pk):
                 )
                 
                 messages.success(request, f"Usuario asociado correctamente al club.")
-                return redirect('clubes:dashboard') # Cambiar por tu URL
+                return redirect('clubes:listar_clubes') # Cambiar por tu URL
 
         elif action_type == 'nuevo':
             form_usuario = NuevoUsuarioForm(request.POST)
@@ -147,6 +149,8 @@ def asociar_usuario_club(request, pk):
                 
                 grupo_admin = get_object_or_404(Group, name='CLUB_ADMIN')
                 nuevo_usuario.groups.add(grupo_admin)
+                grupo_usuario = get_object_or_404(Group, name='USUARIO')
+                nuevo_usuario.groups.remove(grupo_usuario)
                 
                 
                 # Crear el Perfil y vincularlo al Usuario recién creado
@@ -169,7 +173,7 @@ def asociar_usuario_club(request, pk):
                     fail_silently=False,
                 )
 
-                print(f"Correo enviado a {nuevo_usuario.email} con contraseña temporal: {password_aleatoria} - PAra el usuario: {nuevo_usuario.cuit_cuil}")
+                print(f"Correo enviado a {nuevo_usuario.email} con contraseña temporal: {password_aleatoria} - Para el usuario: {nuevo_usuario.cuit_cuil}")
                 messages.success(request, "Usuario creado, perfil completado y notificado por email.")
                 return redirect('clubes:listar_clubes')
 

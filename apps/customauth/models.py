@@ -93,6 +93,11 @@ class Perfil(models.Model):
 
     def __str__(self):
         return f"{self.nombre} {self.apellido}"
+    
+    def iniciales(self):
+        if self.nombre and self.apellido:
+            return f"{self.nombre[0].upper()}{self.apellido[0].upper()}"
+        return ""
 
 
 class PerfilClub(models.Model):
