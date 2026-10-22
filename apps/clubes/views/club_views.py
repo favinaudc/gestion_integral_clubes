@@ -16,7 +16,6 @@ from ..forms import ClubForm
 class ClubCreateView(SharedFormMixin, CreateView):
     model = Club
     form_class = ClubForm
-    success_url = reverse_lazy('clubes:listar_clubes')  # Redirige a la lista de clubes después de crear un club
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -24,10 +23,16 @@ class ClubCreateView(SharedFormMixin, CreateView):
         context['url_volver'] = 'clubes:listar_clubes'
         return context
 
+    def get_success_url(self): #pone el pk en la url .
+        print("self.object.pk", self.object.pk)
+        return reverse_lazy('clubes:detalles_club', kwargs={'pk': self.object.pk})
+
 class ClubDetailView(DetailView):
     model = Club
-    template_name = 'clubes/club_detail.html'
-    context_object_name = 'clubes'  # Nombre del contexto para acceder a los clubes en la plantilla
+    template_name = 'clubes/club/club_detail.html'
+    context_object_name = 'club'  # Nombre del contexto para acceder al club en la plantilla
+
+    
 
 class ClubListView(ListView):
     model = Club

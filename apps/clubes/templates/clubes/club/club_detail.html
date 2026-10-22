@@ -1,0 +1,58 @@
+{% extends 'base_apps.html' %}
+ 
+{% block title %}Detalle del Club{% endblock %}
+
+{% block contenido_apps %}
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            
+          
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">{{ club.nombre }}</h3>
+                        <span class="badge bg-light text-dark">ID: {{ club.id }}</span>
+                    </div>
+                    
+                    <div class="card-body">
+                        <!-- Información principal -->
+                        <ul class="list-group list-group-flush mb-4">
+                            <li class="list-group-item">
+                                <strong>Dirección:</strong> {{ club.direccion }}
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Teléfono:</strong> {{ club.telefono }}
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Correo Electrónico:</strong> {{ club.email }}
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Fecha de Fundación:</strong> {{ club.fecha_fundacion|date:"d/m/Y" }}
+                            </li>
+                        </ul>
+
+                        <!-- Relación ManyToMany: Disciplinas -->
+                        
+                    </div>
+
+                    <!-- Botones de navegación y acciones -->
+                    <div class="card-footer d-flex justify-content-between align-items-center bg-light">
+                       
+                        </a>
+                        
+                        <div>
+                            {% if perms.tu_app.change_club %}
+                                <a href="#" class="btn btn-warning text-white">Editar</a>
+                            {% endif %}
+                            {% if perms.tu_app.delete_club %}
+                                <a href="#" class="btn btn-danger">Eliminar</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            
+
+        </div>
+    </div>
+</div>
+{% endblock %}
