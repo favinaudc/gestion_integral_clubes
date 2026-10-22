@@ -3,6 +3,15 @@ from . import views
 
 app_name = 'clubes'
 
+urlpatterns = [
+    path('', ClubListView.as_view(), name='listar_clubes'),
+    path('club/create/', ClubCreateView.as_view(), name='crear_club'), 
+    path('club/<int:pk>/detalles/', ClubDetailView.as_view(), name='detalles_club'),
+    path('club/<int:pk>/editar/', ClubUpdateView.as_view(), name='editar_club'),
+    path('club/<int:pk>/eliminar/', ClubDeleteView.as_view(), name='eliminar_club'),
+    path('club/<int:pk>/gestionar/', GestionarClubView.as_view() , name='gestionar_club')
+]
+
 ciclos_urls = [
     path('ciclos/', views.CicloListView.as_view(), name='listar_ciclos'),
     path('ciclos/<int:pk>/editar/', views.CicloUpdateView.as_view(), name='editar_ciclo'),
