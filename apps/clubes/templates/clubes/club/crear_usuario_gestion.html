@@ -1,8 +1,10 @@
 {% extends 'base_apps.html' %}
 
+
 {% block title %}Gestión de Club {{club.nombre}}{% endblock %}
 
 {% block contenido_apps %}
+
 <div class="card border-0 shadow-sm rounded-4 p-2 bg-white">
     <div class="card-title p-3">
         <h6 class="h6 mb-0 text-uppercase">Asignar Usuario de Gestión - {{club.nombre}}</h6>    
@@ -11,8 +13,12 @@
     <div class="card-body">
         <!-- Controles de alternancia (Ambos inician desmarcados con outline) -->
         <div class="d-flex gap-3 mb-4">
-            <button id="btnExistente" class="btn btn-outline-primary w-50 text-uppercase">Seleccionar Existente</button>
-            <button id="btnNuevo" class="btn btn-outline-primary w-50 text-uppercase">Crear Nuevo Usuario</button>
+            <button id="btnExistente" class="btn btn-outline-primary text-uppercase w-50 py-2 fw-semibold shadow-sm d-flex justify-content-center align-items-center">
+                <i class="bi bi-person-check-fill me-2 fs-5"></i> Seleccionar Existente
+            </button>
+            <button id="btnNuevo" class="btn btn-outline-primary text-uppercase w-50 py-2 fw-semibold shadow-sm d-flex justify-content-center align-items-center">
+                <i class="bi bi-person-plus-fill me-2 fs-5"></i> Registrar Nuevo
+            </button>
         </div>
 
         <!-- Vista: Usuario Existente (AHORA INICIA OCULTO CON d-none) -->
@@ -116,6 +122,47 @@
             toggleViews(true);
         {% elif form_usuario.errors or form_perfil.errors %}
             // Si intentó crear uno nuevo y falló, abrimos la pestaña de creación
+            toggleViews(false);
+        {% endif %}
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const btnExistente = document.getElementById("btnExistente");
+        const btnNuevo = document.getElementById("btnNuevo");
+        const seccionExistente = document.getElementById("seccionExistente");
+        const seccionNuevo = document.getElementById("seccionNuevo");
+
+        const toggleViews = (showExistente) => {
+            if (showExistente) {
+                // Mostrar seccion existente
+                seccionExistente.classList.remove("d-none");
+                seccionNuevo.classList.add("d-none");
+                
+                // Animar el botón
+                btnExistente.classList.add("active-tab");
+                btnNuevo.classList.remove("active-tab");
+            } else {
+                // Mostrar seccion nuevo
+                seccionNuevo.classList.remove("d-none");
+                seccionExistente.classList.add("d-none");
+                
+                // Animar el botón
+                btnNuevo.classList.add("active-tab");
+                btnExistente.classList.remove("active-tab");
+            }
+        };
+
+        btnExistente.addEventListener("click", () => toggleViews(true));
+        btnNuevo.addEventListener("click", () => toggleViews(false));
+
+        // Control de estado por si falla la validación en el Backend
+        {% if form_existente.errors %}
+            // Si falló el form existente, abrimos esa pestaña
+            toggleViews(true);
+        {% elif form_usuario.errors or form_perfil.errors %}
+            // Si falló la creación, abrimos la pestaña de creación
             toggleViews(false);
         {% endif %}
     });

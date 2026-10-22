@@ -180,7 +180,10 @@
         color: var(--text-main);
         border-color: var(--border-color);
     }
+    {% block base_apps_extra_css %}
+    {% endblock base_apps_extra_css %}
 </style>
+
 {% endblock %}
 
 {% block contenido_principal %}

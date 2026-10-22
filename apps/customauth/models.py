@@ -88,7 +88,7 @@ class Perfil(models.Model):
     telefono = models.CharField(max_length=20, null=True, blank=True, help_text="Ingrese el teléfono del usuario (opcional)")
     direccion = models.CharField(max_length=100, null=True, blank=True, help_text="Ingrese la dirección del usuario (opcional)")
     
-    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='perfil')
     club = models.ManyToManyField('clubes.Club', through='PerfilClub', related_name='perfiles', blank=True)
 
     def __str__(self):
