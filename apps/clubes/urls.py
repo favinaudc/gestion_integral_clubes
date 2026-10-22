@@ -17,7 +17,8 @@ urlpatterns = [
     path('club/<int:pk>/detalles/', ClubDetailView.as_view(), name='detalles_club'),
     path('club/<int:pk>/editar/', ClubUpdateView.as_view(), name='editar_club'),
     path('club/<int:pk>/eliminar/', ClubDeleteView.as_view(), name='eliminar_club'),
-    path('club/<int:pk>/gestionar/', GestionarClubView.as_view() , name='gestionar_club')
+    path('club/<int:pk>/gestionar/', GestionarClubView.as_view() , name='gestionar_club'),
+    path('club/<int:pk>/crear-usuario-gestion/', asociar_usuario_club , name='crear_usuario_gestion_club')
 ]
 
 ciclos_urls = [

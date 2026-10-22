@@ -7,12 +7,12 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
 
         grupos_base = [
-            'admin',
-            'club_admin',
-            'club_administrativo',
-            'entrenador',
-            'socio',
-            'usuario'
+            'USUARIO',
+            'ADMIN',
+            'CLUB_ADMIN',
+            'CLUB_ADMINISTRATIVO',
+            'ENTRENADOR',
+            'SOCIO'
         ]
 
         self.stdout.write('Iniciando carga...')

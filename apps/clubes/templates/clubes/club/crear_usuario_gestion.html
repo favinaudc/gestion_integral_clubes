@@ -1,0 +1,123 @@
+{% extends 'base_apps.html' %}
+
+{% block title %}Gestión de Club {{club.nombre}}{% endblock %}
+
+{% block contenido_apps %}
+<div class="card border-0 shadow-sm rounded-4 p-2 bg-white">
+    <div class="card-title p-3">
+        <h6 class="h6 mb-0 text-uppercase">Asignar Usuario de Gestión - {{club.nombre}}</h6>    
+        <hr>
+    </div>
+    <div class="card-body">
+        <!-- Controles de alternancia (Ambos inician desmarcados con outline) -->
+        <div class="d-flex gap-3 mb-4">
+            <button id="btnExistente" class="btn btn-outline-primary w-50 text-uppercase">Seleccionar Existente</button>
+            <button id="btnNuevo" class="btn btn-outline-primary w-50 text-uppercase">Crear Nuevo Usuario</button>
+        </div>
+
+        <!-- Vista: Usuario Existente (AHORA INICIA OCULTO CON d-none) -->
+        <div id="seccionExistente" class="d-none">
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action_type" value="existente">
+                
+                <div class="mb-4">
+                    {{ form_existente.usuario.label_tag }}
+                    {{ form_existente.usuario }}
+                    <small class="text-danger">{{ form_existente.usuario.errors }}</small>
+                </div>
+                
+                <button type="submit" class="btn btn-success text-uppercase">Vincular al Club</button>
+            </form>
+        </div>
+
+        <!-- Vista: Nuevo Usuario (INICIA OCULTO CON d-none) -->
+        <div id="seccionNuevo" class="d-none">
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action_type" value="nuevo">
+                
+                <h5 class="text-secondary mb-3 border-bottom pb-2">Credenciales de Acceso</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        {{ form_usuario.cuit_cuil.label_tag }}
+                        {{ form_usuario.cuit_cuil }}
+                        <small class="text-danger">{{ form_usuario.cuit_cuil.errors }}</small>
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_usuario.email.label_tag }}
+                        {{ form_usuario.email }}
+                        <small class="text-danger">{{ form_usuario.email.errors }}</small>
+                    </div>
+                </div>
+
+                <h5 class="text-secondary mb-3 border-bottom pb-2">Datos del Perfil</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        {{ form_perfil.nombre.label_tag }}
+                        {{ form_perfil.nombre }}
+                        <small class="text-danger">{{ form_perfil.nombre.errors }}</small>
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_perfil.apellido.label_tag }}
+                        {{ form_perfil.apellido }}
+                        <small class="text-danger">{{ form_perfil.apellido.errors }}</small>
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_perfil.fecha_nacimiento.label_tag }}
+                        {{ form_perfil.fecha_nacimiento }}
+                        <small class="text-danger">{{ form_perfil.fecha_nacimiento.errors }}</small>
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_perfil.telefono.label_tag }}
+                        {{ form_perfil.telefono }}
+                        <small class="text-danger">{{ form_perfil.telefono.errors }}</small>
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_perfil.direccion.label_tag }}
+                        {{ form_perfil.direccion }}
+                        <small class="text-danger">{{ form_perfil.direccion.errors }}</small>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-success text-uppercase">Crear Perfil y Vincular</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const btnExistente = document.getElementById("btnExistente");
+        const btnNuevo = document.getElementById("btnNuevo");
+        const seccionExistente = document.getElementById("seccionExistente");
+        const seccionNuevo = document.getElementById("seccionNuevo");
+
+        const toggleViews = (showExistente) => {
+            if (showExistente) {
+                seccionExistente.classList.remove("d-none");
+                seccionNuevo.classList.add("d-none");
+                btnExistente.classList.replace("btn-outline-primary", "btn-primary");
+                btnNuevo.classList.replace("btn-primary", "btn-outline-primary");
+            } else {
+                seccionNuevo.classList.remove("d-none");
+                seccionExistente.classList.add("d-none");
+                btnNuevo.classList.replace("btn-outline-primary", "btn-primary");
+                btnExistente.classList.replace("btn-primary", "btn-outline-primary");
+            }
+        };
+
+        btnExistente.addEventListener("click", () => toggleViews(true));
+        btnNuevo.addEventListener("click", () => toggleViews(false));
+
+        // Control de estado por si falla la validación en el Backend
+        {% if form_existente.errors %}
+            // Si el usuario intentó mandar el form existente y falló, abrimos esa pestaña
+            toggleViews(true);
+        {% elif form_usuario.errors or form_perfil.errors %}
+            // Si intentó crear uno nuevo y falló, abrimos la pestaña de creación
+            toggleViews(false);
+        {% endif %}
+    });
+</script>
+{% endblock contenido_apps %}

@@ -1,10 +1,15 @@
-from pyexpat.errors import messages
-from django.shortcuts import redirect, render
+import secrets
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from django.urls import reverse_lazy
 from django.db.models import Q
 from apps.clubes.models import Club
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, DetailView
+from django.core.mail import send_mail
+from django.contrib.auth.models import Group
+from apps.customauth.forms import NuevoPerfilForm, NuevoUsuarioForm, UsuarioExistenteForm
+from apps.customauth.models import PerfilClub, Usuario
 from ..mixins import SharedFormMixin
 from ..forms import ClubForm
 
@@ -94,3 +99,79 @@ class GestionarClubView(View):
         club = Club.objects.filter(id=club_id).first()
         context = {'club': club}
         return render(request, self.template_name, context)
+
+def asociar_usuario_club(request, pk):
+    club = get_object_or_404(Club, id=pk)
+    form_existente = UsuarioExistenteForm()
+    form_usuario = NuevoUsuarioForm()
+    form_perfil = NuevoPerfilForm()
+
+    if request.method == 'POST':
+        action_type = request.POST.get('action_type')
+
+        if action_type == 'existente':
+            form_existente = UsuarioExistenteForm(request.POST)
+            if form_existente.is_valid():
+                usuario_cleanned = form_existente.cleaned_data['usuario']
+                usuario = get_object_or_404(Usuario, cuit_cuil=usuario_cleanned.cuit_cuil)
+                       
+                grupo_admin = get_object_or_404(Group, name='CLUB_ADMIN')
+                usuario.groups.add(grupo_admin)  # Asignar el grupo al usuario
+
+                PerfilClub.objects.create(
+                    perfil=usuario.perfil,  # Asumiendo que el usuario tiene un perfil asociado
+                    club=club,
+                    grupo_rol=grupo_admin
+                )
+                
+                messages.success(request, f"Usuario asociado correctamente al club.")
+                return redirect('clubes:dashboard') # Cambiar por tu URL
+
+        elif action_type == 'nuevo':
+            form_usuario = NuevoUsuarioForm(request.POST)
+            form_perfil = NuevoPerfilForm(request.POST)
+            
+            # Validamos ambos formularios a la vez
+            if form_usuario.is_valid() and form_perfil.is_valid():
+                password_aleatoria = secrets.token_urlsafe(8)            
+                
+                # Crear el Usuario
+                nuevo_usuario = form_usuario.save(commit=False)
+                nuevo_usuario.set_password(password_aleatoria)
+                nuevo_usuario.save()
+                
+                grupo_admin = get_object_or_404(Group, name='CLUB_ADMIN')
+                nuevo_usuario.groups.add(grupo_admin)
+                
+                
+                # Crear el Perfil y vincularlo al Usuario recién creado
+                nuevo_perfil = form_perfil.save(commit=False)
+                nuevo_perfil.usuario = nuevo_usuario
+                nuevo_perfil.save()
+
+                PerfilClub.objects.create(
+                    perfil=nuevo_perfil,
+                    club=club,
+                    grupo_rol=grupo_admin
+                )
+                
+                # Enviar correo con credenciales
+                send_mail(
+                    subject=f'Bienvenido al {club.nombre}',
+                    message=f'Hola {nuevo_perfil.nombre},\n\nTu cuenta administrativa ha sido creada.\n\nUsuario (CUIT/CUIL): {nuevo_usuario.cuit_cuil}\nContraseña temporal: {password_aleatoria}\n\nPor favor, cámbiala al iniciar sesión.',
+                    from_email='noreply@tuclub.com',
+                    recipient_list=[nuevo_usuario.email],
+                    fail_silently=False,
+                )
+
+                print(f"Correo enviado a {nuevo_usuario.email} con contraseña temporal: {password_aleatoria} - PAra el usuario: {nuevo_usuario.cuit_cuil}")
+                messages.success(request, "Usuario creado, perfil completado y notificado por email.")
+                return redirect('clubes:listar_clubes')
+
+    context = {
+        'club': club,
+        'form_existente': form_existente,
+        'form_usuario': form_usuario,
+        'form_perfil': form_perfil,
+    }
+    return render(request, 'clubes/club/crear_usuario_gestion.html', context)

@@ -56,7 +56,6 @@ class CicloClub(models.Model):
 
 class Socio(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='socio', null=True, blank=True)
-    fecha_nacimiento = models.DateField(help_text="@Ingrese la fecha de nacimiento del usuario")
     club = models.ForeignKey(Club, on_delete=models.CASCADE)
     es_deportista = models.BooleanField(default=False, help_text="@Indica si el socio es deportista o no")   
     es_tutor = models.BooleanField(default=False, help_text="@Indica si el socio es tutor o no")
@@ -70,15 +69,15 @@ class Socio(models.Model):
     
     @property
     def es_menor_edad(self):
-        if not self.fecha_nacimiento:
+        if not self.usuario.perfil.fecha_nacimiento:
             raise ValueError('Debe definir fecha de nacimiento.')
         hoy = date.today()
         edad = (
             hoy.year
-            - self.fecha_nacimiento.year
+            - self.usuario.perfil.fecha_nacimiento.year
             -(
                 (hoy.month, hoy.day)
-                <(self.fecha_nacimiento.month, self.fecha_nacimiento.day)
+                <(self.usuario.perfil.fecha_nacimiento.month, self.usuario.perfil.fecha_nacimiento.day)
             )
         )
         return edad < 18
@@ -91,16 +90,17 @@ class Socio(models.Model):
     
 
 class Entrenador(models.Model):
-    nombre = models.CharField(max_length=50, help_text="@Ingrese el nombre del entrenador")
-    apellido = models.CharField(max_length=50, help_text="@Ingrese el apellido del entrenador")
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
     club = models.ManyToManyField(Club, related_name='entrenadores')
+    # nombre = models.CharField(max_length=50, help_text="@Ingrese el nombre del entrenador")
+    # apellido = models.CharField(max_length=50, help_text="@Ingrese el apellido del entrenador")
+
     # volver a agregar los related_name para poder acceder Qué problema ayudan a resolver select_related() y prefetch_related()
     #especialidad = models.ManyToManyField(Disciplina, related_name='especialidades_discplina')
     experiencia = models.IntegerField(validators=[MinValueValidator(0)], help_text="@Ingrese la cantidad de años de experiencia del entrenador")
 
     def __str__(self):
-        return f"{self.nombre} {self.apellido}"   
+        return f"{self.usuario.perfil.nombre} {self.usuario.perfil.apellido}"   
 
 
 class Categoria(models.Model):
@@ -138,7 +138,7 @@ class Fichaje(models.Model):
             self.socio.save(update_fields=['es_deportista'])
 
     def __str__(self):
-        return f"{self.socio.usuario.nombre} {self.socio.usuario.apellido} - {self.disciplina.nombre} - {self.categoria.nombre} - {self.ciclo.año}" 
+        return f"{self.socio.usuario.perfil.nombre} {self.socio.usuario.perfil.apellido} - {self.disciplina.nombre} - {self.categoria.nombre} - {self.ciclo.año}" 
 
 class ParametroEvaluacion(models.Model):
    
@@ -160,7 +160,7 @@ class PlanillaExamen(models.Model):
     #observaciones = models.TextField(help_text="@Ingrese las observaciones del examen", blank=True, null=True)
 
     def __str__(self):
-        return f"{self.fichaje.socio.usuario.nombre} {self.fichaje.socio.usuario.apellido} - {self.fichaje.disciplina.nombre} - {self.fichaje.categoria.nombre} - {self.fecha_examen}"    
+        return f"{self.fichaje.socio.usuario.perfil.nombre} {self.fichaje.socio.usuario.perfil.apellido} - {self.fichaje.disciplina.nombre} - {self.fichaje.categoria.nombre} - {self.fecha_examen}"    
 
 class ResultadoExamen(models.Model):
    
@@ -170,7 +170,7 @@ class ResultadoExamen(models.Model):
     observaciones = models.TextField(help_text="@Ingrese las observaciones del resultado del examen", blank=True, null=True)
 
     def __str__(self):
-        return f"{self.planilla.fichaje.socio.usuario.nombre} {self.planilla.fichaje.socio.usuario.apellido} - {self.planilla.fichaje.disciplina.nombre} - {self.planilla.fichaje.categoria.nombre} - {self.planilla.fecha_examen} - {self.fecha_test}"
+        return f"{self.planilla.fichaje.socio.usuario.perfil.nombre} {self.planilla.fichaje.socio.usuario.perfil.apellido} - {self.planilla.fichaje.disciplina.nombre} - {self.planilla.fichaje.categoria.nombre} - {self.planilla.fecha_examen} - {self.fecha_test}"
 
 class MetricaRegistrada(models.Model):
 
@@ -182,4 +182,4 @@ class MetricaRegistrada(models.Model):
     observaciones = models.TextField(help_text="@Ingrese las observaciones de la métrica registrada", blank=True, null=True)
 
     def __str__(self):
-        return f"{self.resultado.planilla.fichaje.socio.usuario.nombre} {self.resultado.planilla.fichaje.socio.usuario.apellido} - {self.resultado.planilla.fichaje.disciplina.nombre} - {self.resultado.planilla.fichaje.categoria.nombre} - {self.resultado.planilla.fecha_examen} - {self.parametro.nombre} - {self.valor}"    
+        return f"{self.resultado.planilla.fichaje.socio.usuario.perfil.nombre} {self.resultado.planilla.fichaje.socio.usuario.perfil.apellido} - {self.resultado.planilla.fichaje.disciplina.nombre} - {self.resultado.planilla.fichaje.categoria.nombre} - {self.resultado.planilla.fecha_examen} - {self.parametro.nombre} - {self.valor}"    

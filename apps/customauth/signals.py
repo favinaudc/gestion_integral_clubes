@@ -2,6 +2,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import Group
 from .models import Usuario
+from django.shortcuts import get_object_or_404
 
 '''
 Las signals (señales) en Django implementan el patrón de diseño Observador (Observer). 
@@ -26,7 +27,7 @@ y ejecuta la asignación del grupo sin acoplar código dentro de las vistas o fo
 def asignar_rol_por_defecto(sender, instance, created, **kwargs):
     if created:
         # Obtiene o crea el grupo 'usuario'
-        grupo_base, _ = Group.objects.get_or_create(name='USUARIO')
+        grupo_base = get_object_or_404(Group, name='USUARIO')  # Cambia 'usuario' por el nombre del grupo que desees asignar por defecto
         
         # Lo añade a la relación ManyToMany de PermissionsMixin
         instance.groups.add(grupo_base)

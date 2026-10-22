@@ -79,3 +79,31 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     @property
     def is_usuario(self):
         return self.get_grupo_activo == 'USUARIO'
+
+
+class Perfil(models.Model):
+    nombre = models.CharField(max_length=50, help_text="Ingrese el nombre del usuario")
+    apellido = models.CharField(max_length=50, help_text="Ingrese el apellido del usuario")
+    fecha_nacimiento = models.DateField(help_text="Ingrese la fecha de nacimiento del usuario")
+    telefono = models.CharField(max_length=20, null=True, blank=True, help_text="Ingrese el teléfono del usuario (opcional)")
+    direccion = models.CharField(max_length=100, null=True, blank=True, help_text="Ingrese la dirección del usuario (opcional)")
+    
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
+    club = models.ManyToManyField('clubes.Club', through='PerfilClub', related_name='perfiles', blank=True)
+
+    def __str__(self):
+        return f"{self.nombre} {self.apellido}"
+
+
+class PerfilClub(models.Model):
+    fecha_asociacion = models.DateField(auto_now_add=True)
+    
+    perfil = models.ForeignKey(Perfil, on_delete=models.CASCADE)
+    club = models.ForeignKey('clubes.Club', on_delete=models.CASCADE)
+    grupo_rol = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
+
+    # class Meta:
+    #    unique_together = ('perfil', 'club')
+
+    def __str__(self):
+        return f"{self.perfil} - {self.club}"
