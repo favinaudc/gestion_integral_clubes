@@ -6,4 +6,5 @@ app_name = 'auth'
 urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.cerrar_sesion, name='logout'),
+    path('cambiar-rol/<int:pk>', views.cambiar_rol, name='cambiar_rol'),
 ]

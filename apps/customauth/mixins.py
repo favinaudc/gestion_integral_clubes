@@ -1,3 +1,5 @@
+from django.contrib import messages
+from django.shortcuts import redirect
 from django.core.exceptions import PermissionDenied
 from .models import PerfilClub
 
@@ -20,6 +22,7 @@ class ValidarRolClubMixin:
         ).exists()
 
         if not tiene_permiso:
-            raise PermissionDenied("No tienes permisos de gestión ó consulta para este club.")
+            messages.error(request, "No tienes permisos de gestión ó consulta para este club.")
+            return redirect('clubes:listar_clubes')  # Redirige a la página de inicio o a otra página de tu elección
             
         return super().dispatch(request, *args, **kwargs)

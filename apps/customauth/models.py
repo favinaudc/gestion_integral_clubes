@@ -82,9 +82,9 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
 
 class Perfil(models.Model):
-    nombre = models.CharField(max_length=50, help_text="Ingrese el nombre del usuario")
-    apellido = models.CharField(max_length=50, help_text="Ingrese el apellido del usuario")
-    fecha_nacimiento = models.DateField(help_text="Ingrese la fecha de nacimiento del usuario")
+    nombre = models.CharField(max_length=50, help_text="Ingrese el nombre del usuario", null=True, blank=True)
+    apellido = models.CharField(max_length=50, help_text="Ingrese el apellido del usuario", null=True, blank=True)
+    fecha_nacimiento = models.DateField(help_text="Ingrese la fecha de nacimiento del usuario", null=True, blank=True)
     telefono = models.CharField(max_length=20, null=True, blank=True, help_text="Ingrese el teléfono del usuario (opcional)")
     direccion = models.CharField(max_length=100, null=True, blank=True, help_text="Ingrese la dirección del usuario (opcional)")
     

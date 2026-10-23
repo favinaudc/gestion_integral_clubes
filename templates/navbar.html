@@ -76,13 +76,13 @@
     </div>
     
     <div class="d-flex align-items-center gap-4">
-        {% if request.user.is_authenticated and request.user.groups.count > 1%}
+        {% if request.user.is_authenticated and request.user.groups.count > 1 %}
             <div class="topbar-actions-custom">
                 <!-- Dropdown de Roles -->
                 <div class="dropdown">
                     <button class="btn border-0 shadow-none d-flex align-items-center gap-2 p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: var(--text-main); font-size: 0.95rem;">
                         <i class="bi bi-person-badge text-muted"></i>
-                        <span class="fw-semibold">{{ request.user.get_grupo_activo|default:"SIN ROL" }}</span>
+                        <span class="fw-semibold">{{ request.user.get_grupo_activo }}</span>
                         <i class="bi bi-chevron-down ms-1" style="font-size: 0.75rem;"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2" style="border-radius: 10px; min-width: 200px;">
@@ -92,7 +92,7 @@
                             {% if grupo.id != request.user.grupo_activo.id %}
                             <li>
                                  {% comment %} href="{% url 'cambiar_rol' grupo.id %}" {% endcomment %}
-                                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#">
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="{% url 'auth:cambiar_rol' grupo.id %}">
                                     <i class="bi bi-arrow-right-short text-muted"></i> 
                                     {{ grupo.name|upper }}
                                 </a>
