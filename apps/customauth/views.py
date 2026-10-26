@@ -1,56 +1,31 @@
 from django.shortcuts import render
 
 # Create your views here.
-from django.contrib.auth.views import LoginView
-from django.contrib.auth.forms import AuthenticationForm
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.models import Group
-from django.urls import reverse_lazy
-from django import forms
 
-# 1. Creamos nuestro propio formulario de Autenticación
-class CustomLoginForm(AuthenticationForm):
-    # Le decimos explícitamente que espere el campo 'cuit_cuil' desde el HTML
-    cuit_cuil = forms.CharField(max_length=11, required=True)
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('home') 
 
-    def __init__(self, request=None, *args, **kwargs):
-        super().__init__(request, *args, **kwargs)
-        # Borramos el campo 'username' genérico que Django inyecta por defecto
-        if 'username' in self.fields:
-            del self.fields['username']
+    if request.method == 'POST':
+        # Capturamos los datos que vienen del input del HTML
+        cuit = request.POST.get('cuit_cuil')
+        password = request.POST.get('password')
 
-    def clean(self):
-        # Capturamos los datos limpios
-        cuit = self.cleaned_data.get('cuit_cuil')
-        password = self.cleaned_data.get('password')
+        user = authenticate(request, cuit_cuil=cuit, password=password)
 
-        if cuit and password:
-            # Autenticamos usando cuit_cuil (Exactamente igual que en tu vieja función FBV)
-            self.user_cache = authenticate(self.request, cuit_cuil=cuit, password=password)
-            
-            if self.user_cache is None:
-                raise self.get_invalid_login_error()
-            else:
-                self.confirm_login_allowed(self.user_cache)
-                
-        return self.cleaned_data
+        if user is not None:
+            login(request, user)
+            return redirect('home')
+        else:
+            # Si falla, enviamos un mensaje de error a la plantilla
+            messages.error(request, "El CUIT/CUIL o la contraseña son incorrectos.")
 
-class CustomLoginView(LoginView):
-    template_name = 'customauth/login.html'
-    
-    # Equivalente a tu "if request.user.is_authenticated: return redirect('home')"
-    redirect_authenticated_user = True  
-    
-    def get_success_url(self):
-        # Redirección tras un login exitoso
-        return reverse_lazy('home') # Cambiá 'home' por el namespace:name correspondiente
-        
-    def form_invalid(self, form):
-        # Equivalente al bloque "else" cuando falla el authenticate()
-        messages.error(self.request, "El CUIT/CUIL o la contraseña son incorrectos.")
-        return super().form_invalid(form)
+    return render(request, 'customauth/login.html')
 
 
 def cerrar_sesion(request):
