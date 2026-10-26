@@ -7,9 +7,9 @@
     <!-- Encabezado de la Tarjeta -->
     <div class="card-header bg-primary text-white p-3 d-flex justify-content-between align-items-center rounded-top-3">
         <h5 class="card-title mb-0 fw-bold">
-            <i class="bi bi-person-badge-fill me-2"></i>{{ entrenador.usuario.perfil.nombre }} {{ entrenador.usuario.perfil.apellido }}
+            <i class="bi bi-person-badge-fill me-2"></i>{{ entrenador|upper }}
         </h5>
-        <span class="badge bg-light text-primary border">Entrenador Deportivo</span>
+       
     </div>
 
     <!-- Cuerpo de la Tarjeta -->
@@ -37,7 +37,7 @@
                     <div>
                         <small class="text-muted d-block text-uppercase fw-semibold">Usuario Asociado</small>
                         <span class="fw-medium text-dark">
-                            <strong>{{ entrenador.usuario|upper }}</strong>
+                            <strong>{{ entrenador|upper }}</strong>
                         </span>
                     </div>
                 </div>
