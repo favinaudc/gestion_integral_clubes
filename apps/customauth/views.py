@@ -2,11 +2,40 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.contrib.auth.views import LoginView
+from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.urls import reverse_lazy
+from django import forms
+
+# 1. Creamos nuestro propio formulario de Autenticación
+class CustomLoginForm(AuthenticationForm):
+    # Le decimos explícitamente que espere el campo 'cuit_cuil' desde el HTML
+    cuit_cuil = forms.CharField(max_length=11, required=True)
+
+    def __init__(self, request=None, *args, **kwargs):
+        super().__init__(request, *args, **kwargs)
+        # Borramos el campo 'username' genérico que Django inyecta por defecto
+        if 'username' in self.fields:
+            del self.fields['username']
+
+    def clean(self):
+        # Capturamos los datos limpios
+        cuit = self.cleaned_data.get('cuit_cuil')
+        password = self.cleaned_data.get('password')
+
+        if cuit and password:
+            # Autenticamos usando cuit_cuil (Exactamente igual que en tu vieja función FBV)
+            self.user_cache = authenticate(self.request, cuit_cuil=cuit, password=password)
+            
+            if self.user_cache is None:
+                raise self.get_invalid_login_error()
+            else:
+                self.confirm_login_allowed(self.user_cache)
+                
+        return self.cleaned_data
 
 class CustomLoginView(LoginView):
     template_name = 'customauth/login.html'
