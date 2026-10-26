@@ -1,0 +1,17 @@
+{% extends "base_apps.html" %}
+
+{% block title %}Acceso pendiente · Gestión de Clubes{% endblock %}
+
+{% block contenido_apps %}
+<section class="card-custom text-center mx-auto mt-4" style="max-width: 720px;" aria-labelledby="sin-rol-title">
+    <div class="mb-3">
+        <i class="bi bi-person-lock text-primary" style="font-size: 3rem;" aria-hidden="true"></i>
+    </div>
+    <h1 id="sin-rol-title" class="h3 fw-bold">Tu acceso está pendiente</h1>
+    <p class="mb-0">
+        Your account doesn't have any active roles or groups assigned yet.
+        Please wait while your access is set up, or contact support.
+        Support information is available in the Help option on the left sidebar.
+    </p>
+</section>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base_apps.html" %}
+
+{% block title %}Inicio - Bienvenido{% endblock %}
+
+{% block contenido_apps %}
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-12 col-md-8 col-lg-12">
+        
+        <div class="card border-0 shadow-sm rounded-4 text-center p-4 p-md-5 bg-white">
+            <div class="card-body">
+                
+                <div class="mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle" style="width: 80px; height: 80px;">
+                        <i class="bi bi-clock-history text-primary" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+
+                <h2 class="fw-bold text-dark mb-3">
+                    {% if request.user.perfil %}
+                        ¡Hola, {{ request.user.perfil.nombre }}!
+                    {% else %}
+                        ¡Hola!
+                    {% endif%}
+                </h2>
+                
+                <div class="text-secondary mb-4" style="font-size: 1.05rem; line-height: 1.6;">
+                    <p class="mb-2">
+                        Nos alegra muchísimo tenerte en la plataforma de <strong>Gestión Integral de Clubes</strong>.
+                    </p>
+                    <p class="mb-0">
+                        Tu cuenta ha sido creada exitosamente. Por el momento, te pedimos que aguardes pacientemente mientras el administrador de tu institución te asigna los roles y accesos correspondientes a tu club.
+                    </p>
+                </div>
+
+                <hr class="text-muted opacity-25 mb-4">
+
+                <div class="bg-light rounded-3 p-3 text-muted small d-flex align-items-center text-start border border-light-subtle">
+                    <i class="bi bi-question-circle-fill fs-3 text-info me-3 opacity-75"></i>
+                    <span>
+                        ¿Tenés alguna duda o tu rol está demorando demasiado? Dirigite al <strong>ícono de ayuda</strong> en la barra lateral izquierda para contactar con nuestro equipo de soporte técnico.
+                    </span>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock contenido_apps %}

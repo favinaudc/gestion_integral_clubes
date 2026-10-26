@@ -14,48 +14,75 @@
                 </a>
             </li>
         -->
-        <li>
-            <a href="{% url 'clubes:listar_ciclos' %}" class="nav-link-custom">
-                <i class="bi bi-clock-fill" aria-hidden="true"></i>
-                <span class="sidebar-text">Ciclos</span>
-            </a>
-        </li>
-        <li>
-            <a href="{% url 'clubes:listar_clubes' %}" class="nav-link-custom">
-                <i class="bi bi-buildings-fill" aria-hidden="true"></i>
-                <span class="sidebar-text">Clubes</span>
-            </a>
-        </li>
-        <li>
-            <a href="{% url 'clubes:listar_disciplinas' %}" class="nav-link-custom">
-                <i class="bi bi-award-fill" aria-hidden="true"></i>
-                <span class="sidebar-text">Disciplinas</span>
-            </a>
-        </li>
-        <li>
-            <a href="#" class="nav-link-custom">
-                <i class="bi bi-people-fill" aria-hidden="true"></i>
-                <span class="sidebar-text">Deportistas</span>
-            </a>
-        </li>
-        <li>
-            <a href="#" class="nav-link-custom">
-                <i class="bi bi-layers-fill" aria-hidden="true"></i>
-                <span class="sidebar-text">Categorías</span>
-            </a>
-        </li>
-        <li>
-            <a href="#" class="nav-link-custom">
-                <i class="bi bi-heart-pulse" aria-hidden="true"></i>
-                <span class="sidebar-text">Evaluaciones</span>
-            </a>
-        </li>
-        <li>
-            <a href="#" class="nav-link-custom">
-                <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
-                <span class="sidebar-text">Reportes</span>
-            </a>
-        </li>
+        {% if user.is_admin %}
+            <li>
+                <a href="{% url 'clubes:listar_ciclos' %}" class="nav-link-custom">
+                    <i class="bi bi-clock-fill" aria-hidden="true"></i>
+                    <span class="sidebar-text">Ciclos</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'clubes:listar_clubes' %}" class="nav-link-custom">
+                    <i class="bi bi-buildings-fill" aria-hidden="true"></i>
+                    <span class="sidebar-text">Clubes</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'clubes:listar_disciplinas' %}" class="nav-link-custom">
+                    <i class="bi bi-award-fill" aria-hidden="true"></i>
+                    <span class="sidebar-text">Disciplinas</span>
+                </a>
+            </li>
+        {% endif %}
+        {% if user.is_club_admin %}
+            <li>
+                <a href="{% url 'clubes:listar_ciclos' %}" class="nav-link-custom">
+                    <i class="bi bi-clock-fill" aria-hidden="true"></i>
+                    <span class="sidebar-text">Ciclos</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'clubes:listar_disciplinas' %}" class="nav-link-custom">
+                    <i class="bi bi-award-fill" aria-hidden="true"></i>
+                    <span class="sidebar-text">Disciplinas</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link-custom">
+                    <i class="bi bi-people-fill" aria-hidden="true"></i>
+                    <span class="sidebar-text">Deportistas</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link-custom">
+                    <i class="bi bi-layers-fill" aria-hidden="true"></i>
+                    <span class="sidebar-text">Categorías</span>
+                </a>
+            </li>
+        {% endif %}
+        {% if user.is_entrenador%}
+            <li>
+                <a href="#" class="nav-link-custom">
+                    <i class="bi bi-heart-pulse" aria-hidden="true"></i>
+                    <span class="sidebar-text">Evaluaciones</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link-custom">
+                    <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
+                    <span class="sidebar-text">Reportes</span>
+                </a>
+            </li>
+        {% endif %}
+
+        {% if user.is_usuario %}
+            <li>
+                <a href="#" class="nav-link-custom">
+                    <i class="bi bi-question-lg"></i>
+                    <span class="sidebar-text">Ayuda</span>
+                </a>
+            </li>
+        {% endif %}
     </ul>
 
     <div class="mt-auto pt-4" style="border-top: 1px solid var(--border-color);">

@@ -53,4 +53,4 @@ def cambiar_rol(request, pk):
         request.user.grupo_activo = grupo_solicitado
         request.user.save()
         messages.success(request, 'Rol actualizado')
-    return redirect('clubes:listar_clubes')
+    return redirect('home')

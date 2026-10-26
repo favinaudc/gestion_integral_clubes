@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from .views import inicio
+from .views import home_resolver
 
 
 urlpatterns = [
@@ -24,4 +24,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('clubes/', include('apps.clubes.urls')),
     path('auth/', include('apps.customauth.urls')),
+    path('home/', home_resolver, name='home'),  # Ruta para la vista de inicio
 ]
