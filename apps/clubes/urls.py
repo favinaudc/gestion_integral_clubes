@@ -36,12 +36,14 @@ socios_urls = [
 ]
 entrenadores_urls = [
     path('entrenadores/', EntrenadorListView.as_view(), name='listar_entrenadores'),
+    path('entrenadores/<int:pk>/detalles/', EntrenadorDetailView.as_view(), name='detalles_entrenador'),
     path('entrenadores/<int:pk>/editar/', EntrenadorUpdateView.as_view(), name='editar_entrenador'),
     path('entrenadores/<int:pk>/eliminar/', EntrenadorDeleteView.as_view(), name='eliminar_entrenador'),
     path('entrenadores/create/', EntrenadorCreateView.as_view(), name='crear_entrenador'),
 ]
 disciplinas_urls =[
     path('disciplinas/', DisciplinaListView.as_view(), name='listar_disciplinas'),
+    path('disciplinas/<int:pk>/detalles/', DisciplinaDetailView.as_view(), name='detalles_disciplina'),
     path('disciplinas/<int:pk>/editar/', DisciplinaUpdateView.as_view(), name='editar_disciplina'),
     path('disciplinas/<int:pk>/eliminar/', DisciplinaDeleteView.as_view(), name='eliminar_disciplina'),
     path('disciplinas/create/', DisciplinaCreateView.as_view(), name='crear_disciplina'),
@@ -54,6 +56,7 @@ categorias_urls =[
 ]
 fichaje_urls =[
     path('fichajes/', FichajeListView.as_view(), name='listar_fichajes'), 
+    path('fichajes/<int:pk>/detalles/', FichajeDetailView.as_view(), name='detalles_fichaje'),
     path('fichajes/<int:pk>/editar/', FichajeUpdateView.as_view(), name='editar_fichaje'),
     path('fichajes/<int:pk>/eliminar/', FichajeDeleteView.as_view(), name='eliminar_fichaje'),
     path('fichajes/create/', FichajeCreateView.as_view(), name='crear_fichaje'),

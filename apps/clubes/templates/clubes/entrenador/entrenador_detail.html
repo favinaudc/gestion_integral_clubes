@@ -1,0 +1,75 @@
+{% extends 'base_apps.html' %}
+ 
+{% block title %}Detalle del Club{% endblock %}
+
+{% block contenido_apps %}
+<div class="card shadow-sm border-0 rounded-3">
+    <!-- Encabezado de la Tarjeta -->
+    <div class="card-header bg-primary text-white p-3 d-flex justify-content-between align-items-center rounded-top-3">
+        <h5 class="card-title mb-0 fw-bold">
+            <i class="bi bi-person-badge-fill me-2"></i>{{ entrenador.usuario.perfil.nombre }} {{ entrenador.usuario.perfil.apellido }}
+        </h5>
+        <span class="badge bg-light text-primary border">Entrenador Deportivo</span>
+    </div>
+
+    <!-- Cuerpo de la Tarjeta -->
+    <div class="card-body p-4">
+        <div class="row g-4">
+            <!-- Años de Experiencia -->
+            <div class="col-12 col-md-6">
+                <div class="d-flex align-items-start">
+                    <div class="icon-shape bg-light text-primary rounded p-2 me-3">
+                        <i class="bi bi-briefcase-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block text-uppercase fw-semibold">Experiencia</small>
+                        <span class="fw-medium text-dark">{{ entrenador.experiencia }} años de experiencia</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usuario del Sistema -->
+            <div class="col-12 col-md-6">
+                <div class="d-flex align-items-start">
+                    <div class="icon-shape bg-light text-primary rounded p-2 me-3">
+                        <i class="bi bi-person-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block text-uppercase fw-semibold">Usuario Asociado</small>
+                        <span class="fw-medium text-dark">
+                            <strong>{{ entrenador.usuario|upper }}</strong>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <hr class="my-2 border-secondary opacity-25">
+            </div>
+
+            <!-- Clubes Asociados (ManyToManyField) -->
+            <div class="col-12">
+                <div class="d-flex align-items-start">
+                    <div class="icon-shape bg-light text-primary rounded p-2 me-3">
+                        <i class="bi bi-building-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block text-uppercase fw-semibold mb-1">Clubes en los que entrena</small>
+                        <div class="d-flex flex-wrap gap-1">
+                            {% for club in entrenador.club.all %}
+                                <strong>{{ club.nombre|upper }}</strong>
+                            {% empty %}
+                                <span class="text-muted fst-italic">No está asociado a ningún club actualmente.</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+            
+            {% include "includes/boton_volver.html" with url_name=url_volver boton_titulo='Volver' %}  
+
+{% endblock %}

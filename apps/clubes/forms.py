@@ -237,6 +237,17 @@ class EntrenadorForm(forms.ModelForm):
         model = Entrenador
         fields = ['usuario', 'club', 'experiencia', 'nombre', 'apellido']
 
+    def save(self, commit=True):
+        # Guardamos el entrenador primero
+        entrenador = super().save(commit=False)
+        if commit:
+            entrenador.save()
+            # Asignamos el único club seleccionado envolviéndolo en una lista []
+            club_seleccionado = self.cleaned_data.get('club')
+            if club_seleccionado:
+                entrenador.club.set([club_seleccionado])
+        return entrenador
+
     def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.helper = FormHelper()

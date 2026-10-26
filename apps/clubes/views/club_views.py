@@ -33,6 +33,10 @@ class ClubDetailView(DetailView):
     template_name = 'clubes/club/club_detail.html'
     context_object_name = 'club'  # Nombre del contexto para acceder al club en la plantilla
 
+    def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            context['url_volver'] = 'clubes:listar_clubes'  # URL para el botón de volver
+            return context
     
 
 class ClubListView(ListView):

@@ -1,0 +1,72 @@
+{% extends 'base_apps.html' %}
+ 
+{% block title %}Detalle del Club{% endblock %}
+
+{% block contenido_apps %}
+
+                <div class="card shadow-sm border-0 rounded-3">
+    <!-- Encabezado de la Tarjeta -->
+    <div class="card-header bg-primary text-white p-3 d-flex justify-content-between align-items-center rounded-top-3">
+        <h5 class="card-title mb-0 fw-bold">
+            <i class="bi bi-building me-2"></i><strong>{{ club.nombre|upper }}</strong>
+        </h5>
+        <span class="badge bg-light text-primary border">
+            Fundado: {{ club.fecha_fundacion|date:"d/m/Y" }}
+        </span>
+    </div>
+
+    <!-- Cuerpo de la Tarjeta -->
+    <div class="card-body p-4">
+        <div class="row g-3">
+            <!-- Dirección -->
+            <div class="col-12 col-md-6">
+                <div class="d-flex align-items-start">
+                    <div class="icon-shape bg-light text-primary rounded p-2 me-3">
+                        <i class="bi bi-geo-alt-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block text-uppercase fw-semibold">Dirección</small>
+                        <span class="fw-medium text-dark"><strong>{{ club.direccion|upper }}</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teléfono -->
+            <div class="col-12 col-md-6">
+                <div class="d-flex align-items-start">
+                    <div class="icon-shape bg-light text-primary rounded p-2 me-3">
+                        <i class="bi bi-telephone-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block text-uppercase fw-semibold">Teléfono</small>
+                        <a href="tel:{{ club.telefono }}" class="text-decoration-none fw-medium text-dark">
+                            <strong>{{ club.telefono }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Correo Electrónico -->
+            <div class="col-12">
+                <hr class="my-2 border-secondary opacity-25">
+                <div class="d-flex align-items-start mt-2">
+                    <div class="icon-shape bg-light text-primary rounded p-2 me-3">
+                        <i class="bi bi-envelope-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block text-uppercase fw-semibold">Correo Electrónico</small>
+                        <a href="mailto:{{ club.email }}" class="text-decoration-none fw-medium text-primary">
+                            {{ club.email }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+</div>
+            
+            {% include "includes/boton_volver.html" with url_name=url_volver boton_titulo='Volver' %}  
+
+{% endblock %}
