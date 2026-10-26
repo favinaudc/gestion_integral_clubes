@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.contrib.auth.models import Group
 
 def login_view(request):
     # Si el usuario ya está logueado, lo mandamos directo al panel
@@ -37,7 +38,19 @@ def cerrar_sesion(request):
     logout(request)
     
     # Opcional: le mandamos un mensajito de despedida
-    messages.info(request, "Has cerrado sesión exitosamente.")
+    messages.success(request, "Has cerrado sesión exitosamente.")
     
     # Lo redirigimos de vuelta a la pantalla de login
     return redirect('auth:login')
+
+def cambiar_rol(request, pk):
+    # Aquí iría la lógica para cambiar el rol del usuario con id=pk
+    # Por ejemplo, podrías buscar al usuario y cambiar su grupo o permisos
+    # Luego redirigir a alguna página de confirmación o de vuelta al dashboard
+
+    grupo_solicitado = Group.objects.get(pk=pk)
+    if request.user.groups.filter(pk=grupo_solicitado.pk).exists():
+        request.user.grupo_activo = grupo_solicitado
+        request.user.save()
+        messages.success(request, 'Rol actualizado')
+    return redirect('clubes:listar_clubes')

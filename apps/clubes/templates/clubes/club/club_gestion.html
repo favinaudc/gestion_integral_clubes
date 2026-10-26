@@ -1,0 +1,26 @@
+{% extends 'base_apps.html' %}
+
+{% block title %}Gestión de Club {{club.nombre}}{% endblock %}
+
+{% block contenido_apps %}
+<div class="card border-0 shadow-sm rounded-4 p-2 bg-white">
+    <div class="card-title p-3">
+        <h6 class="h6 mb-0 text-uppercase">Listado de socios</h6>    
+        <hr>
+    </div>
+    <div class="card-body">
+        <table class="table data-tables table-hover align-middle dt-responsive nowrap w-100">
+            <thead class="table">
+                <tr>
+                    <th>Fecha de Carga</th>
+                    <th>Agente</th>
+                    <th>N° de Expediente</th>
+                    <th>N° de Siniestro</th>
+                    <th>Estado</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+{% endblock contenido_apps %}

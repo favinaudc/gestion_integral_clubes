@@ -69,20 +69,48 @@
 
 <header class="topbar-custom w-100">
     
-    <div class="d-flex align-items-center justify-content-between gap-3">
-        <button id="sidebarToggleBtn" class="btn btn-light border-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px; border-radius: 50%; background-color: var(--bg-card); transition: 0.3s;">
-            <i class="bi bi-list text-muted-custom" style="font-size: 1.2rem;" aria-hidden="true"></i>
-        </button>
-        <!-- Botón de Hamburguesa / Toggle 
-        -->
+    <div class="d-flex align-items-center justify-content-between gap-3">        
         <h3 class="fw-bold mb-0 text-main" style="font-size: 1.5rem;">
             Gestión Integral de Clubes
         </h3>
     </div>
     
-    <!--
-        <div class="d-flex align-items-center gap-4">
-            
+    <div class="d-flex align-items-center gap-4">
+        {% if request.user.is_authenticated and request.user.groups.count > 1 %}
+            <div class="topbar-actions-custom">
+                <!-- Dropdown de Roles -->
+                <div class="dropdown">
+                    <button class="btn border-0 shadow-none d-flex align-items-center gap-2 p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: var(--text-main); font-size: 0.95rem;">
+                        <i class="bi bi-person-badge text-muted"></i>
+                        <span class="fw-semibold">{{ request.user.get_grupo_activo }}</span>
+                        <i class="bi bi-chevron-down ms-1" style="font-size: 0.75rem;"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2" style="border-radius: 10px; min-width: 200px;">
+                        <li><h6 class="dropdown-header text-uppercase" style="font-size: 0.75rem;">Cambiar rol a:</h6></li>
+                        
+                        {% for grupo in request.user.groups.all %}
+                            {% if grupo.id != request.user.grupo_activo.id %}
+                            <li>
+                                 {% comment %} href="{% url 'cambiar_rol' grupo.id %}" {% endcomment %}
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="{% url 'auth:cambiar_rol' grupo.id %}">
+                                    <i class="bi bi-arrow-right-short text-muted"></i> 
+                                    {{ grupo.name|upper }}
+                                </a>
+                            </li>
+                            {% endif %}
+                        {% empty %}
+                            <li><span class="dropdown-item text-muted py-2">No posees otros roles</span></li>
+                        {% endfor %}
+                    </ul>
+                </div> 
+            </div>
+        {% endif %}
+        <!-- Botón de Hamburguesa / Toggle -->        
+        <button id="sidebarToggleBtn" class="btn btn-light border-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px; border-radius: 50%; background-color: var(--bg-card); transition: 0.3s;">
+            <i class="bi bi-list text-muted-custom" style="font-size: 1.2rem;" aria-hidden="true"></i>
+        </button>
+
+        <!--
         <div class="search-bar-custom">
             <i class="bi bi-search" aria-hidden="true"></i>
             <input type="text" placeholder="Buscar atleta...">
@@ -98,6 +126,6 @@
             </a>
         </div>
         
+        -->
     </div>
-    -->
 </header>

@@ -35,7 +35,7 @@ class UsuarioManager(BaseUserManager):
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
     cuit_cuil = models.CharField(max_length=11, unique=True, help_text="Ingrese el CUIT/CUIL del usuario sin guiones")        
-    email = models.EmailField(unique=True, null=True, blank=True)
+    email = models.EmailField(unique=True, null=False, blank=False)
     
     is_active = models.BooleanField(default=True, help_text="Indica si el usuario está activo o no")
     is_staff = models.BooleanField(default=False, help_text="Indica si el usuario es staff (Administrador) o no")
@@ -49,3 +49,66 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f"{self.cuit_cuil}"
+
+    @property
+    def get_grupo_activo(self):
+        if self.grupo_activo:
+            return self.grupo_activo.name.upper()
+        return ''
+
+    @property
+    def is_admin(self):
+        return self.get_grupo_activo == 'ADMIN'
+
+    @property
+    def is_club_admin(self):
+        return self.get_grupo_activo == 'CLUB_ADMIN'
+
+    @property
+    def is_club_administrativo(self):
+        return self.get_grupo_activo == 'CLUB_ADMINISTRATIVO'
+
+    @property
+    def is_entrenador(self):
+        return self.get_grupo_activo == 'ENTRENADOR'
+
+    @property
+    def is_socio(self):
+        return self.get_grupo_activo == 'SOCIO'
+
+    @property
+    def is_usuario(self):
+        return self.get_grupo_activo == 'USUARIO'
+
+
+class Perfil(models.Model):
+    nombre = models.CharField(max_length=50, help_text="Ingrese el nombre del usuario", null=True, blank=True)
+    apellido = models.CharField(max_length=50, help_text="Ingrese el apellido del usuario", null=True, blank=True)
+    fecha_nacimiento = models.DateField(help_text="Ingrese la fecha de nacimiento del usuario", null=True, blank=True)
+    telefono = models.CharField(max_length=20, null=True, blank=True, help_text="Ingrese el teléfono del usuario (opcional)")
+    direccion = models.CharField(max_length=100, null=True, blank=True, help_text="Ingrese la dirección del usuario (opcional)")
+    
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='perfil')
+    club = models.ManyToManyField('clubes.Club', through='PerfilClub', related_name='perfiles', blank=True)
+
+    def __str__(self):
+        return f"{self.nombre} {self.apellido}"
+    
+    def iniciales(self):
+        if self.nombre and self.apellido:
+            return f"{self.nombre[0].upper()}{self.apellido[0].upper()}"
+        return ""
+
+
+class PerfilClub(models.Model):
+    fecha_asociacion = models.DateField(auto_now_add=True)
+    
+    perfil = models.ForeignKey(Perfil, on_delete=models.CASCADE)
+    club = models.ForeignKey('clubes.Club', on_delete=models.CASCADE)
+    grupo_rol = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
+
+    # class Meta:
+    #    unique_together = ('perfil', 'club')
+
+    def __str__(self):
+        return f"{self.perfil} - {self.club}"
