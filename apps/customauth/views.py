@@ -1,52 +1,38 @@
 from django.shortcuts import render
 
 # Create your views here.
-
+from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.models import Group
+from django.urls import reverse_lazy
 
-def login_view(request):
-    # Si el usuario ya está logueado, lo mandamos directo al panel
-    if request.user.is_authenticated:
-        return redirect('clubes:listar_clubes') # Cambiá esto por la URL de tu home/dashboard
-
-    if request.method == 'POST':
-        # Capturamos los datos que vienen del input del HTML
-        cuit = request.POST.get('cuit_cuil')
-        password = request.POST.get('password')
-
-        # authenticate() verifica en la base de datos si las credenciales coinciden
-        # Usamos cuit_cuil porque lo definiste como USERNAME_FIELD en tu modelo
-        user = authenticate(request, cuit_cuil=cuit, password=password)
-
-        if user is not None:
-            # Si el usuario existe y está activo, creamos la sesión
-            login(request, user)
-            return redirect('clubes:listar_clubes') # TODO: Ésto debe cambiar dependiendo del ROL/GROUP del usuario
-        else:
-            # Si falla, enviamos un mensaje de error a la plantilla
-            messages.error(request, "El CUIT/CUIL o la contraseña son incorrectos.")
-
-    # Si la petición es GET (solo entrar a la página), renderizamos el formulario
-    return render(request, 'customauth/login.html')
+class CustomLoginView(LoginView):
+    template_name = 'customauth/login.html'
+    
+    # Equivalente a tu "if request.user.is_authenticated: return redirect('home')"
+    redirect_authenticated_user = True  
+    
+    def get_success_url(self):
+        # Redirección tras un login exitoso
+        return reverse_lazy('home') # Cambiá 'home' por el namespace:name correspondiente
+        
+    def form_invalid(self, form):
+        # Equivalente al bloque "else" cuando falla el authenticate()
+        messages.error(self.request, "El CUIT/CUIL o la contraseña son incorrectos.")
+        return super().form_invalid(form)
 
 
 def cerrar_sesion(request):
-    # Destruye la sesión actual del usuario
     logout(request)
     
-    # Opcional: le mandamos un mensajito de despedida
     messages.success(request, "Has cerrado sesión exitosamente.")
     
     # Lo redirigimos de vuelta a la pantalla de login
     return redirect('auth:login')
 
 def cambiar_rol(request, pk):
-    # Aquí iría la lógica para cambiar el rol del usuario con id=pk
-    # Por ejemplo, podrías buscar al usuario y cambiar su grupo o permisos
-    # Luego redirigir a alguna página de confirmación o de vuelta al dashboard
 
     grupo_solicitado = Group.objects.get(pk=pk)
     if request.user.groups.filter(pk=grupo_solicitado.pk).exists():

@@ -16,7 +16,7 @@
                 </div>
 
                 <h2 class="fw-bold text-dark mb-3">
-                    {% if request.user.perfil %}
+                    {% if request.user.perfil and request.user.perfil.nombre %}
                         ¡Hola, {{ request.user.perfil.nombre }}!
                     {% else %}
                         ¡Hola!
