@@ -76,6 +76,7 @@ class DisciplinaUpdateView(SharedFormMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = f'Editar disciplina'
+        context['url_volver'] = 'clubes:listar_disciplinas'
         return context
 
 class DisciplinaDeleteView(DeleteView):
