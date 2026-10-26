@@ -2,11 +2,13 @@ from django.urls import reverse_lazy
 from django.views.generic import DeleteView
 from django.views.generic import UpdateView
 from django.db.models import Q
-from apps.clubes.models import Disciplina
+from apps.clubes.models import Disciplina, Club
+from django.views.generic import DetailView
 from django.views.generic import ListView
 from django.views.generic import CreateView
 from ..mixins import SharedFormMixin
 from ..forms import DisciplinaForm
+from django.shortcuts import get_object_or_404
 
 class DisciplinaCreateView(SharedFormMixin, CreateView):
     model = Disciplina
@@ -18,17 +20,19 @@ class DisciplinaCreateView(SharedFormMixin, CreateView):
         context['titulo'] =f'Crear disciplina'
         context['url_volver'] = 'clubes:listar_disciplinas'
         return context
+    def get_success_url(self): #pone el pk en la url .
+            print("self.object.pk", self.object.pk)
+            return reverse_lazy('clubes:detalles_disciplina', kwargs={'pk': self.object.pk})
 
-class DisciplinaDetailView(ListView):
+class DisciplinaDetailView(DetailView):
     model = Disciplina
-    template_name = 'clubes/disciplina_detail.html'
-    context_object_name = 'disciplinas'  # Nombre del contexto para acceder a las disciplinas en la plantilla
+    template_name = 'clubes/disciplina/disciplina_detail.html'
+    context_object_name = 'disciplina'  # Nombre del contexto para acceder a la disciplina en la plantilla
 
-    def get_queryset(self):
-        # Filtra las disciplinas por el ID del club proporcionado en la URL
-        club = self.kwargs.get('club')
-        return Disciplina.objects.filter(club=club)
-
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['url_volver'] = 'clubes:listar_disciplinas'  # URL para el botón de volver
+        return context
 
 class DisciplinaListView(ListView):
     model = Disciplina
@@ -72,6 +76,7 @@ class DisciplinaUpdateView(SharedFormMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = f'Editar disciplina'
+        context['url_volver'] = 'clubes:listar_disciplinas'
         return context
 
 class DisciplinaDeleteView(DeleteView):

@@ -92,11 +92,6 @@ class Socio(models.Model):
 class Entrenador(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
     club = models.ManyToManyField(Club, related_name='entrenadores')
-    # nombre = models.CharField(max_length=50, help_text="@Ingrese el nombre del entrenador")
-    # apellido = models.CharField(max_length=50, help_text="@Ingrese el apellido del entrenador")
-
-    # volver a agregar los related_name para poder acceder Qué problema ayudan a resolver select_related() y prefetch_related()
-    #especialidad = models.ManyToManyField(Disciplina, related_name='especialidades_discplina')
     experiencia = models.IntegerField(validators=[MinValueValidator(0)], help_text="@Ingrese la cantidad de años de experiencia del entrenador")
 
     def __str__(self):

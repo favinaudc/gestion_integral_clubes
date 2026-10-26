@@ -4,13 +4,13 @@ from django.views.generic import UpdateView
 from apps.clubes.models import Entrenador
 from django.views.generic import ListView
 from django.views.generic import CreateView
+from django.views.generic import DetailView
 from ..mixins import SharedFormMixin
 from ..forms import EntrenadorForm
 
 class EntrenadorCreateView(SharedFormMixin, CreateView):
     model = Entrenador
     form_class = EntrenadorForm
-   
     success_url = reverse_lazy('clubes:listar_entrenadores')  # Redirige a la lista de entrenadores después de crear un entrenador  
 
     def get_context_data(self, **kwargs):
@@ -18,15 +18,21 @@ class EntrenadorCreateView(SharedFormMixin, CreateView):
         context['titulo'] = f'Crear entrenador'
         return context
 
-class EntrenadorDetailView(ListView):
-    model = Entrenador
-    template_name = 'clubes/entrenador_detail.html'
-    context_object_name = 'entrenadores'  # Nombre del contexto para acceder a los entrenadores en la plantilla
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['url_volver'] = 'clubes:listar_entrenadores'  # URL para el botón de volver
+        return context
 
-    def get_queryset(self):
-        # Filtra los entrenadores por el ID del club proporcionado en la URL
-        club = self.kwargs.get('club')
-        return Entrenador.objects.filter(club=club)
+class EntrenadorDetailView(DetailView):
+    model = Entrenador
+    template_name = 'clubes/entrenador/entrenador_detail.html'
+    context_object_name = 'entrenador'  # Nombre del contexto para acceder a los entrenadores en la plantilla
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['url_volver'] = 'clubes:listar_entrenadores'  # URL para el botón de volver
+        return context
 
 
 class EntrenadorListView(ListView):

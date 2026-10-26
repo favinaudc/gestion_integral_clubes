@@ -1,0 +1,109 @@
+{% extends 'base_apps.html' %}
+ 
+{% block title %}Detalle del Club{% endblock %}
+
+{% block contenido_apps %}
+<div class="card shadow-sm border-0 rounded-3">
+    <!-- Encabezado de la Tarjeta -->
+    <div class="card-header bg-primary text-white p-3 d-flex justify-content-between align-items-center rounded-top-3">
+        <h5 class="card-title mb-0 fw-bold">
+            <i class="bi bi-file-earmark-text-fill me-2"></i>SOCIO FICHAJE  {{ fichaje.socio.usuario.perfil|upper }}
+        </h5>
+        <!-- Badge para mostrar si está activo o inactivo -->
+        
+    </div>
+
+    <!-- Cuerpo de la Tarjeta -->
+    <div class="card-body p-4">
+        <div class="row g-4">
+            <!-- Socio -->
+            <div class="col-12 col-md-4">
+                <div class="d-flex align-items-start">
+                    <div class="icon-shape bg-light text-primary rounded p-2 me-3">
+                        <i class="bi bi-person-badge-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block text-uppercase fw-semibold">Socio</small>
+                        <span class="fw-medium text-dark">
+                            {{ fichaje.socio.usuario.perfil.nombre }} {{ fichaje.socio.usuario.perfil.apellido }}
+                        </span>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Disciplina -->
+            <div class="col-12 col-md-4">
+                <div class="d-flex align-items-start">
+                    <div class="icon-shape bg-light text-primary rounded p-2 me-3">
+                        <i class="bi bi-trophy-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block text-uppercase fw-semibold">Disciplina</small>
+                        <span class="fw-medium text-dark">{{ fichaje.disciplina.nombre }}</span>
+                    </div>
+                </div>
+            </div>
+              <div class="col-12 col-md-4">
+                <div class="d-flex align-items-start">
+                    <div class="icon-shape bg-light text-primary rounded p-2 me-3">
+                        <i class="bi bi-info-lg fs-4"></i>
+                    </div>
+                    <div>
+                            {% if fichaje.is_active %}
+                            <span class="badge bg-success text-white">Activo</span>
+                            {% else %}
+                            <span class="badge bg-secondary text-white">Inactivo</span>
+                            {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <hr class="my-2 border-secondary opacity-25">
+            </div>
+
+            <!-- Categoría -->
+            <div class="col-12 col-md-4">
+                <div class="d-flex align-items-start">
+                    <div class="icon-shape bg-light text-primary rounded p-2 me-3">
+                        <i class="bi bi-tag-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block text-uppercase fw-semibold">Categoría</small>
+                        <span class="fw-medium text-dark">{{ fichaje.categoria.nombre }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ciclo -->
+            <div class="col-12 col-md-4">
+                <div class="d-flex align-items-start">
+                    <div class="icon-shape bg-light text-primary rounded p-2 me-3">
+                        <i class="bi bi-calendar-event-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block text-uppercase fw-semibold">Ciclo</small>
+                        <span class="fw-medium text-dark">{{ fichaje.ciclo.año }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fecha de Fichaje -->
+            <div class="col-12 col-md-4">
+                <div class="d-flex align-items-start">
+                    <div class="icon-shape bg-light text-primary rounded p-2 me-3">
+                        <i class="bi bi-calendar-check-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block text-uppercase fw-semibold">Fecha de Fichaje</small>
+                        <span class="fw-medium text-dark">{{ fichaje.fecha_fichaje|date:"d/m/Y" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+             
+{% include "includes/boton_volver.html" with url_name=url_volver boton_titulo='Volver' %}  
+
+{% endblock %}

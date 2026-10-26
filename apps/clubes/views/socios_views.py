@@ -16,7 +16,10 @@ class SocioCreateView(SharedFormMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['titulo'] = f'Crear socio'
         return context
-    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['url_volver'] = 'clubes:listar_socios'  # URL para el botón de volver
+        return context
 class SocioDetailView(ListView):
     model = Socio
     template_name = 'clubes/socio_detail.html'

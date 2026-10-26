@@ -1,13 +1,13 @@
  {% extends 'base_apps.html' %}
  
-    <title>{% block title %}Listado de Ciclos{% endblock %}</title>
+    <title>{% block title %}Listado de fichajes{% endblock %}</title>
 
 {% block contenido_apps %}
 
     <div class="card border-0 shadow-sm rounded-4 p-2 bg-white">
         <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h3 mb-0">Ciclos Deportivos Registrados</h1>
+            <h1 class="h3 mb-0">Fichajes Registrados</h1>
            
         </div>
 
@@ -34,12 +34,12 @@
                             <td>{{ fichaje.fecha_fichaje }}</td>
                             <td>{{ fichaje.ciclo }}</td>
                             <td class="text-center">
-                                <a href="{% url 'clubes:editar_ciclo' fichaje.ciclo.pk %}" class="btn btn-sm btn-outline-primary">
+                                <a href="{% url 'clubes:editar_fichaje' fichaje.pk %}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-edit">Editar</i>
                                 </a>
                             </td>
                             <td class="text-center">
-                                <a href="{% url 'clubes:eliminar_ciclo' fichaje.ciclo.pk %}" class="btn btn-sm btn-outline-danger">
+                                <a href="{% url 'clubes:eliminar_fichaje' fichaje.pk %}" class="btn btn-sm btn-outline-danger">
                                     <i class="fas fa-trash">Eliminar</i> <!-- boton eliminar -->
                                 </a>
                             </td>
