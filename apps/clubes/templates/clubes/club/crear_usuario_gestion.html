@@ -33,7 +33,9 @@
                     <small class="text-danger">{{ form_existente.usuario.errors }}</small>
                 </div>
                 
-                <button type="submit" class="btn btn-success text-uppercase">Vincular al Club</button>
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-success text-uppercase">Vincular al Club</button>                
+                </div>
             </form>
         </div>
 
@@ -43,7 +45,6 @@
                 {% csrf_token %}
                 <input type="hidden" name="action_type" value="nuevo">
                 
-                <h5 class="text-secondary mb-3 border-bottom pb-2">Credenciales de Acceso</h5>
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
                         {{ form_usuario.cuit_cuil.label_tag }}
@@ -57,7 +58,6 @@
                     </div>
                 </div>
 
-                <h5 class="text-secondary mb-3 border-bottom pb-2">Datos del Perfil</h5>
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
                         {{ form_perfil.nombre.label_tag }}
@@ -85,8 +85,9 @@
                         <small class="text-danger">{{ form_perfil.direccion.errors }}</small>
                     </div>
                 </div>
-                
-                <button type="submit" class="btn btn-success text-uppercase">Crear Perfil y Vincular</button>
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-success text-uppercase">Crear Perfil y Vincular</button>
+                </div>
             </form>
         </div>
     </div>

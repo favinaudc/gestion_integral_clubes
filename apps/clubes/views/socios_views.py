@@ -1,13 +1,11 @@
-from django.views.generic import UpdateView
-from django.views.generic import ListView
-from django.views.generic import CreateView
+from django.views.generic import UpdateView, ListView, CreateView, DeleteView
+from apps.customauth.mixins import LoginRequiredMixinConMensaje
 from django.urls import reverse_lazy
 from apps.clubes.models import Socio
-from django.views.generic import DeleteView
 from ..mixins import SharedFormMixin
 from ..forms import SocioForm
 
-class SocioCreateView(SharedFormMixin, CreateView):
+class SocioCreateView(LoginRequiredMixinConMensaje, SharedFormMixin, CreateView):
     model = Socio
     form_class = SocioForm
     success_url = reverse_lazy('clubes:listar_socios')  # Redirige a la lista de socios después de crear un socio      
@@ -20,7 +18,7 @@ class SocioCreateView(SharedFormMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['url_volver'] = 'clubes:listar_socios'  # URL para el botón de volver
         return context
-class SocioDetailView(ListView):
+class SocioDetailView(LoginRequiredMixinConMensaje, ListView):
     model = Socio
     template_name = 'clubes/socio_detail.html'
     context_object_name = 'socios'  # Nombre del contexto para acceder a los socios en la plantilla
@@ -30,12 +28,12 @@ class SocioDetailView(ListView):
         club = self.kwargs.get('club')
         return Socio.objects.filter(club=club)
 
-class SocioListView(ListView):
+class SocioListView(LoginRequiredMixinConMensaje, ListView):
     model = Socio
     template_name = 'clubes/socio/socio_list.html'
     context_object_name = 'socios'  # Nombre del contexto para acceder a los socios en la plantilla
 
-class SocioUpdateView(SharedFormMixin, UpdateView):
+class SocioUpdateView(LoginRequiredMixinConMensaje, SharedFormMixin, UpdateView):
     model = Socio
     form_class = SocioForm
     success_url = reverse_lazy('clubes:listar_socios')  # Redirige a la lista de socios después de editar un socio
@@ -45,7 +43,7 @@ class SocioUpdateView(SharedFormMixin, UpdateView):
         context ['titulo'] = f'Editar socio {self.object}'
         return context
 
-class SocioDeleteView(DeleteView):
+class SocioDeleteView(LoginRequiredMixinConMensaje, DeleteView):
     model = Socio
     template_name = 'clubes/socio/socio_confirm_delete.html'  # Plantilla por defecto que busca Django
     success_url = reverse_lazy('clubes:listar_socios')  # Redirige a la lista después de eliminar un socio  

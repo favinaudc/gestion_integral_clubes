@@ -6,9 +6,10 @@ from django.views.generic import ListView
 from django.views.generic import CreateView
 from ..mixins import SharedFormMixin
 from ..forms import CategoriaForm
+from apps.customauth.mixins import LoginRequiredMixinConMensaje
 
 
-class CategoriaCreateView(SharedFormMixin,CreateView):  
+class CategoriaCreateView(LoginRequiredMixinConMensaje, SharedFormMixin,CreateView):  
     model = Categoria
     form_class = CategoriaForm
     success_url = reverse_lazy('clubes:listar_categorias')  # Redirige a la lista de categorías después de crear una categoría
@@ -29,7 +30,7 @@ class CategoriaCreateView(SharedFormMixin,CreateView):
             
         return response
 
-class CategoriaDetailView(ListView):
+class CategoriaDetailView(LoginRequiredMixinConMensaje, ListView):
     model = Categoria
     template_name = 'clubes/categoria_detail.html'
     context_object_name = 'categorias'  # Nombre del contexto para acceder a las categorías en la plantilla
@@ -40,12 +41,12 @@ class CategoriaDetailView(ListView):
         return Categoria.objects.filter(disciplina=disciplina)
 
 
-class CategoriaListView(ListView):
+class CategoriaListView(LoginRequiredMixinConMensaje, ListView):
     model = Categoria
     template_name = 'clubes/categoria/categoria_list.html'
     context_object_name = 'categorias'  # Nombre del contexto para acceder a las categorías en la plantilla
 
-class CategoriaUpdateView(SharedFormMixin, UpdateView):
+class CategoriaUpdateView(LoginRequiredMixinConMensaje, SharedFormMixin, UpdateView):
     model = Categoria
     form_class = CategoriaForm
     success_url = reverse_lazy('clubes:listar_categorias')  # Redirige a la lista de categorías después de editar una categoría
@@ -55,7 +56,7 @@ class CategoriaUpdateView(SharedFormMixin, UpdateView):
         context['titulo'] =f'Editar categoria {self.object}'
         return context
 
-class CategoriaDeleteView(DeleteView):
+class CategoriaDeleteView(LoginRequiredMixinConMensaje, DeleteView):
     model = Categoria
     template_name = 'clubes/categoria_confirm_delete.html'  # Plantilla por defecto que busca Django
     success_url = reverse_lazy('clubes:listar_categorias')  # Redirige a la lista después de eliminar una categoría

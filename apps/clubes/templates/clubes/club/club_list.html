@@ -89,9 +89,9 @@
                                 <a href="{% url 'clubes:crear_usuario_gestion_club' club.pk %}" class="btn btn-sm btn-light text-primary flex-fill" title="Gestionar">
                                     <i class="bi bi-person-add"></i>
                                 </a>
-                                <a href="{% url 'clubes:gestionar_club' club.pk %}" class="btn btn-sm btn-light text-primary flex-fill" title="Gestionar">
+                                {% comment %} <a href="{% url 'clubes:gestionar_club' club.pk %}" class="btn btn-sm btn-light text-primary flex-fill" title="Gestionar">
                                     <i class="bi bi-gear"></i>
-                                </a>
+                                </a> {% endcomment %}
                                 <a href="{% url 'clubes:editar_club' club.pk %}" class="btn btn-sm btn-light text-primary flex-fill" title="Editar">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>

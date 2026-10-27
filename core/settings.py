@@ -77,7 +77,7 @@ TEMPLATES = [
     },
 ]
 
-LOGIN_URL = 'customauth:login'
+LOGIN_URL = 'auth:login'
 
 WSGI_APPLICATION = 'core.wsgi.application'
 

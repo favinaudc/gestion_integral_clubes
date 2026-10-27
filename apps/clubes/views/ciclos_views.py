@@ -8,9 +8,9 @@ from django.views.generic import ListView
 from django.views.generic import CreateView
 from ..mixins import SharedFormMixin
 from ..forms import CicloForm
-from django.contrib.auth.mixins import LoginRequiredMixin
+from apps.customauth.mixins import LoginRequiredMixinConMensaje
 
-class CicloCreateView(LoginRequiredMixin, SharedFormMixin, CreateView):
+class CicloCreateView(LoginRequiredMixinConMensaje, SharedFormMixin, CreateView):
     model = Ciclo
     form_class = CicloForm  
     success_url = reverse_lazy('clubes:listar_ciclos')  # Redirige a la lista de clubes después de crear un ciclo
@@ -21,7 +21,7 @@ class CicloCreateView(LoginRequiredMixin, SharedFormMixin, CreateView):
         context['url_volver'] = 'clubes:listar_ciclos'
         return context
 
-class CicloListView(LoginRequiredMixin, ListView):
+class CicloListView(LoginRequiredMixinConMensaje, ListView):
     model = Ciclo
     template_name = 'clubes/ciclo/ciclos_list.html'
     context_object_name = 'ciclos'  # Nombre del contexto para acceder a los ciclos en la plantilla
@@ -35,7 +35,7 @@ class CicloListView(LoginRequiredMixin, ListView):
             total_clubes=Count('clubes_participantes')
         ).order_by('-año')
 
-class CicloDetailView(LoginRequiredMixin, DetailView):
+class CicloDetailView(LoginRequiredMixinConMensaje, DetailView):
     model = Ciclo
     template_name = ''
     context_object_name = 'ciclo'
@@ -45,7 +45,7 @@ class CicloDetailView(LoginRequiredMixin, DetailView):
             context['url_volver'] = 'clubes:listar_ciclos'
             return context
 
-class CicloUpdateView(LoginRequiredMixin, SharedFormMixin, UpdateView):
+class CicloUpdateView(LoginRequiredMixinConMensaje, SharedFormMixin, UpdateView):
     model = Ciclo
     form_class = CicloForm
     # template_name = 'clubes/ciclo_form.html'  # apunto a reutilizar el formulario de creacion
@@ -57,7 +57,7 @@ class CicloUpdateView(LoginRequiredMixin, SharedFormMixin, UpdateView):
         context['url_volver'] = 'clubes:listar_ciclos'
         return context
 
-class CicloDeleteView(LoginRequiredMixin, DeleteView):
+class CicloDeleteView(LoginRequiredMixinConMensaje, DeleteView):
     model = Ciclo
     template_name = 'clubes/ciclo/ciclo_confirm_delete.html'  # Plantilla por defecto que busca Django
     success_url = reverse_lazy('clubes:listar_ciclos')  # Redirige a la lista después de eliminar    

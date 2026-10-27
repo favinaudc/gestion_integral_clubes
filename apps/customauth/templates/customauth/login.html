@@ -42,10 +42,10 @@
                     {% csrf_token %}
                     
                     <!-- Bloque para mostrar errores de inicio de sesión -->
-                    {% if messages %}
-                        {% for message in messages %}
+                    {% if errors %}
+                        {% for error in errors %}
                             <div class="alert alert-danger small py-2 text-center" role="alert">
-                                {{ message }}
+                                {{ error }}
                             </div>
                         {% endfor %}
                     {% endif %}

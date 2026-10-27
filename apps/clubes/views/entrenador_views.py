@@ -1,14 +1,11 @@
 from django.urls import reverse_lazy
-from django.views.generic import DeleteView
-from django.views.generic import UpdateView
+from django.views.generic import DeleteView, ListView, CreateView, DetailView, UpdateView
 from apps.clubes.models import Entrenador
-from django.views.generic import ListView
-from django.views.generic import CreateView
-from django.views.generic import DetailView
+from apps.customauth.mixins import LoginRequiredMixinConMensaje
 from ..mixins import SharedFormMixin
 from ..forms import EntrenadorForm
 
-class EntrenadorCreateView(SharedFormMixin, CreateView):
+class EntrenadorCreateView(LoginRequiredMixinConMensaje, SharedFormMixin, CreateView):
     model = Entrenador
     form_class = EntrenadorForm
     success_url = reverse_lazy('clubes:listar_entrenadores')  # Redirige a la lista de entrenadores después de crear un entrenador  
@@ -23,7 +20,7 @@ class EntrenadorCreateView(SharedFormMixin, CreateView):
         context['url_volver'] = 'clubes:listar_entrenadores'  # URL para el botón de volver
         return context
 
-class EntrenadorDetailView(DetailView):
+class EntrenadorDetailView(LoginRequiredMixinConMensaje, DetailView):
     model = Entrenador
     template_name = 'clubes/entrenador/entrenador_detail.html'
     context_object_name = 'entrenador'  # Nombre del contexto para acceder a los entrenadores en la plantilla
@@ -35,7 +32,7 @@ class EntrenadorDetailView(DetailView):
         return context
 
 
-class EntrenadorListView(ListView):
+class EntrenadorListView(LoginRequiredMixinConMensaje, ListView):
     model = Entrenador
     template_name = 'clubes/entrenador/entrenador_list.html'
     context_object_name = 'entrenadores'  # Nombre del contexto para acceder a los entrenadores en la plantilla 
@@ -45,7 +42,7 @@ class EntrenadorListView(ListView):
         return entrenadores
          # Prefetch related para optimizar consultas
 
-class EntrenadorUpdateView(SharedFormMixin, UpdateView):
+class EntrenadorUpdateView(LoginRequiredMixinConMensaje, SharedFormMixin, UpdateView):
     model = Entrenador
     form_class = EntrenadorForm
     success_url = reverse_lazy('clubes:listar_entrenadores')  # Redirige a la lista de entrenadores después de editar un entrenador 
@@ -55,7 +52,7 @@ class EntrenadorUpdateView(SharedFormMixin, UpdateView):
         context['titulo']= f'Editar entrenador'
         return context
 
-class EntrenadorDeleteView(DeleteView):
+class EntrenadorDeleteView(LoginRequiredMixinConMensaje, DeleteView):
     model = Entrenador
     template_name = 'clubes/entrenador_confirm_delete.html'  # Plantilla por defecto que busca Django
     success_url = reverse_lazy('clubes:listar_entrenadores')  # Redirige a la lista después de eliminar un entrenador   

@@ -6,11 +6,12 @@ from apps.clubes.models import Disciplina, Club
 from django.views.generic import DetailView
 from django.views.generic import ListView
 from django.views.generic import CreateView
+from apps.customauth.mixins import LoginRequiredMixinConMensaje
 from ..mixins import SharedFormMixin
 from ..forms import DisciplinaForm
 from django.shortcuts import get_object_or_404
 
-class DisciplinaCreateView(SharedFormMixin, CreateView):
+class DisciplinaCreateView(LoginRequiredMixinConMensaje, SharedFormMixin, CreateView):
     model = Disciplina
     form_class = DisciplinaForm
     success_url = reverse_lazy('clubes:listar_disciplinas')  # Redirige a la lista de disciplinas después de crear una disciplina
@@ -24,7 +25,7 @@ class DisciplinaCreateView(SharedFormMixin, CreateView):
             print("self.object.pk", self.object.pk)
             return reverse_lazy('clubes:detalles_disciplina', kwargs={'pk': self.object.pk})
 
-class DisciplinaDetailView(DetailView):
+class DisciplinaDetailView(LoginRequiredMixinConMensaje, DetailView):
     model = Disciplina
     template_name = 'clubes/disciplina/disciplina_detail.html'
     context_object_name = 'disciplina'  # Nombre del contexto para acceder a la disciplina en la plantilla
@@ -34,7 +35,7 @@ class DisciplinaDetailView(DetailView):
         context['url_volver'] = 'clubes:listar_disciplinas'  # URL para el botón de volver
         return context
 
-class DisciplinaListView(ListView):
+class DisciplinaListView(LoginRequiredMixinConMensaje, ListView):
     model = Disciplina
     template_name = 'clubes/disciplina/disciplina_list.html'
     context_object_name = 'disciplinas'
@@ -68,7 +69,7 @@ class DisciplinaListView(ListView):
         
         return context  
 
-class DisciplinaUpdateView(SharedFormMixin, UpdateView):
+class DisciplinaUpdateView(LoginRequiredMixinConMensaje, SharedFormMixin, UpdateView):
     model = Disciplina
     form_class = DisciplinaForm
     success_url = reverse_lazy('clubes:listar_disciplinas')  # Redirige a la lista de disciplinas después de editar una disciplina
@@ -79,7 +80,7 @@ class DisciplinaUpdateView(SharedFormMixin, UpdateView):
         context['url_volver'] = 'clubes:listar_disciplinas'
         return context
 
-class DisciplinaDeleteView(DeleteView):
+class DisciplinaDeleteView(LoginRequiredMixinConMensaje, DeleteView):
     model = Disciplina
     template_name = 'clubes/disciplina_confirm_delete.html'  # Plantilla por defecto que busca Django
     success_url = reverse_lazy('clubes:listar_disciplinas')  # Redirige a la lista después de eliminar una disciplina

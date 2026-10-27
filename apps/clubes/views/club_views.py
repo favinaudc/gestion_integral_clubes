@@ -8,13 +8,15 @@ from apps.clubes.models import Club
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, DetailView
 from django.core.mail import send_mail
 from django.contrib.auth.models import Group
+from apps.customauth.mixins import LoginRequiredMixinConMensaje
 from apps.customauth.forms import NuevoPerfilForm, NuevoUsuarioForm, UsuarioExistenteForm
 from apps.customauth.models import PerfilClub, Usuario
 from ..mixins import SharedFormMixin
 from apps.customauth.mixins import ValidarRolClubMixin
+from apps.customauth.decorators import login_required_con_mensaje, rol_required
 from ..forms import ClubForm
 
-class ClubCreateView(SharedFormMixin, CreateView):
+class ClubCreateView(LoginRequiredMixinConMensaje, SharedFormMixin, CreateView):
     model = Club
     form_class = ClubForm
 
@@ -28,7 +30,7 @@ class ClubCreateView(SharedFormMixin, CreateView):
         print("self.object.pk", self.object.pk)
         return reverse_lazy('clubes:detalles_club', kwargs={'pk': self.object.pk})
 
-class ClubDetailView(DetailView):
+class ClubDetailView(LoginRequiredMixinConMensaje, DetailView):
     model = Club
     template_name = 'clubes/club/club_detail.html'
     context_object_name = 'club'  # Nombre del contexto para acceder al club en la plantilla
@@ -39,7 +41,7 @@ class ClubDetailView(DetailView):
             return context
     
 
-class ClubListView(ListView):
+class ClubListView(LoginRequiredMixinConMensaje, ListView):
     model = Club
     template_name = 'clubes/club/club_list.html'
     context_object_name = 'clubes'  # Nombre del contexto para acceder a los clubes en la plantilla  
@@ -75,7 +77,7 @@ class ClubListView(ListView):
         context['fecha_hasta'] = self.request.GET.get('fecha_hasta', '')
         return context
 
-class ClubUpdateView(SharedFormMixin, UpdateView):
+class ClubUpdateView(LoginRequiredMixinConMensaje, SharedFormMixin, UpdateView):
     model = Club
     form_class = ClubForm
     # template_name = 'clubes/club_form.html'  # Plantilla para el formulario de edición
@@ -87,13 +89,13 @@ class ClubUpdateView(SharedFormMixin, UpdateView):
         context['url_volver'] = 'clubes:listar_clubes'
         return context
 
-class ClubDeleteView(DeleteView):
+class ClubDeleteView(LoginRequiredMixinConMensaje, DeleteView):
     model = Club
     template_name = 'clubes/club_confirm_delete.html'  # Plantilla por defecto que busca Django
     success_url = reverse_lazy('clubes:listar_clubes')  # Redirige a la lista después de eliminar un club
 
 
-class GestionarClubView(ValidarRolClubMixin, View): 
+class GestionarClubView(LoginRequiredMixinConMensaje, ValidarRolClubMixin, View): 
     rol_requerido = ['CLUB_ADMIN']
     template_name = 'clubes/club/club_gestion.html'
 
@@ -102,7 +104,7 @@ class GestionarClubView(ValidarRolClubMixin, View):
         club = Club.objects.filter(id=club_id).first()
         if not club:
             messages.error(request, "El club no existe.")
-            return redirect('clubes:listar_clubes')
+            return redirect('home')
         return super().dispatch(request, *args, **kwargs)
     
     def get(self, request, *args, **kwargs):
@@ -111,6 +113,8 @@ class GestionarClubView(ValidarRolClubMixin, View):
         context = {'club': club}
         return render(request, self.template_name, context)
 
+@login_required_con_mensaje
+@rol_required(['ADMIN'])
 def asociar_usuario_club(request, pk):
     club = get_object_or_404(Club, id=pk)
     form_existente = UsuarioExistenteForm()
