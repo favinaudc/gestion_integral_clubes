@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Inconveniente técnico · 500{% endblock %}
+
+{% block contenido_principal %}
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+    <div class="row justify-content-center w-100">
+        <div class="col-12 col-md-8 col-lg-6">
+            
+            <div class="card border-0 shadow-sm rounded-4 text-center p-4 p-md-5 bg-white">
+                <div class="card-body">
+                    
+                    <!-- Ícono de mantenimiento / servidor -->
+                    <div class="mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-secondary bg-opacity-10 rounded-circle" style="width: 80px; height: 80px;">
+                            <i class="bi bi-gear-wide-connected text-secondary" style="font-size: 2.5rem;"></i>
+                        </div>
+                    </div>
+
+                    <!-- Badge de Estado -->
+                    <div class="mb-3">
+                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-3 py-1 small fw-semibold">
+                            Error 500 · Inconveniente interno
+                        </span>
+                    </div>
+
+                    <h2 class="fw-bold text-dark mb-3">
+                        Tuvimos un problema técnico momentáneo
+                    </h2>
+                    
+                    <div class="text-secondary mb-4" style="font-size: 1.05rem; line-height: 1.6;">
+                        <p class="mb-2">
+                            Ocurrió una interrupción al procesar tu solicitud en la plataforma de <strong>Gestión Integral de Clubes</strong>.
+                        </p>
+                        <p class="mb-0 text-muted small">
+                            Tus datos se encuentran resguardados. Nuestro equipo técnico ya fue notificado para revisar y resolver la situación a la brevedad.
+                        </p>
+                    </div>
+
+                    <!-- Botón de retorno al Home -->
+                    <div class="d-grid gap-2 col-10 col-md-8 mx-auto mb-4">
+                        <a href="{% url 'home' %}" class="btn btn-primary rounded-pill py-2 fw-medium shadow-sm">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Reintentar en el Inicio
+                        </a>
+                    </div>
+
+                    <hr class="text-muted opacity-25 mb-4">
+
+                    <!-- Cuadro informativo de ayuda -->
+                    <div class="bg-light rounded-3 p-3 text-muted small d-flex align-items-center text-start border border-light-subtle">
+                        <i class="bi bi-shield-check fs-3 text-success me-3 opacity-75"></i>
+                        <span>
+                            ¿Estabas cargando una evaluación o registro?<br>
+                            Aguardá unos instantes y volvé a ingresar antes de reenviar el formulario para confirmar su estado.
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock contenido_principal %}

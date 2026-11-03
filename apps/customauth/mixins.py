@@ -12,6 +12,9 @@ class ValidarRolClubMixin:
     rol_requerido = []  # Debe ser definido en la vista que herede este mixin
 
     def dispatch(self, request, *args, **kwargs):
+        if request.user.is_admin:
+            return super().dispatch(request, *args, **kwargs)
+        
         # 1. Obtener el ID del club desde la URL (Asegurate de que coincida con tu urls.py)
         club_id = self.kwargs.get('pk') or self.kwargs.get('club_id')
         

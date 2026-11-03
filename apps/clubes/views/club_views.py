@@ -8,17 +8,20 @@ from apps.clubes.models import Club
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, DetailView
 from django.core.mail import send_mail
 from django.contrib.auth.models import Group
-from apps.customauth.mixins import LoginRequiredMixinConMensaje
+from apps.customauth.mixins import LoginRequiredMixinConMensaje, ValidarRolClubMixin
 from apps.customauth.forms import NuevoPerfilForm, NuevoUsuarioForm, UsuarioExistenteForm
 from apps.customauth.models import PerfilClub, Usuario
 from ..mixins import SharedFormMixin
-from apps.customauth.mixins import ValidarRolClubMixin
 from apps.customauth.decorators import login_required_con_mensaje, rol_required
+from django.contrib.auth.decorators import permission_required
 from ..forms import ClubForm
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
-class ClubCreateView(LoginRequiredMixinConMensaje, SharedFormMixin, CreateView):
+
+class ClubCreateView(LoginRequiredMixinConMensaje, PermissionRequiredMixin, SharedFormMixin, CreateView):
     model = Club
     form_class = ClubForm
+    permission_required = 'clubes.add_club'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -30,10 +33,11 @@ class ClubCreateView(LoginRequiredMixinConMensaje, SharedFormMixin, CreateView):
         print("self.object.pk", self.object.pk)
         return reverse_lazy('clubes:detalles_club', kwargs={'pk': self.object.pk})
 
-class ClubDetailView(LoginRequiredMixinConMensaje, DetailView):
+class ClubDetailView(LoginRequiredMixinConMensaje, PermissionRequiredMixin, DetailView):
     model = Club
     template_name = 'clubes/club/club_detail.html'
     context_object_name = 'club'  # Nombre del contexto para acceder al club en la plantilla
+    permission_required = 'clubes.view_club'
 
     def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
@@ -41,10 +45,11 @@ class ClubDetailView(LoginRequiredMixinConMensaje, DetailView):
             return context
     
 
-class ClubListView(LoginRequiredMixinConMensaje, ListView):
+class ClubListView(LoginRequiredMixinConMensaje, PermissionRequiredMixin, ListView):
     model = Club
     template_name = 'clubes/club/club_list.html'
     context_object_name = 'clubes'  # Nombre del contexto para acceder a los clubes en la plantilla  
+    permission_required = 'clubes.view_club'
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -77,11 +82,12 @@ class ClubListView(LoginRequiredMixinConMensaje, ListView):
         context['fecha_hasta'] = self.request.GET.get('fecha_hasta', '')
         return context
 
-class ClubUpdateView(LoginRequiredMixinConMensaje, SharedFormMixin, UpdateView):
+class ClubUpdateView(LoginRequiredMixinConMensaje, ValidarRolClubMixin, PermissionRequiredMixin, SharedFormMixin, UpdateView):
     model = Club
     form_class = ClubForm
-    # template_name = 'clubes/club_form.html'  # Plantilla para el formulario de edición
     success_url = reverse_lazy('clubes:listar_clubes')  # Redirige a la lista de clubes después de editar un club
+    rol_requerido = ['ADMIN', 'CLUB_ADMIN']
+    permission_required = 'clubes.change_club'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -89,15 +95,17 @@ class ClubUpdateView(LoginRequiredMixinConMensaje, SharedFormMixin, UpdateView):
         context['url_volver'] = 'clubes:listar_clubes'
         return context
 
-class ClubDeleteView(LoginRequiredMixinConMensaje, DeleteView):
+class ClubDeleteView(LoginRequiredMixinConMensaje, PermissionRequiredMixin, DeleteView):
     model = Club
     template_name = 'clubes/club_confirm_delete.html'  # Plantilla por defecto que busca Django
     success_url = reverse_lazy('clubes:listar_clubes')  # Redirige a la lista después de eliminar un club
+    permission_required = 'clubes.delete_club'
 
 
-class GestionarClubView(LoginRequiredMixinConMensaje, ValidarRolClubMixin, View): 
+class GestionarClubView(LoginRequiredMixinConMensaje, ValidarRolClubMixin, PermissionRequiredMixin, View): 
     rol_requerido = ['CLUB_ADMIN']
     template_name = 'clubes/club/club_gestion.html'
+    permission_required = 'clubes.gestionar_club'
 
     def dispatch(self, request, *args, **kwargs):
         club_id = kwargs.get('pk')
@@ -114,7 +122,8 @@ class GestionarClubView(LoginRequiredMixinConMensaje, ValidarRolClubMixin, View)
         return render(request, self.template_name, context)
 
 @login_required_con_mensaje
-@rol_required(['ADMIN'])
+#@rol_required(['ADMIN'])
+@permission_required('clubes.asignar_usuario_gestion', raise_exception=True)
 def asociar_usuario_club(request, pk):
     club = get_object_or_404(Club, id=pk)
     form_existente = UsuarioExistenteForm()

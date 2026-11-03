@@ -35,7 +35,18 @@ class Club(models.Model):
     ciclos = models.ManyToManyField(Ciclo, through='CicloClub', related_name='clubes_participantes', blank=True)
 
     def __str__(self):
-        return self.nombre    
+        return self.nombre
+
+    class Meta:
+        verbose_name = "Club"
+        verbose_name_plural = "Clubes"
+        permissions = [
+            ('asignar_usuario_gestion', "Puede asignar usuarios de gestión al club"),
+            ('asignar_entrenador', "Puede asignar entrenadores al club"),
+            ('asignar_socio', "Puede asignar socios al club"),
+            ('suscribir_club_a_disciplina', "Puede suscribir al club a una disciplina"),
+            ('gestionar_club', "Puede gestionar un club y sus recursos"),
+        ]    
 
 
 class CicloClub(models.Model):
@@ -52,6 +63,12 @@ class CicloClub(models.Model):
 
     def __str__(self):
         return f"{self.club.nombre} - Ciclo {self.ciclo.año}"
+
+    class Meta:
+        verbose_name = "Suscripción a Ciclo"
+        verbose_name_plural = "Suscripciones a Ciclos"
+        permissions = [
+            ('suscribirse_a_ciclo', "Puede suscribir al club a un ciclo"),]
 
 
 class Socio(models.Model):
