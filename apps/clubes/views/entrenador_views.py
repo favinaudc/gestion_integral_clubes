@@ -4,6 +4,7 @@ from apps.clubes.models import Entrenador
 from apps.customauth.mixins import LoginRequiredMixinConMensaje
 from ..mixins import SharedFormMixin
 from ..forms import EntrenadorForm
+from django.core.exceptions import PermissionDenied
 
 class EntrenadorCreateView(LoginRequiredMixinConMensaje, SharedFormMixin, CreateView):
     model = Entrenador
@@ -47,10 +48,18 @@ class EntrenadorUpdateView(LoginRequiredMixinConMensaje, SharedFormMixin, Update
     form_class = EntrenadorForm
     success_url = reverse_lazy('clubes:listar_entrenadores')  # Redirige a la lista de entrenadores después de editar un entrenador 
 
+    def dispatch(self, request, *args, **kwargs):
+        # Aquí puedes agregar lógica adicional antes de procesar la solicitud
+        if not request.user == self.get_object().usuario:
+           raise PermissionDenied("No tienes permiso para editar este entrenador.")
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo']= f'Editar entrenador'
+        context['url_volver'] = 'home'
         return context
+    
 
 class EntrenadorDeleteView(LoginRequiredMixinConMensaje, DeleteView):
     model = Entrenador

@@ -95,7 +95,7 @@
                 <span class="sidebar-text"><strong>{{user.perfil}}</strong></span>
             </a>
             <ul class="dropdown-menu shadow border-0 rounded-4 mt-2">
-                <li><a class="dropdown-item fw-semibold" href="#">Mi Perfil</a></li>
+                <li><a class="dropdown-item fw-semibold" href="{% url 'auth:editar_perfil' %}">Mi Perfil</a></li>
                 <li><a class="dropdown-item fw-semibold" href="#">Configuración</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item fw-semibold text-danger" href="{% url 'auth:logout' %}">Cerrar Sesión</a></li>
