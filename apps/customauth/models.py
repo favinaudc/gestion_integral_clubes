@@ -99,6 +99,10 @@ class Perfil(models.Model):
             return f"{self.nombre[0].upper()}{self.apellido[0].upper()}"
         return ""
 
+    @property
+    def esta_completo(self):
+        return all([self.nombre, self.apellido, self.fecha_nacimiento])
+
 
 class PerfilClub(models.Model):
     fecha_asociacion = models.DateField(auto_now_add=True)

@@ -2,9 +2,13 @@
 
 {% block title %}Gestión de Club {{club.nombre}}{% endblock %}
 
+{% block action_cards %}
+    {% include "includes/action_card.html" with url_name='clubes:gestion_crear_socio' obj_pk=club.pk titulo='Crear Socio' descripcion='Crea un nuevo socio para el club.' icon_class='bi bi-plus-circle' %}    
+{% endblock action_cards %}
+
 {% block contenido_apps %}
-<div class="card border-0 shadow-sm rounded-4 p-2 bg-white">
-    <div class="card-title p-3">
+<div class="card border-0 shadow-sm rounded-4 p-4">
+    <div class="card-title p-0">
         <h6 class="h6 mb-0 text-uppercase">Listado de socios</h6>    
         <hr>
     </div>

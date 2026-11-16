@@ -375,6 +375,95 @@ class CategoriaForm(forms.ModelForm):
                     )
                 )
             )
+
+
+class GestionCrearSocioForm(forms.Form):
+    cuit_cuil = forms.CharField(
+            label='CUIT/CUIL',
+            widget=forms.TextInput(attrs={
+                'class': 'form-control',                
+                'placeholder': 'Ingrese el CUIT/CUIL'
+            })
+    )
+
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ingrese el correo electrónico'
+        })
+    )
+
+    nombre = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ingrese el nombre del socio'
+        })
+    )
+
+    apellido = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ingrese el apellido del socio'
+        })
+    )
+
+    fecha_nacimiento = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'class': 'form-control', 'type': 'date'
+        })
+    )
+
+    telefono = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ingrese el teléfono del socio'
+        })
+    )
+
+    direccion = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ingrese la dirección del socio'
+        })
+    )
+
+    apto_medico = forms.FileField(
+        required=False,
+        widget=forms.FileInput(attrs={
+            'class': 'form-control'
+        }),
+        help_text="@Suba el archivo del apto médico"
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Row(
+                Column('nombre', css_class="form-group col-md-4 mb-3"),
+                Column('apellido', css_class="form-group col-md-4 mb-3"),
+                Column('fecha_nacimiento', css_class="form-group col-md-4 mb-3"),
+            ),
+            Row(
+                Column('telefono', css_class="form-group col-md-4 mb-3"),
+                Column('direccion', css_class="form-group col-md-4 mb-3"),
+                Column('cuit_cuil', css_class="form-group col-md-4 mb-3"),
+            ),
+            Row(
+                Column('email', css_class="form-group col-md-4 mb-3"),                
+                Column('apto_medico', css_class="form-group col-md-8 mb-3"),                 
+            ),
+            # Row(
+            # ),
+            Row(
+                Column(
+                    Submit('submit', 'GUARDAR SOCIO', css_class='btn btn-success text-uppercase '),
+                    css_class='col-md-6 mx-auto text-center mt-3'
+                )
+            )
+        )
+
 class FichajeForm(forms.ModelForm):
     socio = forms.ModelChoiceField(
             queryset=Socio.objects.all(), widget=forms.Select(attrs={
@@ -617,3 +706,5 @@ class MetricaRegistradaForm(forms.ModelForm):
                     )
                 )
             )
+
+

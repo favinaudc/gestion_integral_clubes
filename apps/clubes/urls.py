@@ -16,9 +16,13 @@ urlpatterns = [
     path('club/create/', ClubCreateView.as_view(), name='crear_club'), 
     path('club/<int:pk>/detalles/', ClubDetailView.as_view(), name='detalles_club'),
     path('club/<int:pk>/editar/', ClubUpdateView.as_view(), name='editar_club'),
-    path('club/<int:pk>/eliminar/', ClubDeleteView.as_view(), name='eliminar_club'),
-    path('club/<int:pk>/gestionar/', GestionarClubView.as_view() , name='gestionar_club'),
+    path('club/<int:pk>/eliminar/', ClubDeleteView.as_view(), name='eliminar_club'),    
     path('club/<int:pk>/crear-usuario-gestion/', asociar_usuario_club , name='crear_usuario_gestion_club')
+]
+
+club_gestion = [
+    path('club/<int:pk>/gestionar/', GestionarClubView.as_view() , name='gestionar_club'),
+    path('club/<int:pk>/gestionar/crear-socio/', GestionCrearSocio.as_view() , name='gestion_crear_socio'),
 ]
 
 ciclos_urls = [
@@ -86,4 +90,4 @@ metricas_registradas_urls =[
     path('metricas_registradas/create/', MetricaRegistradaCreateView.as_view(), name='crear_metrica_registrada')
 ]
 
-urlpatterns += ciclos_urls + socios_urls + entrenadores_urls + disciplinas_urls + categorias_urls +fichaje_urls + parametros_evaluacion_urls + plantillas_examen_urls + resultados_examen_urls + metricas_registradas_urls
+urlpatterns += club_gestion + ciclos_urls + socios_urls + entrenadores_urls + disciplinas_urls + categorias_urls +fichaje_urls + parametros_evaluacion_urls + plantillas_examen_urls + resultados_examen_urls + metricas_registradas_urls

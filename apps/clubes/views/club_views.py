@@ -5,7 +5,7 @@ from django.views import View
 from django.urls import reverse_lazy
 from django.db.models import Q
 from apps.clubes.models import Club
-from django.views.generic import CreateView, ListView, UpdateView, DeleteView, DetailView
+from django.views.generic import CreateView, FormView, ListView, UpdateView, DeleteView, DetailView
 from django.core.mail import send_mail
 from django.contrib.auth.models import Group
 from apps.customauth.mixins import LoginRequiredMixinConMensaje, ValidarRolClubMixin
@@ -14,7 +14,7 @@ from apps.customauth.models import PerfilClub, Usuario
 from ..mixins import SharedFormMixin
 from apps.customauth.decorators import login_required_con_mensaje, rol_required
 from django.contrib.auth.decorators import permission_required
-from ..forms import ClubForm
+from ..forms import ClubForm, GestionCrearSocioForm
 from django.contrib.auth.mixins import PermissionRequiredMixin
 
 
@@ -120,6 +120,17 @@ class GestionarClubView(LoginRequiredMixinConMensaje, ValidarRolClubMixin, Permi
         club = Club.objects.filter(id=club_id).first()
         context = {'club': club}
         return render(request, self.template_name, context)
+
+class GestionCrearSocio(FormView):
+    form_class = GestionCrearSocioForm
+    template_name = 'clubes/form_template.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = 'Crear Socio'
+        context['url_volver'] = 'home'
+        return context
+
 
 @login_required_con_mensaje
 #@rol_required(['ADMIN'])
