@@ -1,15 +1,13 @@
-from django.shortcuts import render
-
-# Create your views here.
+from apps.customauth.forms import PerfilForm
+from apps.customauth.mixins import LoginRequiredMixinConMensaje
+from apps.customauth.models import Perfil
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import Group
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView
-from apps.customauth.mixins import LoginRequiredMixinConMensaje 
-from apps.customauth.models import Perfil
-from apps.customauth.forms import PerfilForm
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
-from django.contrib import messages
-from django.contrib.auth.models import Group
+
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -60,6 +58,6 @@ class PerfilUpdateView(LoginRequiredMixinConMensaje, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = f'Editar Perfil' 
+        context['titulo'] = 'Editar Perfil'
         context['url_volver'] = 'home'  # URL para el botón de volver
         return context

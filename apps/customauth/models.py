@@ -1,6 +1,11 @@
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    Group,
+    PermissionsMixin,
+)
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
-from django.contrib.auth.models import Group
+
 
 # 1. El Manager Personalizado
 class UsuarioManager(BaseUserManager):

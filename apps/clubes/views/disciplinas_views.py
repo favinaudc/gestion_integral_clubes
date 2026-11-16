@@ -1,15 +1,19 @@
-from django.urls import reverse_lazy
-from django.views.generic import DeleteView
-from django.views.generic import UpdateView
-from django.db.models import Q
-from apps.clubes.models import Disciplina, Club
-from django.views.generic import DetailView
-from django.views.generic import ListView
-from django.views.generic import CreateView
+from apps.clubes.models import Club, Disciplina
 from apps.customauth.mixins import LoginRequiredMixinConMensaje
-from ..mixins import SharedFormMixin
-from ..forms import DisciplinaForm
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    UpdateView,
+)
+
+from ..forms import DisciplinaForm
+from ..mixins import SharedFormMixin
+
 
 class DisciplinaCreateView(LoginRequiredMixinConMensaje, SharedFormMixin, CreateView):
     model = Disciplina
@@ -18,7 +22,7 @@ class DisciplinaCreateView(LoginRequiredMixinConMensaje, SharedFormMixin, Create
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] =f'Crear disciplina'
+        context['titulo'] ='Crear disciplina'
         context['url_volver'] = 'clubes:listar_disciplinas'
         return context
     def get_success_url(self): #pone el pk en la url .
@@ -76,7 +80,7 @@ class DisciplinaUpdateView(LoginRequiredMixinConMensaje, SharedFormMixin, Update
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = f'Editar disciplina'
+        context['titulo'] = 'Editar disciplina'
         context['url_volver'] = 'clubes:listar_disciplinas'
         return context
 
