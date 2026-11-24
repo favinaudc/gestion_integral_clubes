@@ -1,7 +1,9 @@
-from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import date
+
 from apps.customauth.models import Usuario
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
 
 # Create your models here.
 # definir classes modelos
@@ -40,13 +42,13 @@ class Club(models.Model):
     class Meta:
         verbose_name = "Club"
         verbose_name_plural = "Clubes"
-        permissions = [
+        permissions = (
             ('asignar_usuario_gestion', "Puede asignar usuarios de gestión al club"),
             ('asignar_entrenador', "Puede asignar entrenadores al club"),
             ('asignar_socio', "Puede asignar socios al club"),
             ('suscribir_club_a_disciplina', "Puede suscribir al club a una disciplina"),
             ('gestionar_club', "Puede gestionar un club y sus recursos"),
-        ]    
+        )
 
 
 class CicloClub(models.Model):
@@ -56,10 +58,30 @@ class CicloClub(models.Model):
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
 
+    def clean(self):
+        super().clean()
+        errores = {}
+
+        if self.ciclo_id:
+            año_ciclo = self.ciclo.año
+            if self.fecha_inicio and self.fecha_inicio.year != año_ciclo:
+                errores['fecha_inicio'] = 'La fecha de inicio debe pertenecer al año del ciclo.'
+            if self.fecha_fin and self.fecha_fin.year != año_ciclo:
+                errores['fecha_fin'] = 'La fecha de fin debe pertenecer al año del ciclo.'
+
+        if errores:
+            raise ValidationError(errores)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
     class Meta:
         unique_together = ('club', 'ciclo') 
         verbose_name = "Suscripción a Ciclo"
         verbose_name_plural = "Suscripciones a Ciclos"
+        permissions = (
+            ('suscribirse_a_ciclo', "Puede suscribir al club a un ciclo"),)
 
     def __str__(self):
         return f"{self.club.nombre} - Ciclo {self.ciclo.año}"
@@ -67,8 +89,8 @@ class CicloClub(models.Model):
     class Meta:
         verbose_name = "Suscripción a Ciclo"
         verbose_name_plural = "Suscripciones a Ciclos"
-        permissions = [
-            ('suscribirse_a_ciclo', "Puede suscribir al club a un ciclo"),]
+        permissions = (
+            ('suscribirse_a_ciclo', "Puede suscribir al club a un ciclo"),)
 
 
 class Socio(models.Model):
@@ -100,9 +122,8 @@ class Socio(models.Model):
         return edad < 18
     
     def save(self, *args, **kwargs):
-        if self.es_menor_edad:
-            if self.tutor_responsable is None:
-                raise ValueError('Al ser menos de edad debe tener responsable/tutor asociado.')
+        if self.es_menor_edad and self.tutor_responsable is None:
+            raise ValueError('Al ser menos de edad debe tener responsable/tutor asociado.')
         super().save(*args, **kwargs)
     
 

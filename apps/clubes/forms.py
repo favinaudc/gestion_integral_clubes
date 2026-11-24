@@ -1,7 +1,21 @@
-from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Row, Column, Submit
-from .models import Ciclo,Club,Socio,Usuario,Entrenador,Disciplina,Categoria,Fichaje,ParametroEvaluacion,PlanillaExamen,ResultadoExamen,MetricaRegistrada
+from crispy_forms.layout import Column, Layout, Row, Submit
+from django import forms
+
+from .models import (
+    Categoria,
+    Ciclo,
+    Club,
+    Disciplina,
+    Entrenador,
+    Fichaje,
+    MetricaRegistrada,
+    ParametroEvaluacion,
+    PlanillaExamen,
+    ResultadoExamen,
+    Socio,
+    Usuario,
+)
 
 
 class CicloForm(forms.ModelForm):
@@ -130,7 +144,15 @@ class SocioForm(forms.ModelForm):
             }))
     class Meta: 
         model = Socio
-        fields = ['usuario', 'fecha_nacimiento', 'club', 'es_deportista', 'es_tutor', 'apto_medico', 'tutor_responsable']
+        fields = (
+            'usuario',
+            'fecha_nacimiento',
+            'club',
+            'es_deportista',
+            'es_tutor',
+            'apto_medico',
+            'tutor_responsable',
+        )
 
     def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)

@@ -1,7 +1,8 @@
 from functools import wraps
+
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
-from django.shortcuts import redirect
+
 
 def login_required_con_mensaje(view_func):
     """
