@@ -18,7 +18,7 @@ def home_resolver(request):
                 return redirect('clubes:gestionar_club', pk=suscripcion_admin.club.pk)
             else:
                 messages.error(request, "Aún no tiene un club asignado")
-                return redirect('clubes:listar_clubes') 
+                return render(request, 'home_user.html')
         
         if request.user.is_usuario:
             return render(request, 'home_user.html')
