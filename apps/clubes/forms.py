@@ -155,36 +155,36 @@ class SocioForm(forms.ModelForm):
         )
 
     def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self.helper = FormHelper()
-            self.helper.form_method = 'post'
-            self.helper.layout = Layout(
-                Row(
-                    Column('usuario', css_class='form-group col-md-6 mb-3'),
-                    Column('fecha_nacimiento', css_class='form-group col-md-6 mb-3'),
-                    css_class='row'
-                ),
-                Row(
-                    Column('club', css_class='form-group col-md-6 mb-3'),
-                    Column('es_deportista', css_class='form-group col-md-6 mb-3'),
-                    css_class='row'
-                ),
-                Row(
-                    Column('es_tutor', css_class='form-group col-md-6 mb-3'),
-                    Column('apto_medico', css_class='form-group col-md-6 mb-3'),
-                    css_class='row'
-                ),
-                Row(
-                    Column('tutor_responsable', css_class='form-group col-md-6 mb-3'),
-                    css_class='row'
-                ),
-                Row(
-                    Column(
-                        Submit('submit', 'GUARDAR SOCIO', css_class='btn btn-success text-uppercase '),
-                        css_class='col-md-6 mx-auto text-center mt-3'
-                    )
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Row(
+                Column('usuario', css_class='form-group col-md-6 mb-3'),
+                Column('fecha_nacimiento', css_class='form-group col-md-6 mb-3'),
+                css_class='row'
+            ),
+            Row(
+                Column('club', css_class='form-group col-md-6 mb-3'),
+                Column('es_deportista', css_class='form-group col-md-6 mb-3'),
+                css_class='row'
+            ),
+            Row(
+                Column('es_tutor', css_class='form-group col-md-6 mb-3'),
+                Column('apto_medico', css_class='form-group col-md-6 mb-3'),
+                css_class='row'
+            ),
+            Row(
+                Column('tutor_responsable', css_class='form-group col-md-6 mb-3'),
+                css_class='row'
+            ),
+            Row(
+                Column(
+                    Submit('submit', 'GUARDAR SOCIO', css_class='btn btn-success text-uppercase '),
+                    css_class='col-md-6 mx-auto text-center mt-3'
                 )
-            )        
+            )
+        )        
 class UsuarioForm(forms.ModelForm):
     nombre = forms.CharField(
         widget=forms.TextInput(attrs={

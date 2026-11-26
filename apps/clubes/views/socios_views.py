@@ -14,10 +14,17 @@ class SocioCreateView(LoginRequiredMixinConMensaje, SharedFormMixin, CreateView)
         context = super().get_context_data(**kwargs)
         context['titulo'] = f'Crear socio'
         return context
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['url_volver'] = 'clubes:listar_socios'  # URL para el botón de volver
         return context
+
+    def form_valid(self, form):
+        # Aquí puedes agregar lógica adicional antes de guardar el formulario si es necesario
+        return super().form_valid(form)
+
+    
 class SocioDetailView(LoginRequiredMixinConMensaje, ListView):
     model = Socio
     template_name = 'clubes/socio_detail.html'

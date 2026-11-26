@@ -267,6 +267,7 @@
         const toggleBtn = document.getElementById('sidebarToggleBtn');
         const sidebar = document.querySelector('.sidebar-custom');
         const currentPath = window.location.pathname;
+        const currentRouteName = "{{ request.resolver_match.url_name|default:''|escapejs }}";
         const navLinks = document.querySelectorAll('.sidebar-custom .nav-link-custom');
         
         if (toggleBtn && sidebar) {
@@ -280,9 +281,18 @@
 
         let bestMatch = null;
         let maxMatchLength = 0;
+        let routeMatch = null;
 
         navLinks.forEach(link => {
             link.classList.remove('active'); 
+            link.removeAttribute('aria-current');
+
+            const activeRoutes = (link.dataset.activeRoute || '').split(/\s+/);
+            if (activeRoutes.includes(currentRouteName)) {
+                routeMatch = link;
+                return;
+            }
+
             const href = link.getAttribute('href');
             
             if (!href || href === "#") return;
@@ -295,8 +305,10 @@
             }
         });
 
-        if (bestMatch) {
-            bestMatch.classList.add('active');
+        const activeLink = routeMatch || bestMatch;
+        if (activeLink) {
+            activeLink.classList.add('active');
+            activeLink.setAttribute('aria-current', 'page');
         }
     });
 </script>

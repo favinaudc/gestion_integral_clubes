@@ -94,13 +94,14 @@ class CicloClub(models.Model):
 
 
 class Socio(models.Model):
-    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='socio', null=True, blank=True)
-    club = models.ForeignKey(Club, on_delete=models.CASCADE)
     es_deportista = models.BooleanField(default=False, help_text="@Indica si el socio es deportista o no")   
     es_tutor = models.BooleanField(default=False, help_text="@Indica si el socio es tutor o no")
     apto_medico = models.FileField(upload_to='apto_medico/')
     tutor_responsable = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, help_text="@Ingrese el tutor responsable del socio")
 
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='socio', null=True, blank=True)
+    club = models.ForeignKey(Club, on_delete=models.CASCADE)
+    
     def __str__(self):
         if self.usuario_id is None:
             return f"Socio #{self.pk}" if self.pk is not None else "Socio sin usuario"
