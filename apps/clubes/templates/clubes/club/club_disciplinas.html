@@ -1,0 +1,98 @@
+{% extends 'base_apps.html' %}
+
+{% block title %}Disciplinas de {{ club.nombre }}{% endblock %}
+
+{% block base_apps_extra_css %}
+    .disciplina-card-no-suscripta {
+        background-color: #f3f5f8;
+    }
+
+    .disciplina-card-no-suscripta .card-body {
+        opacity: 0.45;
+    }
+
+    .disciplina-card-no-suscripta .card-footer {
+        background-color: #fff;
+    }
+{% endblock base_apps_extra_css %}
+
+{% block contenido_apps %}
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body">
+        <div class="mb-4">
+            <h6 class="mb-4 text-uppercase">
+                Disciplinas de {{ club.nombre }}
+                <hr>
+            </h6>
+            <p class="text-muted mb-0">Elegí las disciplinas que abarca el club.</p>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mb-4" role="group" aria-label="Filtrar disciplinas">
+            <a href="?filtro=todas"
+               class="btn {% if filtro == 'todas' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+               {% if filtro == 'todas' %}aria-current="page"{% endif %}>
+                Todas
+            </a>
+            <a href="?filtro=suscriptas"
+               class="btn {% if filtro == 'suscriptas' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+               {% if filtro == 'suscriptas' %}aria-current="page"{% endif %}>
+                Suscriptas
+            </a>
+            <a href="?filtro=no_suscriptas"
+               class="btn {% if filtro == 'no_suscriptas' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+               {% if filtro == 'no_suscriptas' %}aria-current="page"{% endif %}>
+                No suscriptas
+            </a>
+        </div>
+
+        {% if disciplinas %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                {% for disciplina in disciplinas %}
+                    <div class="col">
+                        <article class="card {% if disciplina.pk in disciplinas_suscriptas %}disciplina-card-suscripta{% else %}disciplina-card-no-suscripta{% endif %} h-100 shadow-sm border-0 rounded-4">
+                            <div class="card-body">
+                                <h2 class="h5 card-title fw-bold text-main">{{ disciplina.nombre }}</h2>
+                                <p class="mb-0 text-muted text-truncate-multiline" title="{{ disciplina.descripcion }}">
+                                    {{ disciplina.descripcion }}
+                                </p>
+                            </div>
+                            <div class="card-footer border-top p-3">
+                                {% if disciplina.pk in disciplinas_suscriptas %}
+                                    <form method="post" action="{% url 'clubes:gestion_disciplinas' club.pk %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="disciplina_id" value="{{ disciplina.pk }}">
+                                        <input type="hidden" name="accion" value="desuscribir">
+                                        <button type="submit" class="btn btn-outline-danger w-100">
+                                            Desuscribirse
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <form method="post" action="{% url 'clubes:gestion_disciplinas' club.pk %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="disciplina_id" value="{{ disciplina.pk }}">
+                                        <input type="hidden" name="accion" value="suscribir">
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            Suscribirse
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </article>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center text-muted py-5 bg-white rounded-4 shadow-sm">
+                <i class="bi bi-award fs-1 d-block mb-3"></i>
+                {% if filtro == 'todas' %}
+                    <h2 class="h5 fw-bold">Todavía no hay disciplinas disponibles</h2>
+                    <p class="mb-0">El catálogo aparecerá acá cuando se registren disciplinas en el sistema.</p>
+                {% else %}
+                    <h2 class="h5 fw-bold">No hay disciplinas para este filtro</h2>
+                    <p class="mb-0">Probá con otra opción para ver más disciplinas.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock contenido_apps %}

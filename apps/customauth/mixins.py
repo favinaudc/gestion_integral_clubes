@@ -12,7 +12,7 @@ class ValidarRolClubMixin:
     rol_requerido = []  # Debe ser definido en la vista que herede este mixin
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_admin:
+        if request.user.groups.filter(name='ADMIN').exists():
             return super().dispatch(request, *args, **kwargs)
         
         # 1. Obtener el ID del club desde la URL (Asegurate de que coincida con tu urls.py)
@@ -25,7 +25,7 @@ class ValidarRolClubMixin:
             grupo_rol__name__in=self.rol_requerido
         ).exists()
 
-        if not tiene_permiso or request.user.grupo_activo.name not in self.rol_requerido:
+        if not tiene_permiso:
             messages.error(request, "No tienes permisos de gestión ó consulta para este club.")
             return redirect('home')  # Redirige a la página de inicio o a otra página de tu elección
             

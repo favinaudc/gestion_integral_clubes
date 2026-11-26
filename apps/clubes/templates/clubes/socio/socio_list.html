@@ -17,12 +17,14 @@
                 <thead class="table-light">
                     <tr>
                         
-                        <th scope="col">usuario</th>
+                        <th scope="col">Socio</th>
+                        <th scope="col">DNI</th>
+                        <th scope="col">Usuario</th>
                         <th scope="col" class="text-center">Fecha de nacimiento</th>
-                        <th scope="col" class="text-center">club</th>
-                        <th scope="col" class="text-center">deportista</th>
-                        <th scope="col" class="text-center">tutor</th> <!-- prueba de updateview -->
-                        <th scope="col" class="text-center">apto medico</th> <!-- prueba de deleteview -->
+                        <th scope="col" class="text-center">Club</th>
+                        <th scope="col" class="text-center">Deportista</th>
+                        <th scope="col" class="text-center">Tutor</th>
+                        <th scope="col" class="text-center">Apto médico</th>
                         <th scope="col" class="text-center">tutor responsable</th> 
                         <th scope="col" class="text-center">editar</th> 
                         <th scope="col" class="text-center">eliminar</th> 
@@ -31,19 +33,27 @@
                 <tbody>
                     {% for socio in socios %}
                         <tr>
-                            <td class="text-center fw-bold">{{ socio.usuario }}</td>
-                            <td>{{ socio.fecha_nacimiento }}</td>
-                            <td>{{ socio.club }}</td>
-                            <td>{{ socio.deportista }}</td>
-                            <td>{{ socio.tutor }}</td>
-                            <td class="text-center">
-                                {% if socio.apto_medico %}
-                                    <span class="badge bg-success">Sí</span>
+                            <td class="text-center fw-bold">{{ socio.perfil_club.perfil }}</td>
+                            <td>{{ socio.perfil_club.perfil.dni|default:"-" }}</td>
+                            <td>
+                                {% if socio.perfil_club.perfil.usuario %}
+                                    {{ socio.perfil_club.perfil.usuario.cuit_cuil }}
                                 {% else %}
-                                    <span class="badge bg-danger">No</span>
+                                    Sin usuario
                                 {% endif %}
                             </td>
-                            <td>{{ socio.tutor_responsable }}</td>                                
+                            <td>{{ socio.perfil_club.perfil.fecha_nacimiento|default:"-" }}</td>
+                            <td>{{ socio.perfil_club.club }}</td>
+                            <td>{{ socio.es_deportista|yesno:"Sí,No" }}</td>
+                            <td>{{ socio.es_tutor|yesno:"Sí,No" }}</td>
+                            <td class="text-center">
+                                {% if socio.apto_medico %}
+                                    <a class="badge bg-success text-decoration-none" href="{{ socio.apto_medico.url }}">Cargado</a>
+                                {% else %}
+                                    <span class="badge bg-secondary">No cargado</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ socio.tutor_responsable|default:"-" }}</td>
                             <td class="text-center">
                                 <a href="{% url 'clubes:editar_socio' socio.pk %}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-edit">Editar</i>
@@ -57,7 +67,7 @@
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-3">
+                            <td colspan="11" class="text-center text-muted py-3">
                                 No hay socios registrados en el sistema.
                             </td>
                         </tr>

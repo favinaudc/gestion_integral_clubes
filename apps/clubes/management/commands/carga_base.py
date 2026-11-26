@@ -43,6 +43,10 @@ class Command(BaseCommand):
             "add_disciplina",
             "change_disciplina",
             "delete_disciplina",
+            "view_categoria",
+            "add_categoria",
+            "change_categoria",
+            "delete_categoria",
         ]
 
         permisos = Permission.objects.filter(

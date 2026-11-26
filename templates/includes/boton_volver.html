@@ -2,6 +2,11 @@
 
 
     <div class="mt-4 bg-white p-2 rounded shadow-sm text-center">  
+        {% if url_pk %}
+        <a href="{% url url_name url_pk %}" class="btn btn-primary text-uppercase">
+            {{ boton_titulo }}</a>
+        {% else %}
         <a href="{% url url_name %}" class="btn btn-primary text-uppercase">
             {{ boton_titulo }}</a>
+        {% endif %}
     </div>

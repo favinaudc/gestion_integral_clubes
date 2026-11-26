@@ -89,15 +89,24 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 class Perfil(models.Model):
     nombre = models.CharField(max_length=50, help_text="Ingrese el nombre del usuario", null=True, blank=True)
     apellido = models.CharField(max_length=50, help_text="Ingrese el apellido del usuario", null=True, blank=True)
+    dni = models.CharField(max_length=8, help_text="Ingrese el DNI de la persona", null=True, blank=True)
+    email = models.EmailField(blank=True, null=True, help_text="Correo electrónico de contacto")
     fecha_nacimiento = models.DateField(help_text="Ingrese la fecha de nacimiento del usuario", null=True, blank=True)
     telefono = models.CharField(max_length=20, null=True, blank=True, help_text="Ingrese el teléfono del usuario (opcional)")
     direccion = models.CharField(max_length=100, null=True, blank=True, help_text="Ingrese la dirección del usuario (opcional)")
     
-    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='perfil')
+    usuario = models.OneToOneField(
+        Usuario,
+        on_delete=models.CASCADE,
+        related_name='perfil',
+        null=True,
+        blank=True,
+    )
     club = models.ManyToManyField('clubes.Club', through='PerfilClub', related_name='perfiles', blank=True)
 
     def __str__(self):
-        return f"{self.nombre} {self.apellido}"
+        nombre_completo = ' '.join(filter(None, (self.nombre, self.apellido)))
+        return nombre_completo or f"Perfil #{self.pk or 'nuevo'}"
     
     def iniciales(self):
         if self.nombre and self.apellido:

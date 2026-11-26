@@ -4,27 +4,158 @@
 
 {% block action_cards %}
     {% include "includes/action_card.html" with url_name='clubes:gestion_crear_socio' obj_pk=club.pk titulo='Crear Socio' descripcion='Crea un nuevo socio para el club.' icon_class='bi bi-plus-circle' %}    
+    {% include "includes/action_card.html" with url_name='clubes:gestion_crear_entrenador' obj_pk=club.pk titulo='Crear Entrenador' descripcion='Crea un entrenador y asignale disciplinas y categorías.' icon_class='bi bi-person-workspace' %}
 {% endblock action_cards %}
 
 {% block contenido_apps %}
-<div class="card border-0 shadow-sm rounded-4 p-4">
-    <div class="card-title p-0">
-        <h6 class="h6 mb-0 text-uppercase">Listado de socios</h6>    
-        <hr>
-    </div>
-    <div class="card-body">
-        <table class="table data-tables table-hover align-middle dt-responsive nowrap w-100">
-            <thead class="table">
-                <tr>
-                    <th>Apellido</th>
-                    <th>Nombre</th>
-                    <th>DNI</th>
-                    <th>Es deportista</th>
-                    <th>Es tutor</th>
-                    <th class="text-center">Acciones</th>
-                </tr>
-            </thead>
-        </table>
-    </div>
+<ul class="nav nav-tabs" id="clubGestionTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button
+            class="nav-link active"
+            id="socios-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#socios-pane"
+            type="button"
+            role="tab"
+            aria-controls="socios-pane"
+            aria-selected="true"
+        >
+            LISTADO DE SOCIOS
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button
+            class="nav-link"
+            id="entrenadores-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#entrenadores-pane"
+            type="button"
+            role="tab"
+            aria-controls="entrenadores-pane"
+            aria-selected="false"
+        >
+            LISTADO DE ENTRENADORES
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="clubGestionTabContent">
+    <section
+        class="tab-pane fade show active"
+        id="socios-pane"
+        role="tabpanel"
+        aria-labelledby="socios-tab"
+        tabindex="0"
+    >
+        <div class="card border-0 shadow-sm rounded-1 p-4">
+            {% comment "" %}
+            <div class="card-title p-0">
+                <h1 class="h6 mb-0 text-uppercase">Listado de socios</h1>
+                <hr>
+            </div>
+            {% endcomment %}
+            <div class="card-body">
+                {% if socios %}
+                    <table id="tabla-socios" class="table data-tables table-hover align-middle dt-responsive nowrap w-100">
+                        <thead class="table">
+                            <tr>
+                                <th>Apellido</th>
+                                <th>Nombre</th>
+                                <th>DNI</th>
+                                <th>Es deportista</th>
+                                <th>Es tutor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for socio in socios %}
+                                <tr>
+                                    <td>{{ socio.perfil_club.perfil.apellido|default:"-" }}</td>
+                                    <td>{{ socio.perfil_club.perfil.nombre|default:"-" }}</td>
+                                    <td>{{ socio.perfil_club.perfil.dni|default:"-" }}</td>
+                                    <td>{{ socio.es_deportista|yesno:"Sí,No" }}</td>
+                                    <td>{{ socio.es_tutor|yesno:"Sí,No" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="text-center text-muted py-3 mb-0">
+                        No hay socios registrados en este club.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <section
+        class="tab-pane fade"
+        id="entrenadores-pane"
+        role="tabpanel"
+        aria-labelledby="entrenadores-tab"
+        tabindex="0"
+    >
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            {% comment "" %}
+            <div class="card-title p-0">
+                <h1 class="h6 mb-0 text-uppercase">Listado de entrenadores</h1>
+                <hr>
+            </div>
+            {% endcomment %}
+            <div class="card-body">
+                {% if entrenadores %}
+                    <table id="tabla-entrenadores" class="table data-tables table-hover align-middle dt-responsive nowrap w-100">
+                        <thead class="table">
+                            <tr>
+                                <th>Apellido</th>
+                                <th>Nombre</th>
+                                <th>CUIL/CUIT</th>
+                                <th>Experiencia</th>
+                                <th>Disciplinas y categorías</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entrenador in entrenadores %}
+                                <tr>
+                                    <td>{{ entrenador.usuario.perfil.apellido|default:"-" }}</td>
+                                    <td>{{ entrenador.usuario.perfil.nombre|default:"-" }}</td>
+                                    <td>{{ entrenador.usuario.cuit_cuil }}</td>
+                                    <td>{{ entrenador.experiencia }} años</td>
+                                    <td>
+                                        {% for asignacion in entrenador.asignaciones_del_club %}
+                                            <span class="badge rounded-pill text-bg-light border me-1 mb-1">
+                                                {{ asignacion.disciplina.nombre }}: {{ asignacion.categoria.nombre }}
+                                            </span>
+                                        {% empty %}
+                                            <span class="text-muted">Sin asignaciones</span>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="text-center text-muted py-3 mb-0">
+                        No hay entrenadores registrados en este club.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
 </div>
 {% endblock contenido_apps %}
+
+{% block extra_js %}
+    {{ block.super }}
+    <script>
+        document.addEventListener('shown.bs.tab', function (event) {
+            const pane = document.querySelector(event.target.dataset.bsTarget);
+            if (!pane) return;
+
+            pane.querySelectorAll('.data-tables').forEach(function (table) {
+                if ($.fn.DataTable.isDataTable(table)) {
+                    $(table).DataTable().columns.adjust();
+                }
+            });
+        });
+    </script>
+{% endblock extra_js %}

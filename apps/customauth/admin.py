@@ -64,8 +64,8 @@ class UsuarioAdmin(UserAdmin):
 
 @admin.register(Perfil)
 class PerfilAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'apellido', 'usuario', 'fecha_nacimiento')
-    search_fields = ('nombre', 'apellido', 'usuario__cuit_cuil')
+    list_display = ('nombre', 'apellido', 'dni', 'email', 'usuario', 'fecha_nacimiento')
+    search_fields = ('nombre', 'apellido', 'dni', 'email', 'usuario__cuit_cuil')
     list_filter = ('club',)
     
     # Acoplamos la tabla intermedia para gestionar asociaciones

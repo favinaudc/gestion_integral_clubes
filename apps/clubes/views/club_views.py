@@ -1,12 +1,17 @@
 import secrets
 
-from apps.clubes.models import Club
+from apps.clubes.models import (
+    AsignacionEntrenador,
+    Club,
+    Entrenador,
+    Socio,
+)
 from django.views.generic import CreateView, FormView, ListView, UpdateView, DeleteView, DetailView
 from django.core.mail import send_mail
 from django.contrib.auth.models import Group
 from apps.customauth.mixins import LoginRequiredMixinConMensaje, ValidarRolClubMixin
 from apps.customauth.forms import NuevoPerfilForm, NuevoUsuarioForm, UsuarioExistenteForm
-from apps.customauth.models import PerfilClub, Usuario
+from apps.customauth.models import Perfil, PerfilClub, Usuario
 from ..mixins import SharedFormMixin
 from apps.customauth.decorators import login_required_con_mensaje, rol_required
 from apps.customauth.forms import (
@@ -18,6 +23,8 @@ from apps.customauth.mixins import LoginRequiredMixinConMensaje, ValidarRolClubM
 from apps.customauth.models import PerfilClub, Usuario
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
+from django.db import transaction
+from django.db.models import Prefetch
 from ..forms import ClubForm, GestionCrearSocioForm
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Q
@@ -136,18 +143,98 @@ class GestionarClubView(LoginRequiredMixinConMensaje, ValidarRolClubMixin, Permi
     def get(self, request, *args, **kwargs):
         club_id = kwargs.get('pk')
         club = Club.objects.filter(id=club_id).first()
-        context = {'club': club}
+        socios = Socio.objects.filter(
+            perfil_club__club_id=club_id,
+        ).select_related('perfil_club__perfil')
+        asignaciones_del_club = AsignacionEntrenador.objects.filter(
+            perfil_club__club_id=club_id,
+        ).select_related('disciplina', 'categoria')
+        entrenadores = (
+            Entrenador.objects.filter(club__id=club_id)
+            .select_related('usuario', 'usuario__perfil')
+            .prefetch_related(
+                Prefetch(
+                    'asignaciones',
+                    queryset=asignaciones_del_club,
+                    to_attr='asignaciones_del_club',
+                )
+            )
+            .order_by('usuario__perfil__apellido', 'usuario__perfil__nombre')
+        )
+        context = {
+            'club': club,
+            'socios': socios,
+            'entrenadores': entrenadores,
+        }
         return render(request, self.template_name, context)
 
-class GestionCrearSocio(FormView):
+class GestionCrearSocio(
+    LoginRequiredMixinConMensaje,
+    ValidarRolClubMixin,
+    PermissionRequiredMixin,
+    FormView,
+):
     form_class = GestionCrearSocioForm
     template_name = 'clubes/form_template.html'
+    rol_requerido = ['CLUB_ADMIN']
+    permission_required = 'clubes.gestionar_club'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Crear Socio'
-        context['url_volver'] = 'home'
+        context['club'] = get_object_or_404(Club, pk=self.kwargs['pk'])
+        context['url_volver'] = 'clubes:gestionar_club'
+        context['url_volver_pk'] = self.kwargs['pk']
         return context
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['club_id'] = self.kwargs['pk']
+        return kwargs
+
+    def get_success_url(self):
+        return reverse_lazy('clubes:gestionar_club', kwargs={'pk': self.kwargs['pk']})
+
+    def form_valid(self, form):
+        datos = form.cleaned_data
+        club = get_object_or_404(Club, pk=self.kwargs['pk'])
+
+        with transaction.atomic():
+            grupo_socio, _ = Group.objects.get_or_create(name='SOCIO')
+            perfil = Perfil()
+            perfil.nombre = datos['nombre']
+            perfil.apellido = datos['apellido']
+            perfil.dni = datos['dni']
+            perfil.email = datos['email'] or None
+            perfil.fecha_nacimiento = datos['fecha_nacimiento']
+            perfil.telefono = datos['telefono']
+            perfil.direccion = datos['direccion']
+            perfil.save()
+
+            perfil_club = PerfilClub.objects.create(
+                perfil=perfil,
+                club=club,
+                grupo_rol=grupo_socio,
+            )
+            socio = Socio(
+                perfil_club=perfil_club,
+                es_tutor=datos['es_tutor'],
+                apto_medico=datos['apto_medico'],
+                tutor_responsable=datos['tutor_responsable'],
+            )
+            socio.save()
+
+            if datos['tutor_responsable']:
+                tutor = datos['tutor_responsable']
+                tutor.es_tutor = True
+                tutor.save(update_fields=['es_tutor'])
+
+            for socio_menor in datos['socios_a_cargo']:
+                socio_menor.tutor_responsable = socio
+                socio_menor.save(update_fields=['tutor_responsable'])
+
+        messages.success(self.request, 'Socio creado correctamente.')
+        return redirect(self.get_success_url())
 
 
 @login_required_con_mensaje

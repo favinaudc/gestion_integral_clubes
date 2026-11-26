@@ -23,6 +23,9 @@ urlpatterns = [
 club_gestion = [
     path('club/<int:pk>/gestionar/', GestionarClubView.as_view() , name='gestionar_club'),
     path('club/<int:pk>/gestionar/crear-socio/', GestionCrearSocio.as_view() , name='gestion_crear_socio'),
+    path('club/<int:pk>/gestionar/crear-entrenador/', GestionCrearEntrenador.as_view(), name='gestion_crear_entrenador'),
+    path('club/<int:pk>/gestionar/disciplinas/', GestionDisciplinas.as_view() , name='gestion_disciplinas'),
+    path('club/<int:pk>/gestionar/categorias/', GestionCategorias.as_view() , name='gestion_categorias'),
 ]
 
 ciclos_urls = [

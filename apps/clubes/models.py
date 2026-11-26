@@ -7,7 +7,7 @@ from django.db import models
 
 # Create your models here.
 # definir classes modelos
-#Ciclo, Club, Disciplina, Categoria, Entrenador, Examen, Socio(Usuario, Deportista)
+# Ciclo, Club, Disciplina, Categoria, Entrenador, Examen y Socio por perfil de club.
 
 class Ciclo(models.Model):
     año = models.IntegerField(unique=True, validators=[MinValueValidator(2000), MaxValueValidator(date.today().year + 1)])
@@ -96,28 +96,30 @@ class CicloClub(models.Model):
 class Socio(models.Model):
     es_deportista = models.BooleanField(default=False, help_text="@Indica si el socio es deportista o no")   
     es_tutor = models.BooleanField(default=False, help_text="@Indica si el socio es tutor o no")
-    apto_medico = models.FileField(upload_to='apto_medico/')
+    apto_medico = models.FileField(upload_to='apto_medico/', blank=True)
     tutor_responsable = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, help_text="@Ingrese el tutor responsable del socio")
 
-    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='socio', null=True, blank=True)
-    club = models.ForeignKey(Club, on_delete=models.CASCADE)
+    perfil_club = models.OneToOneField(
+        'customauth.PerfilClub',
+        on_delete=models.CASCADE,
+        related_name='socio',
+    )
     
     def __str__(self):
-        if self.usuario_id is None:
-            return f"Socio #{self.pk}" if self.pk is not None else "Socio sin usuario"
-        return str(self.usuario)
+        return str(self.perfil_club.perfil)
     
     @property
     def es_menor_edad(self):
-        if not self.usuario.perfil.fecha_nacimiento:
+        fecha_nacimiento = self.perfil_club.perfil.fecha_nacimiento
+        if not fecha_nacimiento:
             raise ValueError('Debe definir fecha de nacimiento.')
         hoy = date.today()
         edad = (
             hoy.year
-            - self.usuario.perfil.fecha_nacimiento.year
+            - fecha_nacimiento.year
             -(
                 (hoy.month, hoy.day)
-                <(self.usuario.perfil.fecha_nacimiento.month, self.usuario.perfil.fecha_nacimiento.day)
+                <(fecha_nacimiento.month, fecha_nacimiento.day)
             )
         )
         return edad < 18
@@ -137,22 +139,105 @@ class Entrenador(models.Model):
         return f"{self.usuario.perfil.nombre} {self.usuario.perfil.apellido}"   
 
 
+class AsignacionEntrenador(models.Model):
+    entrenador = models.ForeignKey(
+        Entrenador,
+        on_delete=models.CASCADE,
+        related_name='asignaciones',
+    )
+    perfil_club = models.ForeignKey(
+        'customauth.PerfilClub',
+        on_delete=models.CASCADE,
+        related_name='asignaciones_entrenadores',
+    )
+    disciplina = models.ForeignKey(Disciplina, on_delete=models.CASCADE)
+    categoria = models.ForeignKey('Categoria', on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=('entrenador', 'perfil_club', 'disciplina', 'categoria'),
+                name='uniq_entrenador_club_disc_categoria',
+            ),
+        ]
+
+    def clean(self):
+        super().clean()
+        errores = {}
+
+        if self.perfil_club_id and self.entrenador_id:
+            if (
+                self.perfil_club.perfil.usuario_id
+                != self.entrenador.usuario_id
+            ):
+                errores['perfil_club'] = (
+                    'La membresía debe corresponder al perfil del entrenador.'
+                )
+            elif not self.entrenador.club.filter(
+                pk=self.perfil_club.club_id
+            ).exists():
+                errores['perfil_club'] = (
+                    'El entrenador debe estar asociado al club de la membresía.'
+                )
+
+        if self.perfil_club_id and self.disciplina_id:
+            if not self.perfil_club.club.disciplinas.filter(
+                pk=self.disciplina_id
+            ).exists():
+                errores['disciplina'] = (
+                    'El club debe estar suscripto a esta disciplina.'
+                )
+
+        if self.perfil_club_id and self.categoria_id:
+            if self.categoria.club_id != self.perfil_club.club_id:
+                errores['categoria'] = (
+                    'La categoría debe pertenecer al club seleccionado.'
+                )
+            elif self.disciplina_id and not self.categoria.disciplina.filter(
+                pk=self.disciplina_id
+            ).exists():
+                errores['categoria'] = (
+                    'La categoría debe estar asociada a la disciplina seleccionada.'
+                )
+
+        if errores:
+            raise ValidationError(errores)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+
 class Categoria(models.Model):
    
     nombre = models.CharField(max_length=100, help_text="@Ingrese el nombre de la categoría")
-    descripcion = models.TextField(help_text="@Ingrese la descripción de la categoría")
+    descripcion = models.TextField(blank=True, help_text="@Ingrese la descripción de la categoría")
     edad_minima = models.IntegerField(validators=[MinValueValidator(0)], help_text="@Ingrese la edad mínima de la categoría")
     edad_maxima = models.IntegerField(validators=[MinValueValidator(0)], help_text="@Ingrese la edad máxima de la categoría")
-    club = models.ManyToManyField(Club)
-    disciplina = models.ManyToManyField(Disciplina)
+    club = models.ForeignKey(
+        Club,
+        on_delete=models.CASCADE,
+        related_name="categorias",
+        null=True,
+    )
+    disciplina = models.ManyToManyField(Disciplina, related_name="categorias")
 
     def __str__(self):
         return self.nombre  
     
+    def clean(self):
+        super().clean()
+        if (
+            self.edad_minima is not None
+            and self.edad_maxima is not None
+            and self.edad_minima >= self.edad_maxima
+        ):
+            raise ValidationError({
+                "edad_maxima": "La edad máxima debe ser mayor que la edad mínima."
+            })
+
     def save(self, *args, **kwargs):
-        if self.edad_minima >= self.edad_maxima:
-            raise ValueError('La edad mínima no puede ser mayor o igual que la edad máxima.')
-        
+        self.full_clean()
         super().save(*args, **kwargs)
 
 class Fichaje(models.Model):
@@ -172,7 +257,8 @@ class Fichaje(models.Model):
             self.socio.save(update_fields=['es_deportista'])
 
     def __str__(self):
-        return f"{self.socio.usuario.perfil.nombre} {self.socio.usuario.perfil.apellido} - {self.disciplina.nombre} - {self.categoria.nombre} - {self.ciclo.año}" 
+        perfil = self.socio.perfil_club.perfil
+        return f"{perfil.nombre} {perfil.apellido} - {self.disciplina.nombre} - {self.categoria.nombre} - {self.ciclo.año}"
 
 class ParametroEvaluacion(models.Model):
    
@@ -194,7 +280,8 @@ class PlanillaExamen(models.Model):
     #observaciones = models.TextField(help_text="@Ingrese las observaciones del examen", blank=True, null=True)
 
     def __str__(self):
-        return f"{self.fichaje.socio.usuario.perfil.nombre} {self.fichaje.socio.usuario.perfil.apellido} - {self.fichaje.disciplina.nombre} - {self.fichaje.categoria.nombre} - {self.fecha_examen}"    
+        perfil = self.fichaje.socio.perfil_club.perfil
+        return f"{perfil.nombre} {perfil.apellido} - {self.fichaje.disciplina.nombre} - {self.fichaje.categoria.nombre} - {self.fecha_examen}"
 
 class ResultadoExamen(models.Model):
    
@@ -204,7 +291,8 @@ class ResultadoExamen(models.Model):
     observaciones = models.TextField(help_text="@Ingrese las observaciones del resultado del examen", blank=True, null=True)
 
     def __str__(self):
-        return f"{self.planilla.fichaje.socio.usuario.perfil.nombre} {self.planilla.fichaje.socio.usuario.perfil.apellido} - {self.planilla.fichaje.disciplina.nombre} - {self.planilla.fichaje.categoria.nombre} - {self.planilla.fecha_examen} - {self.fecha_test}"
+        perfil = self.planilla.fichaje.socio.perfil_club.perfil
+        return f"{perfil.nombre} {perfil.apellido} - {self.planilla.fichaje.disciplina.nombre} - {self.planilla.fichaje.categoria.nombre} - {self.planilla.fecha_examen} - {self.fecha_test}"
 
 class MetricaRegistrada(models.Model):
 
@@ -216,4 +304,5 @@ class MetricaRegistrada(models.Model):
     observaciones = models.TextField(help_text="@Ingrese las observaciones de la métrica registrada", blank=True, null=True)
 
     def __str__(self):
-        return f"{self.resultado.planilla.fichaje.socio.usuario.perfil.nombre} {self.resultado.planilla.fichaje.socio.usuario.perfil.apellido} - {self.resultado.planilla.fichaje.disciplina.nombre} - {self.resultado.planilla.fichaje.categoria.nombre} - {self.resultado.planilla.fecha_examen} - {self.parametro.nombre} - {self.valor}"    
+        perfil = self.resultado.planilla.fichaje.socio.perfil_club.perfil
+        return f"{perfil.nombre} {perfil.apellido} - {self.resultado.planilla.fichaje.disciplina.nombre} - {self.resultado.planilla.fichaje.categoria.nombre} - {self.resultado.planilla.fecha_examen} - {self.parametro.nombre} - {self.valor}"

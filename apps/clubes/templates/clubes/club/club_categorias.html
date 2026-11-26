@@ -1,0 +1,209 @@
+{% extends 'base_apps.html' %}
+
+{% block title %}Categorías de {{ club.nombre }}{% endblock %}
+
+{% block contenido_apps %}
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+            <div class="mb-4">
+                <h1 class="h5 text-uppercase mb-2">Categorías de {{ club.nombre }}</h1>
+                <p class="text-muted mb-0">
+                    Administrá las categorías de las disciplinas a las que está suscripto el club.
+                </p>
+            </div>
+
+            {% if disciplinas %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Disciplina</th>
+                                <th scope="col">Categorías</th>
+                                <th scope="col" class="text-end">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for disciplina in disciplinas %}
+                                <tr>
+                                    <th scope="row">{{ disciplina.nombre }}</th>
+                                    <td>
+                                        {% for categoria in disciplina.categorias_del_club %}
+                                            <span class="badge rounded-pill text-bg-light border me-1 mb-1">
+                                                {{ categoria.nombre }}
+                                                ({{ categoria.edad_minima }}-{{ categoria.edad_maxima }})
+                                            </span>
+                                        {% empty %}
+                                            <span class="text-muted">Sin categorías asignadas</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td class="text-end">
+                                        <a
+                                            href="?disciplina_id={{ disciplina.pk }}#gestion-categoria"
+                                            class="btn btn-sm btn-outline-primary"
+                                        >
+                                            Gestionar
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-layers fs-1 d-block mb-3"></i>
+                    <h2 class="h5 fw-bold">El club todavía no está suscripto a disciplinas</h2>
+                    <p class="mb-3">Suscribí al club a una disciplina antes de administrar sus categorías.</p>
+                    <a
+                        href="{% url 'clubes:gestion_disciplinas' club.pk %}"
+                        class="btn btn-primary"
+                    >
+                        Ir a disciplinas
+                    </a>
+                </div>
+            {% endif %}
+
+            {% if disciplina_seleccionada %}
+                <section id="gestion-categoria" class="border-top pt-4 mt-4">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+                        <div>
+                            <h2 class="h5 fw-bold mb-1">{{ disciplina_seleccionada.nombre }}</h2>
+                            <p class="text-muted mb-0">Creá una categoría o reutilizá una del club.</p>
+                        </div>
+                        <a
+                            href="{% url 'clubes:gestion_categorias' club.pk %}"
+                            class="btn btn-sm btn-outline-secondary"
+                        >
+                            Cerrar
+                        </a>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="card h-100 border rounded-3">
+                                <div class="card-body">
+                                    <h3 class="h6 fw-bold">Crear categoría nueva</h3>
+                                    <form
+                                        method="post"
+                                        action="{% url 'clubes:gestion_categorias' club.pk %}#gestion-categoria"
+                                    >
+                                        {% csrf_token %}
+                                        <input type="hidden" name="accion" value="crear">
+                                        <input
+                                            type="hidden"
+                                            name="disciplina_id"
+                                            value="{{ disciplina_seleccionada.pk }}"
+                                        >
+                                        {{ form_categoria.non_field_errors }}
+                                        <div class="mb-3">
+                                            {{ form_categoria.nombre.label_tag }}
+                                            {{ form_categoria.nombre }}
+                                            {{ form_categoria.nombre.errors }}
+                                        </div>
+                                        <div class="mb-3">
+                                            {{ form_categoria.descripcion.label_tag }}
+                                            {{ form_categoria.descripcion }}
+                                            {{ form_categoria.descripcion.errors }}
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-6 mb-3">
+                                                {{ form_categoria.edad_minima.label_tag }}
+                                                {{ form_categoria.edad_minima }}
+                                                {{ form_categoria.edad_minima.errors }}
+                                            </div>
+                                            <div class="col-sm-6 mb-3">
+                                                {{ form_categoria.edad_maxima.label_tag }}
+                                                {{ form_categoria.edad_maxima }}
+                                                {{ form_categoria.edad_maxima.errors }}
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            Crear y agregar
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="card h-100 border rounded-3">
+                                <div class="card-body">
+                                    <h3 class="h6 fw-bold">Reutilizar categoría del club</h3>
+                                    {% if form_reutilizar.categoria.field.queryset %}
+                                        <form
+                                            method="post"
+                                            action="{% url 'clubes:gestion_categorias' club.pk %}#gestion-categoria"
+                                        >
+                                            {% csrf_token %}
+                                            <input type="hidden" name="accion" value="reutilizar">
+                                            <input
+                                                type="hidden"
+                                                name="disciplina_id"
+                                                value="{{ disciplina_seleccionada.pk }}"
+                                            >
+                                            <div class="mb-3">
+                                                {{ form_reutilizar.categoria.label_tag }}
+                                                {{ form_reutilizar.categoria }}
+                                                {{ form_reutilizar.categoria.errors }}
+                                            </div>
+                                            <button type="submit" class="btn btn-outline-primary">
+                                                Agregar a esta disciplina
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <p class="text-muted mb-0">
+                                            No hay otras categorías del club disponibles para reutilizar.
+                                        </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h3 class="h6 fw-bold">Categorías de esta disciplina</h3>
+                        {% if categorias_asignadas %}
+                            <ul class="list-group">
+                                {% for categoria in categorias_asignadas %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center gap-3">
+                                        <span>
+                                            <strong>{{ categoria.nombre }}</strong>
+                                            <span class="text-muted">
+                                                ({{ categoria.edad_minima }}-{{ categoria.edad_maxima }})
+                                            </span>
+                                        </span>
+                                        <form
+                                            method="post"
+                                            action="{% url 'clubes:gestion_categorias' club.pk %}#gestion-categoria"
+                                        >
+                                            {% csrf_token %}
+                                            <input type="hidden" name="accion" value="quitar">
+                                            <input
+                                                type="hidden"
+                                                name="disciplina_id"
+                                                value="{{ disciplina_seleccionada.pk }}"
+                                            >
+                                            <input
+                                                type="hidden"
+                                                name="categoria_id"
+                                                value="{{ categoria.pk }}"
+                                            >
+                                            <button
+                                                type="submit"
+                                                class="btn btn-sm btn-outline-danger"
+                                            >
+                                                Quitar
+                                            </button>
+                                        </form>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted mb-0">Todavía no hay categorías asociadas.</p>
+                        {% endif %}
+                    </div>
+                </section>
+            {% endif %}
+        </div>
+    </div>
+{% endblock contenido_apps %}

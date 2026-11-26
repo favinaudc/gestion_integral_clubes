@@ -13,12 +13,72 @@
                 {{titulo|upper}}
                 <hr>
             </h6>
-            <form method="POST"> 
+            <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 {% crispy form %}
             </form>
             
         </div>
     </div>
-    {% include "includes/boton_volver.html" with url_name=url_volver boton_titulo='Volver' %}  
+    {% include "includes/boton_volver.html" with url_name=url_volver url_pk=url_volver_pk boton_titulo='Volver' %}
+    <script>
+        (() => {
+            const fechaNacimiento = document.getElementById('id_fecha_nacimiento');
+            const seccionTutorResponsable = document.getElementById('seccion-tutor-responsable');
+            const seccionEsTutor = document.getElementById('seccion-checkbox-es-tutor');
+            const esTutor = document.getElementById('id_es_tutor');
+            const seccionSociosACargo = document.getElementById('seccion-socios-a-cargo');
+            const busquedaSocios = document.getElementById('buscar-socios-a-cargo');
+
+            const esMenorDeEdad = (fecha) => {
+                if (!fecha) return false;
+                const [anio, mes, dia] = fecha.split('-').map(Number);
+                const hoy = new Date();
+                let edad = hoy.getFullYear() - anio;
+                if (
+                    hoy.getMonth() + 1 < mes ||
+                    (hoy.getMonth() + 1 === mes && hoy.getDate() < dia)
+                ) {
+                    edad -= 1;
+                }
+                return edad < 18;
+            };
+
+            const actualizarSecciones = () => {
+                const esMenor = fechaNacimiento && esMenorDeEdad(fechaNacimiento.value);
+                if (seccionEsTutor) {
+                    seccionEsTutor.hidden = Boolean(esMenor);
+                    if (esMenor && esTutor) {
+                        esTutor.checked = false;
+                    }
+                }
+                if (seccionTutorResponsable && fechaNacimiento) {
+                    seccionTutorResponsable.hidden = !esMenor;
+                }
+                if (seccionSociosACargo && esTutor) {
+                    seccionSociosACargo.hidden = !esTutor.checked;
+                    if (!esTutor.checked) {
+                        document.querySelectorAll('input[name="socios_a_cargo"]').forEach((input) => {
+                            input.checked = false;
+                        });
+                    }
+                }
+            };
+
+            fechaNacimiento?.addEventListener('change', actualizarSecciones);
+            esTutor?.addEventListener('change', actualizarSecciones);
+            actualizarSecciones();
+
+            busquedaSocios?.addEventListener('input', () => {
+                const termino = busquedaSocios.value.trim().toLocaleLowerCase();
+                document.querySelectorAll('input[name="socios_a_cargo"]').forEach((input) => {
+                    const etiqueta = input.closest('label');
+                    if (etiqueta) {
+                        etiqueta.hidden = !input.checked &&
+                            !etiqueta.textContent.toLocaleLowerCase().includes(termino);
+                    }
+                });
+            });
+        })();
+    </script>
 {% endblock %}

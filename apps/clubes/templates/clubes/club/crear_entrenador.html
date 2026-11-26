@@ -1,0 +1,290 @@
+{% extends 'base_apps.html' %}
+
+{% block title %}Crear entrenador{% endblock %}
+
+{% block contenido_apps %}
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+            <div class="mb-4">
+                <h1 class="h5 text-uppercase mb-2">Crear entrenador para {{ club.nombre }}</h1>
+                <p class="text-muted mb-0">
+                    Completá cada paso para registrar la cuenta y sus asignaciones.
+                </p>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mb-4" aria-label="Pasos del formulario">
+                <span class="badge rounded-pill bg-primary" data-step-indicator="0">1. Usuario</span>
+                <span class="badge rounded-pill bg-secondary" data-step-indicator="1">2. Perfil</span>
+                <span class="badge rounded-pill bg-secondary" data-step-indicator="2">3. Disciplina</span>
+                <span class="badge rounded-pill bg-secondary" data-step-indicator="3">4. Categoría</span>
+            </div>
+
+            <form method="post" data-entrenador-wizard novalidate>
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+
+                <section
+                    class="wizard-step"
+                    data-wizard-step="0"
+                    aria-labelledby="paso-usuario-titulo"
+                >
+                    <h2 id="paso-usuario-titulo" class="h6 fw-bold">Paso 1: Datos de usuario</h2>
+                    <p class="text-muted">
+                        Si el CUIL/CUIT ya tiene una cuenta, se reutilizarán esa cuenta y sus credenciales.
+                    </p>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            {{ form.cuit_cuil.label_tag }}
+                            {{ form.cuit_cuil }}
+                            {{ form.cuit_cuil.errors }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            {{ form.email.label_tag }}
+                            {{ form.email }}
+                            {{ form.email.errors }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            {{ form.dni.label_tag }}
+                            {{ form.dni }}
+                            {% if form.dni.help_text %}
+                                <div class="form-text">{{ form.dni.help_text }}</div>
+                            {% endif %}
+                            {{ form.dni.errors }}
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-primary" data-next-step>
+                            Siguiente
+                        </button>
+                    </div>
+                </section>
+
+                <section
+                    class="wizard-step"
+                    data-wizard-step="1"
+                    aria-labelledby="paso-perfil-titulo"
+                    hidden
+                >
+                    <h2 id="paso-perfil-titulo" class="h6 fw-bold">Paso 2: Datos de perfil</h2>
+                    <p class="text-muted">
+                        Los datos de perfil existentes no se reemplazan cuando se reutiliza una cuenta.
+                    </p>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.nombre.label_tag }}
+                            {{ form.nombre }}
+                            {{ form.nombre.errors }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.apellido.label_tag }}
+                            {{ form.apellido }}
+                            {{ form.apellido.errors }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            {{ form.fecha_nacimiento.label_tag }}
+                            {{ form.fecha_nacimiento }}
+                            {{ form.fecha_nacimiento.errors }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            {{ form.telefono.label_tag }}
+                            {{ form.telefono }}
+                            {{ form.telefono.errors }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            {{ form.direccion.label_tag }}
+                            {{ form.direccion }}
+                            {{ form.direccion.errors }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <h3 class="h6 fw-bold">Datos del entrenador</h3>
+                        {{ form.experiencia.label_tag }}
+                        {{ form.experiencia }}
+                        {{ form.experiencia.errors }}
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-secondary" data-prev-step>
+                            Anterior
+                        </button>
+                        <button type="button" class="btn btn-primary" data-next-step>
+                            Siguiente
+                        </button>
+                    </div>
+                </section>
+
+                <section
+                    class="wizard-step"
+                    data-wizard-step="2"
+                    aria-labelledby="paso-disciplina-titulo"
+                    hidden
+                >
+                    <h2 id="paso-disciplina-titulo" class="h6 fw-bold">Paso 3: Elegir disciplina</h2>
+                    <p class="text-muted">{{ form.disciplinas.help_text }}</p>
+                    {{ form.disciplinas }}
+                    {{ form.disciplinas.errors }}
+                    <div class="text-danger small mt-2" data-disciplinas-error hidden>
+                        Seleccioná al menos una disciplina para continuar.
+                    </div>
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-outline-secondary" data-prev-step>
+                            Anterior
+                        </button>
+                        <button type="button" class="btn btn-primary" data-next-step>
+                            Siguiente
+                        </button>
+                    </div>
+                </section>
+
+                <section
+                    class="wizard-step"
+                    data-wizard-step="3"
+                    aria-labelledby="paso-categoria-titulo"
+                    hidden
+                >
+                    <h2 id="paso-categoria-titulo" class="h6 fw-bold">Paso 4: Elegir categoría</h2>
+                    <p class="text-muted">{{ form.categorias.help_text }}</p>
+                    {{ form.categorias }}
+                    {{ form.categorias.errors }}
+                    <div class="text-muted small mt-2" data-categorias-empty hidden>
+                        No hay categorías disponibles para las disciplinas elegidas.
+                    </div>
+                    <div class="text-danger small mt-2" data-categorias-error hidden>
+                        Seleccioná al menos una categoría para continuar.
+                    </div>
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-outline-secondary" data-prev-step>
+                            Anterior
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            Guardar entrenador
+                        </button>
+                    </div>
+                </section>
+            </form>
+        </div>
+    </div>
+{% endblock contenido_apps %}
+
+{% block extra_js %}
+    {{ block.super }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.querySelector('[data-entrenador-wizard]');
+            if (!form) return;
+
+            const steps = Array.from(form.querySelectorAll('[data-wizard-step]'));
+            const indicators = Array.from(
+                document.querySelectorAll('[data-step-indicator]')
+            );
+            const disciplineInputs = Array.from(
+                form.querySelectorAll('input[name="disciplinas"]')
+            );
+            const categoryInputs = Array.from(
+                form.querySelectorAll('input[name="categorias"]')
+            );
+            const categoriesEmpty = form.querySelector('[data-categorias-empty]');
+            let currentStep = 0;
+
+            function showStep(index) {
+                currentStep = Math.max(0, Math.min(index, steps.length - 1));
+                steps.forEach(function (step, stepIndex) {
+                    step.hidden = stepIndex !== currentStep;
+                });
+                indicators.forEach(function (indicator, stepIndex) {
+                    indicator.classList.toggle('bg-primary', stepIndex === currentStep);
+                    indicator.classList.toggle('bg-secondary', stepIndex !== currentStep);
+                    if (stepIndex === currentStep) {
+                        indicator.setAttribute('aria-current', 'step');
+                    } else {
+                        indicator.removeAttribute('aria-current');
+                    }
+                });
+                if (currentStep === 3) filterCategories();
+            }
+
+            function optionContainer(input) {
+                return input.closest('li') || input.closest('div');
+            }
+
+            function filterCategories() {
+                const selectedDisciplines = new Set(
+                    disciplineInputs
+                        .filter(function (input) { return input.checked; })
+                        .map(function (input) { return input.value; })
+                );
+                let visibleCount = 0;
+
+                categoryInputs.forEach(function (input) {
+                    const categoryDisciplines = (
+                        input.dataset.disciplinas || ''
+                    ).split(/\s+/).filter(Boolean);
+                    const visible = categoryDisciplines.some(function (id) {
+                        return selectedDisciplines.has(id);
+                    });
+                    const container = optionContainer(input);
+
+                    if (container) container.hidden = !visible;
+                    input.disabled = !visible;
+                    if (!visible) input.checked = false;
+                    if (visible) visibleCount += 1;
+                });
+
+                if (categoriesEmpty) {
+                    categoriesEmpty.hidden = visibleCount > 0;
+                }
+            }
+
+            function validateStep() {
+                const step = steps[currentStep];
+                const requiredInputs = Array.from(
+                    step.querySelectorAll('[required]:not([type="checkbox"])')
+                );
+                for (const input of requiredInputs) {
+                    if (!input.checkValidity()) {
+                        input.reportValidity();
+                        return false;
+                    }
+                }
+
+                if (currentStep === 2) {
+                    const selected = disciplineInputs.some(
+                        function (input) { return input.checked; }
+                    );
+                    form.querySelector('[data-disciplinas-error]').hidden = selected;
+                    return selected;
+                }
+                if (currentStep === 3) {
+                    const selected = categoryInputs.some(
+                        function (input) { return input.checked && !input.disabled; }
+                    );
+                    form.querySelector('[data-categorias-error]').hidden = selected;
+                    return selected;
+                }
+                return true;
+            }
+
+            form.querySelectorAll('[data-next-step]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    if (validateStep()) showStep(currentStep + 1);
+                });
+            });
+            form.querySelectorAll('[data-prev-step]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    showStep(currentStep - 1);
+                });
+            });
+            disciplineInputs.forEach(function (input) {
+                input.addEventListener('change', filterCategories);
+            });
+            form.addEventListener('submit', function (event) {
+                if (!validateStep()) event.preventDefault();
+            });
+
+            const firstStepWithErrors = steps.findIndex(function (step) {
+                return step.querySelector('.errorlist');
+            });
+            showStep(firstStepWithErrors >= 0 ? firstStepWithErrors : 0);
+            filterCategories();
+        });
+    </script>
+{% endblock extra_js %}

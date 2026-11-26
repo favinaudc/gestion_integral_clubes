@@ -8,7 +8,13 @@ db.sqlite3
 # Ignorar todos los archivos generados en las carpetas migrations de las apps
 apps/*/migrations/*.py
 apps/*/migrations/*.pyc
+#!apps/clubes/migrations/0005_socio_perfil_club.py
+#!apps/clubes/migrations/0006_alter_cicloclub_options_alter_club_options_and_more.py
+#!apps/clubes/migrations/0007_asignacionentrenador.py
+#!apps/customauth/migrations/0005_optional_perfil_usuario.py
+#!apps/customauth/migrations/0006_perfil_dni.py
+#!apps/customauth/migrations/0007_perfil_email.py
 # Mantener el archivo __init__.py obligatorio del paquete
-!apps/*/migrations/__init__.py
+#!apps/*/migrations/__init__.py
 
 .vscode
