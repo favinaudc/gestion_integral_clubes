@@ -1,0 +1,355 @@
+{% extends 'clubes/form_template.html' %}
+{% load crispy_forms_tags %}
+
+{% block form_fields %}
+    <div id="gestion-socio-wizard"
+         data-initial-step="{% if form.tutor_responsable.errors or form.socios_a_cargo.errors or form.es_tutor.errors %}2{% else %}1{% endif %}">
+        <ol class="wizard-progress list-unstyled d-flex mb-4" aria-label="Pasos para crear un socio">
+            <li id="indicador-paso-datos" class="wizard-progress__item is-active" aria-current="step">
+                <span class="wizard-progress__number">1</span>
+                <span>Datos del socio</span>
+            </li>
+            <li id="indicador-paso-relaciones" class="wizard-progress__item">
+                <span class="wizard-progress__number">2</span>
+                <span>Relaciones</span>
+            </li>
+        </ol>
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+        <div class="ps-4">
+            <section id="paso-datos-socio" aria-labelledby="titulo-paso-datos">
+                {% include "clubes/socio/partials/gestion_socio_datos.html" %}
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="button" class="btn btn-primary px-4" id="continuar-a-relaciones">
+                        Continuar <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </section>
+
+            <section id="paso-relaciones-socio" aria-labelledby="titulo-paso-relaciones" tabindex="-1">
+                {% include "clubes/socio/partials/gestion_socio_relaciones.html" with tutores=tutores_disponibles menores=socios_menores_disponibles %}
+                <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mt-4">
+                    <button type="button" class="btn btn-outline-secondary px-4" id="volver-a-datos">
+                        <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Volver
+                    </button>
+                    <button type="submit" class="btn btn-success px-4">
+                        GUARDAR SOCIO
+                    </button>
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}
+
+{% block form_extra_js %}
+    <style>
+        .wizard-progress {
+            gap: 1rem;
+        }
+
+        .wizard-progress__item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #6c757d;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .wizard-progress__number {
+            display: inline-flex;
+            width: 2rem;
+            height: 2rem;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ced4da;
+            border-radius: 50%;
+            background: #fff;
+        }
+
+        .wizard-progress__item.is-active {
+            color: #0d6efd;
+        }
+
+        .wizard-progress__item.is-active .wizard-progress__number {
+            border-color: #0d6efd;
+            background: #0d6efd;
+            color: #fff;
+        }
+
+        .socio-choice-card {
+            color: inherit;
+            text-decoration: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+        }
+
+        .socio-choice-card:hover {
+            border-color: #86b7fe !important;
+            box-shadow: 0 0.25rem 0.75rem rgba(13, 110, 253, 0.1);
+        }
+
+        .socio-choice-card[aria-pressed="true"] {
+            border-color: #0d6efd !important;
+            background-color: #f0f6ff;
+            box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.12);
+        }
+
+        .socio-choice-card__check {
+            opacity: 0;
+        }
+
+        .socio-choice-card[aria-pressed="true"] .socio-choice-card__check {
+            opacity: 1;
+        }
+
+        #advertenciaMenorSinResponsable.fade .modal-dialog {
+            transform: translateY(-120px);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #advertenciaMenorSinResponsable.show .modal-dialog {
+            transform: translateY(0);
+        }
+    </style>
+
+    <div class="modal fade" id="advertenciaMenorSinResponsable" tabindex="-1"
+         aria-labelledby="advertenciaMenorSinResponsableTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+                <div class="bg-warning" style="height: 4px;"></div>
+                <div class="modal-body text-center px-4 pt-4 pb-3">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-warning bg-opacity-10 text-warning mb-3"
+                         style="width: 3.5rem; height: 3.5rem;">
+                        <i class="bi bi-exclamation-triangle-fill fs-3" aria-hidden="true"></i>
+                    </div>
+                    <h5 class="modal-title fw-semibold mb-2" id="advertenciaMenorSinResponsableTitulo">
+                        Menor sin adulto responsable
+                    </h5>
+                    <p class="text-secondary mb-0">
+                        Vas a guardar a un socio menor de edad sin especificar a su adulto responsable.
+                        ¿Deseás continuar de todas formas?
+                    </p>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-2 d-flex flex-column flex-sm-row gap-2">
+                    <button type="button" class="btn btn-light border w-100 py-2 fw-medium text-uppercase"
+                            data-bs-dismiss="modal">
+                        Volver al formulario
+                    </button>
+                    <button type="button" class="btn btn-warning w-100 py-2 fw-semibold text-uppercase"
+                            id="confirmarGuardadoMenor">
+                        Continuar sin responsable
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (() => {
+            const form = document.querySelector('.card form');
+            const wizard = document.getElementById('gestion-socio-wizard');
+            const pasoDatos = document.getElementById('paso-datos-socio');
+            const pasoRelaciones = document.getElementById('paso-relaciones-socio');
+            const indicadorDatos = document.getElementById('indicador-paso-datos');
+            const indicadorRelaciones = document.getElementById('indicador-paso-relaciones');
+            const continuar = document.getElementById('continuar-a-relaciones');
+            const volver = document.getElementById('volver-a-datos');
+            const fechaNacimiento = document.getElementById('id_fecha_nacimiento');
+            const esTutor = document.getElementById('id_es_tutor');
+            const tutorResponsable = document.getElementById('id_tutor_responsable');
+            const seccionTutor = document.getElementById('seleccion-tutor-responsable');
+            const seccionEsTutor = document.getElementById('seccion-es-tutor');
+            const seccionSociosACargo = document.getElementById('seleccion-socios-a-cargo');
+            const camposSociosACargo = document.getElementById('campos-socios-a-cargo');
+            const modalElemento = document.getElementById('advertenciaMenorSinResponsable');
+            const confirmarGuardado = document.getElementById('confirmarGuardadoMenor');
+
+            const esMenorDeEdad = (fecha) => {
+                if (!fecha) return false;
+                const [anio, mes, dia] = fecha.split('-').map(Number);
+                const hoy = new Date();
+                let edad = hoy.getFullYear() - anio;
+                if (
+                    hoy.getMonth() + 1 < mes ||
+                    (hoy.getMonth() + 1 === mes && hoy.getDate() < dia)
+                ) {
+                    edad -= 1;
+                }
+                return edad < 18;
+            };
+
+            const tarjetas = (contenedor) => (
+                [...contenedor.querySelectorAll('[data-socio-card]')]
+            );
+
+            const actualizarEstadoTarjeta = (tarjeta, seleccionada) => {
+                tarjeta.setAttribute('aria-pressed', String(seleccionada));
+            };
+
+            const valoresSociosACargo = () => (
+                [...camposSociosACargo.querySelectorAll('input[name="socios_a_cargo"]')]
+                    .map((input) => input.value)
+            );
+
+            const guardarSociosACargo = (ids) => {
+                camposSociosACargo.replaceChildren();
+                ids.forEach((id, indice) => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'socios_a_cargo';
+                    input.id = `id_socios_a_cargo_${indice}`;
+                    input.value = id;
+                    camposSociosACargo.appendChild(input);
+                });
+            };
+
+            const actualizarTarjetasSeleccionadas = () => {
+                const tutorSeleccionado = tutorResponsable.value;
+                tarjetas(document.querySelector('[data-card-grid="tutores"]')).forEach((tarjeta) => {
+                    actualizarEstadoTarjeta(
+                        tarjeta,
+                        tarjeta.dataset.socioId === tutorSeleccionado,
+                    );
+                });
+
+                const sociosSeleccionados = new Set(valoresSociosACargo());
+                tarjetas(document.querySelector('[data-card-grid="menores"]')).forEach((tarjeta) => {
+                    actualizarEstadoTarjeta(
+                        tarjeta,
+                        sociosSeleccionados.has(tarjeta.dataset.socioId),
+                    );
+                });
+            };
+
+            const limpiarSociosACargo = () => {
+                guardarSociosACargo([]);
+                actualizarTarjetasSeleccionadas();
+            };
+
+            const actualizarSeccionesRelacion = () => {
+                const esMenor = esMenorDeEdad(fechaNacimiento.value);
+                seccionTutor.hidden = !esMenor;
+                seccionEsTutor.hidden = esMenor;
+
+                if (esMenor) {
+                    esTutor.checked = false;
+                    limpiarSociosACargo();
+                } else {
+                    tutorResponsable.value = '';
+                    seccionSociosACargo.hidden = !esTutor.checked;
+                    if (!esTutor.checked) {
+                        limpiarSociosACargo();
+                    }
+                }
+                actualizarTarjetasSeleccionadas();
+            };
+
+            const cambiarPaso = (mostrarRelaciones) => {
+                pasoDatos.hidden = mostrarRelaciones;
+                pasoRelaciones.hidden = !mostrarRelaciones;
+                indicadorDatos.classList.toggle('is-active', !mostrarRelaciones);
+                indicadorRelaciones.classList.toggle('is-active', mostrarRelaciones);
+                if (mostrarRelaciones) {
+                    indicadorDatos.removeAttribute('aria-current');
+                    indicadorRelaciones.setAttribute('aria-current', 'step');
+                    pasoRelaciones.focus();
+                } else {
+                    indicadorRelaciones.removeAttribute('aria-current');
+                    indicadorDatos.setAttribute('aria-current', 'step');
+                }
+            };
+
+            const configurarBuscador = (inputId, grid) => {
+                const input = document.getElementById(inputId);
+                const mensajeVacio = grid.parentElement.querySelector('[data-no-results]');
+                input.addEventListener('input', () => {
+                    const termino = input.value.trim().toLocaleLowerCase();
+                    let visibles = 0;
+                    grid.querySelectorAll('[data-socio-card-wrapper]').forEach((envoltorio) => {
+                        const tarjeta = envoltorio.querySelector('[data-socio-card]');
+                        const coincide = tarjeta.dataset.search.toLocaleLowerCase().includes(termino);
+                        envoltorio.hidden = !coincide;
+                        if (coincide) visibles += 1;
+                    });
+                    mensajeVacio.hidden = visibles > 0;
+                });
+            };
+
+            const configurarTarjetas = () => {
+                const gridTutores = document.querySelector('[data-card-grid="tutores"]');
+                const gridMenores = document.querySelector('[data-card-grid="menores"]');
+
+                tarjetas(gridTutores).forEach((tarjeta) => {
+                    tarjeta.addEventListener('click', () => {
+                        tutorResponsable.value =
+                            tutorResponsable.value === tarjeta.dataset.socioId
+                                ? ''
+                                : tarjeta.dataset.socioId;
+                        actualizarTarjetasSeleccionadas();
+                    });
+                });
+
+                tarjetas(gridMenores).forEach((tarjeta) => {
+                    tarjeta.addEventListener('click', () => {
+                        const seleccionados = new Set(valoresSociosACargo());
+                        if (seleccionados.has(tarjeta.dataset.socioId)) {
+                            seleccionados.delete(tarjeta.dataset.socioId);
+                        } else {
+                            seleccionados.add(tarjeta.dataset.socioId);
+                        }
+                        guardarSociosACargo([...seleccionados]);
+                        if (seleccionados.size) esTutor.checked = true;
+                        actualizarSeccionesRelacion();
+                    });
+                });
+
+                configurarBuscador('buscar-tutor-responsable', gridTutores);
+                configurarBuscador('buscar-socios-a-cargo', gridMenores);
+                actualizarTarjetasSeleccionadas();
+            };
+
+            document.addEventListener('DOMContentLoaded', () => {
+                if (!form || !wizard) return;
+
+                pasoRelaciones.hidden = true;
+                seccionTutor.hidden = true;
+                seccionSociosACargo.hidden = true;
+                cambiarPaso(wizard.dataset.initialStep === '2');
+                actualizarSeccionesRelacion();
+                configurarTarjetas();
+
+                fechaNacimiento.addEventListener('change', actualizarSeccionesRelacion);
+                esTutor.addEventListener('change', actualizarSeccionesRelacion);
+
+                continuar.addEventListener('click', () => {
+                    if (form.reportValidity()) cambiarPaso(true);
+                });
+                volver.addEventListener('click', () => cambiarPaso(false));
+
+                const modal = window.bootstrap?.Modal.getOrCreateInstance(modalElemento);
+                let confirmacionAceptada = false;
+
+                form.addEventListener('submit', (event) => {
+                    if (confirmacionAceptada) {
+                        confirmacionAceptada = false;
+                        return;
+                    }
+                    if (esMenorDeEdad(fechaNacimiento.value) && !tutorResponsable.value) {
+                        event.preventDefault();
+                        modal?.show();
+                    }
+                });
+
+                confirmarGuardado.addEventListener('click', () => {
+                    confirmacionAceptada = true;
+                    modal?.hide();
+                    form.requestSubmit();
+                });
+            });
+        })();
+    </script>
+{% endblock %}

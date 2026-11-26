@@ -1,0 +1,75 @@
+<div class="mb-4">
+    <h5 class="fw-semibold mb-1" id="titulo-paso-relaciones">Relaciones del socio</h5>
+    <p class="text-muted mb-0">
+        Elegí un adulto responsable o, si este socio será tutor, seleccioná a los menores a su cargo.
+    </p>
+    <hr>
+</div>
+
+<section id="seleccion-tutor-responsable" aria-labelledby="titulo-tutor-responsable">
+    <div class="d-flex align-items-start gap-3 mb-3">
+        <span class="text-primary fs-4" aria-hidden="true"><i class="bi bi-person-check"></i></span>
+        <div>
+            <h6 class="fw-semibold mb-1" id="titulo-tutor-responsable">Adulto responsable</h6>
+            <p class="small text-muted mb-0">Seleccioná una tarjeta. Esta asociación es opcional.</p>
+        </div>
+    </div>
+
+    {{ form.tutor_responsable }}
+    {% if form.tutor_responsable.errors %}
+        <div class="invalid-feedback d-block mb-2">{{ form.tutor_responsable.errors }}</div>
+    {% endif %}
+    <label for="buscar-tutor-responsable" class="form-label">Buscar adulto por nombre o DNI</label>
+    <input id="buscar-tutor-responsable" type="search" class="form-control mb-3"
+           placeholder="Escribí un nombre o DNI" autocomplete="off">
+    <div class="row g-3" data-card-grid="tutores">
+        {% for socio in tutores %}
+            {% include "clubes/socio/partials/socio_seleccion_card.html" with socio=socio %}
+        {% empty %}
+            <div class="col-12">
+                <p class="small text-muted mb-0">No hay adultos registrados en este club para seleccionar.</p>
+            </div>
+        {% endfor %}
+    </div>
+    <p class="small text-muted mt-2 mb-0" data-no-results hidden>No hay adultos que coincidan con la búsqueda.</p>
+</section>
+
+<section id="seccion-es-tutor" class="mt-4">
+    <div class="form-check form-switch">
+        {{ form.es_tutor }}
+        <label class="form-check-label fw-medium" for="{{ form.es_tutor.id_for_label }}">
+            Este socio será tutor de otros socios
+        </label>
+    </div>
+    {% if form.es_tutor.errors %}
+        <div class="invalid-feedback d-block">{{ form.es_tutor.errors }}</div>
+    {% endif %}
+</section>
+
+<section id="seleccion-socios-a-cargo" class="mt-4" aria-labelledby="titulo-socios-a-cargo">
+    <div class="d-flex align-items-start gap-3 mb-3">
+        <span class="text-primary fs-4" aria-hidden="true"><i class="bi bi-people"></i></span>
+        <div>
+            <h6 class="fw-semibold mb-1" id="titulo-socios-a-cargo">Menores a cargo</h6>
+            <p class="small text-muted mb-0">Podés seleccionar más de una tarjeta.</p>
+        </div>
+    </div>
+
+    <div id="campos-socios-a-cargo">{{ form.socios_a_cargo }}</div>
+    {% if form.socios_a_cargo.errors %}
+        <div class="invalid-feedback d-block mb-2">{{ form.socios_a_cargo.errors }}</div>
+    {% endif %}
+    <label for="buscar-socios-a-cargo" class="form-label">Buscar menor por nombre o DNI</label>
+    <input id="buscar-socios-a-cargo" type="search" class="form-control mb-3"
+           placeholder="Escribí un nombre o DNI" autocomplete="off">
+    <div class="row g-3" data-card-grid="menores">
+        {% for socio in menores %}
+            {% include "clubes/socio/partials/socio_seleccion_card.html" with socio=socio %}
+        {% empty %}
+            <div class="col-12">
+                <p class="small text-muted mb-0">No hay socios menores registrados en este club para seleccionar.</p>
+            </div>
+        {% endfor %}
+    </div>
+    <p class="small text-muted mt-2 mb-0" data-no-results hidden>No hay menores que coincidan con la búsqueda.</p>
+</section>

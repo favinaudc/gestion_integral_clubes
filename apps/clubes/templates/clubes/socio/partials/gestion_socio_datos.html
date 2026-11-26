@@ -1,0 +1,18 @@
+{% load crispy_forms_tags %}
+
+<div class="mb-4">
+    <h5 class="h5 fw-semibold mb-1" id="titulo-paso-datos">Datos del socio</h5>
+    <p class="text-muted mb-0">Completá la información personal y de contacto.</p>
+    <hr>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">{{ form.nombre|as_crispy_field }}</div>
+    <div class="col-md-6">{{ form.apellido|as_crispy_field }}</div>
+    <div class="col-md-4">{{ form.dni|as_crispy_field }}</div>
+    <div class="col-md-4">{{ form.fecha_nacimiento|as_crispy_field }}</div>
+    <div class="col-md-4">{{ form.telefono|as_crispy_field }}</div>
+    <div class="col-md-6">{{ form.direccion|as_crispy_field }}</div>
+    <div class="col-md-6">{{ form.email|as_crispy_field }}</div>
+    <div class="col-12">{{ form.apto_medico|as_crispy_field }}</div>
+</div>

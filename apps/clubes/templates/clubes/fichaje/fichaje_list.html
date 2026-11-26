@@ -20,7 +20,6 @@
                         <th scope="col" class="text-center">Disciplina</th>
                         <th scope="col" class="text-center">Categoria</th>
                         <th scope="col" class="text-center">Fecha de Fichaje</th>
-                        <th scope="col" class="text-center">Ciclo</th>
                         <th scope="col" class="text-center">Editar</th> <!-- prueba de updateview -->
                         <th scope="col" class="text-center">Eliminar</th> <!-- prueba de deleteview -->
                     </tr>
@@ -32,7 +31,6 @@
                             <td>{{ fichaje.disciplina }}</td>
                             <td>{{ fichaje.categoria }}</td>
                             <td>{{ fichaje.fecha_fichaje }}</td>
-                            <td>{{ fichaje.ciclo }}</td>
                             <td class="text-center">
                                 <a href="{% url 'clubes:editar_fichaje' fichaje.pk %}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-edit">Editar</i>
@@ -46,8 +44,8 @@
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-3">
-                                No hay ciclos deportivos cargados en el sistema.
+                            <td colspan="6" class="text-center text-muted py-3">
+                                No hay fichajes registrados.
                             </td>
                         </tr>
                     {% endfor %}

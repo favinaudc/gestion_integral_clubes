@@ -1,0 +1,72 @@
+{% extends 'base_apps.html' %}
+
+{% block title %}{{ titulo|upper }}{% endblock %}
+
+{% block contenido_apps %}
+    <div class="container-fluid p-0">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-3 mb-4">
+            <div>
+                <p class="text-muted mb-1">{{ club.nombre }} · {{ disciplina.nombre }}</p>
+                <h1 class="h4 text-uppercase mb-0">{{ categoria.nombre }}</h1>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <h2 class="h6 text-uppercase mb-3">Fichajes de la categoría</h2>
+                {% if fichajes %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">Apellido</th>
+                                    <th scope="col">Nombre</th>
+                                    <th scope="col">DNI</th>
+                                    <th scope="col">Fecha de fichaje</th>
+                                    <th scope="col" class="text-center">Estado</th>
+                                    <th scope="col" class="text-end">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for fichaje in fichajes %}
+                                    <tr>
+                                        <td>{{ fichaje.socio.perfil_club.perfil.apellido|default:"-" }}</td>
+                                        <td>{{ fichaje.socio.perfil_club.perfil.nombre|default:"-" }}</td>
+                                        <td>{{ fichaje.socio.perfil_club.perfil.dni|default:"-" }}</td>
+                                        <td>{{ fichaje.fecha_fichaje|date:"d/m/Y" }}</td>
+                                        <td class="text-center">
+                                            {% if fichaje.is_active %}
+                                                <span class="badge text-bg-success">Activo</span>
+                                            {% else %}
+                                                <span class="badge text-bg-secondary">Inactivo</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end">
+                                            <a
+                                                class="btn btn-sm btn-outline-primary text-uppercase"
+                                                type="button"                                                
+                                                title="Funcionalidad pendiente"
+                                            >
+                                                Registrar evaluación física
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-5">
+                        No hay fichajes registrados para esta disciplina y categoría.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 bg-white p-2 rounded shadow-sm text-center">  
+        <a href="{% url 'entrenador_home' %}" class="btn btn-primary text-uppercase">
+            Volver</a>
+    </div>
+
+{% endblock %}

@@ -1,11 +1,12 @@
 from django.contrib.auth.models import Group
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db import transaction
 from django.shortcuts import redirect
-from django.views.generic import UpdateView, ListView, CreateView, DeleteView
-from apps.customauth.mixins import LoginRequiredMixinConMensaje
+from django.views.generic import DetailView, UpdateView, ListView, CreateView, DeleteView
+from apps.customauth.mixins import LoginRequiredMixinConMensaje, ValidarRolClubMixin
 from apps.customauth.models import Perfil, PerfilClub
 from django.urls import reverse_lazy
-from apps.clubes.models import Socio
+from apps.clubes.models import Club, Socio
 from ..mixins import SharedFormMixin
 from ..forms import SocioForm
 
@@ -56,6 +57,84 @@ class SocioMembershipSaveMixin:
             self.object = socio
 
         return redirect(self.get_success_url())
+
+
+class GestionSocioMixin(
+    LoginRequiredMixinConMensaje,
+    ValidarRolClubMixin,
+    PermissionRequiredMixin,
+):
+    model = Socio
+    rol_requerido = ['CLUB_ADMIN']
+    permission_required = 'clubes.gestionar_club'
+    pk_url_kwarg = 'socio_pk'
+
+    def get_queryset(self):
+        return Socio.objects.filter(
+            perfil_club__club_id=self.kwargs['pk'],
+        ).select_related(
+            'perfil_club__perfil',
+            'perfil_club__perfil__usuario',
+            'perfil_club__club',
+            'tutor_responsable__perfil_club__perfil',
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['club'] = self.object.perfil_club.club
+        context['titulo'] = self.titulo
+        context['url_volver'] = 'clubes:gestionar_club'
+        context['url_volver_pk'] = self.object.perfil_club.club_id
+        return context
+
+
+class GestionSocioDetailView(GestionSocioMixin, DetailView):
+    context_object_name = 'socio'
+    template_name = 'clubes/socio/gestion_socio_detalle.html'
+    titulo = 'Detalle del socio'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['fichajes'] = self.object.fichajes.select_related(
+            'disciplina',
+            'categoria',
+        ).order_by('-fecha_fichaje', '-pk')
+        return context
+
+
+class GestionSocioUpdateView(
+    GestionSocioMixin,
+    SharedFormMixin,
+    SocioMembershipSaveMixin,
+    UpdateView,
+):
+    form_class = SocioForm
+    template_name = 'clubes/form_template.html'
+    titulo = 'Editar socio'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['require_tutor_for_minor'] = False
+        return kwargs
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        club = self.object.perfil_club.club
+        form.fields['club'].queryset = Club.objects.filter(pk=club.pk)
+        form.fields['club'].initial = club.pk
+        form.fields['club'].disabled = True
+        form.fields['tutor_responsable'].queryset = Socio.objects.filter(
+            perfil_club__club_id=club.pk,
+            es_tutor=True,
+        ).exclude(pk=self.object.pk)
+        form.helper.form_tag = False
+        return form
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'clubes:gestionar_club',
+            kwargs={'pk': self.object.perfil_club.club_id},
+        )
 
 
 class SocioCreateView(

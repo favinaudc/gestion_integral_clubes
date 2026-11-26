@@ -108,6 +108,7 @@ class DisciplinaTemplatesTest(TestCase):
         self.assertContains(response, 'name="nombre"')
         self.assertContains(response, 'name="descripcion"')
         self.assertContains(response, self.url_list)
+        self.assertNotContains(response, 'buscar-socios-a-cargo')
 
     def test_form_template_update_renderiza_titulo_y_valores_precargados(self):
         response = self.client.get(self.url_update)

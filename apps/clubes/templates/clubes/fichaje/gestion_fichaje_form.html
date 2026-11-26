@@ -1,0 +1,37 @@
+{% extends "clubes/form_template.html" %}
+
+{% block form_extra_js %}
+    {{ form.categorias_por_disciplina|json_script:"categorias-por-disciplina" }}
+    <script>
+        const disciplineSelect = document.querySelector('[data-disciplina-select]');
+        const categorySelect = document.querySelector('[data-categoria-select]');
+        const categoryMapElement = document.getElementById('categorias-por-disciplina');
+
+        if (disciplineSelect && categorySelect && categoryMapElement) {
+            const categoriesByDiscipline = JSON.parse(categoryMapElement.textContent);
+
+            function filterCategories() {
+                const allowedCategories = new Set(
+                    (categoriesByDiscipline[disciplineSelect.value] || []).map(String)
+                );
+
+                Array.from(categorySelect.options).forEach(function (option) {
+                    if (!option.value) return;
+                    const isAllowed = allowedCategories.has(option.value);
+                    option.hidden = !isAllowed;
+                    option.disabled = !isAllowed;
+                });
+
+                if (
+                    categorySelect.value &&
+                    !allowedCategories.has(categorySelect.value)
+                ) {
+                    categorySelect.value = '';
+                }
+            }
+
+            disciplineSelect.addEventListener('change', filterCategories);
+            filterCategories();
+        }
+    </script>
+{% endblock form_extra_js %}

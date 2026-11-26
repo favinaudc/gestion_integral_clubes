@@ -124,12 +124,6 @@ class Socio(models.Model):
         )
         return edad < 18
     
-    def save(self, *args, **kwargs):
-        if self.es_menor_edad and self.tutor_responsable is None:
-            raise ValueError('Al ser menos de edad debe tener responsable/tutor asociado.')
-        super().save(*args, **kwargs)
-    
-
 class Entrenador(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
     club = models.ManyToManyField(Club, related_name='entrenadores')
@@ -247,7 +241,7 @@ class Fichaje(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     fecha_fichaje = models.DateField(help_text="@Ingrese la fecha de fichaje del socio")
     is_active = models.BooleanField(default=True, help_text="@Indica si el fichaje está activo o no")
-    ciclo = models.ForeignKey(Ciclo, on_delete=models.CASCADE)
+    ciclo = models.ForeignKey(Ciclo, on_delete=models.CASCADE, blank=True, null=True)
 
     def save(self, *args,**kwargs):
         super().save(*args, **kwargs)
@@ -258,7 +252,13 @@ class Fichaje(models.Model):
 
     def __str__(self):
         perfil = self.socio.perfil_club.perfil
-        return f"{perfil.nombre} {perfil.apellido} - {self.disciplina.nombre} - {self.categoria.nombre} - {self.ciclo.año}"
+        descripcion = (
+            f"{perfil.nombre} {perfil.apellido} - "
+            f"{self.disciplina.nombre} - {self.categoria.nombre}"
+        )
+        if self.ciclo_id:
+            descripcion += f" - {self.ciclo.año}"
+        return descripcion
 
 class ParametroEvaluacion(models.Model):
    

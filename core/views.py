@@ -19,6 +19,9 @@ def home_resolver(request):
             else:
                 messages.error(request, "Aún no tiene un club asignado")
                 return render(request, 'home_user.html')
+
+        if request.user.is_entrenador:
+            return redirect('entrenador_home')
         
         if request.user.is_usuario:
             return render(request, 'home_user.html')

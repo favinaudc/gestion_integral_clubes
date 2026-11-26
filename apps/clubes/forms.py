@@ -183,7 +183,8 @@ class SocioForm(forms.ModelForm):
             'tutor_responsable',
         )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, require_tutor_for_minor=True, **kwargs):
+        self.require_tutor_for_minor = require_tutor_for_minor
         super().__init__(*args, **kwargs)
         if self.instance.pk:
             perfil = self.instance.perfil_club.perfil
@@ -270,7 +271,11 @@ class SocioForm(forms.ModelForm):
                 - fecha_nacimiento.year
                 - ((hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
             )
-            if edad < 18 and not tutor_responsable:
+            if (
+                edad < 18
+                and not tutor_responsable
+                and self.require_tutor_for_minor
+            ):
                 self.add_error(
                     'tutor_responsable',
                     'Los socios menores de edad deben tener un tutor responsable.',
@@ -746,15 +751,6 @@ def _fecha_limite_mayoria_edad():
     return date(anio_limite, hoy.month, dia_limite)
 
 
-class SocioMultipleChoiceField(forms.ModelMultipleChoiceField):
-    def label_from_instance(self, socio):
-        perfil = socio.perfil_club.perfil
-        etiqueta = f'{perfil} (DNI: {perfil.dni or "sin registrar"})'
-        if socio.tutor_responsable_id:
-            etiqueta += f' | Responsable actual: {socio.tutor_responsable}'
-        return etiqueta
-
-
 class GestionCrearSocioForm(forms.Form):
     email = forms.EmailField(
         required=False,
@@ -812,7 +808,7 @@ class GestionCrearSocioForm(forms.Form):
         queryset=Socio.objects.none(),
         required=False,
         label='Tutor responsable de este socio',
-        widget=forms.Select(attrs={'class': 'form-select'}),
+        widget=forms.HiddenInput(),
     )
 
     es_tutor = forms.BooleanField(
@@ -821,7 +817,7 @@ class GestionCrearSocioForm(forms.Form):
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
     )
 
-    socios_a_cargo = SocioMultipleChoiceField(
+    socios_a_cargo = forms.ModelMultipleChoiceField(
         queryset=Socio.objects.none(),
         required=False,
         label='Socios menores a cargo',
@@ -829,7 +825,7 @@ class GestionCrearSocioForm(forms.Form):
             'Los socios seleccionados quedarán a cargo de este tutor. '
             'Si ya tenían tutor, se reemplazará.'
         ),
-        widget=forms.CheckboxSelectMultiple(),
+        widget=forms.MultipleHiddenInput(),
     )
 
     apto_medico = forms.FileField(
@@ -856,54 +852,6 @@ class GestionCrearSocioForm(forms.Form):
                 perfil_club__perfil__fecha_nacimiento__gt=_fecha_limite_mayoria_edad(),
             )
 
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
-        self.helper.layout = Layout(
-            Row(
-                Column('nombre', css_class="form-group col-md-4 mb-3"),
-                Column('apellido', css_class="form-group col-md-4 mb-3"),
-                Column('dni', css_class="form-group col-md-4 mb-3"),
-            ),
-            Row(
-                Column('fecha_nacimiento', css_class="form-group col-md-4 mb-3"),
-                Column('telefono', css_class="form-group col-md-4 mb-3"),
-                Column('direccion', css_class="form-group col-md-4 mb-3"),
-            ),
-            Row(
-                Column('email', css_class="form-group col-md-6 mb-3"),
-                Column('apto_medico', css_class="form-group col-md-6 mb-3"),
-            ),
-            HTML('<h6 id="seccion-tutores-titulo" class="form-label text-uppercase">Responsabilidad de tutor</h6>'),
-            HTML('<hr><section aria-labelledby="seccion-tutores-titulo">'),
-            HTML('<div id="seccion-tutor-responsable" hidden>'),
-            Row(
-                Column('tutor_responsable', css_class="form-group col-md-12 mb-3"),
-            ),
-            HTML('</div>'),
-            HTML('<div id="seccion-checkbox-es-tutor">'),
-            Row(
-                Column('es_tutor', css_class="form-group col-md-12 mb-3"),
-            ),
-            HTML('</div>'),
-            HTML('<div id="seccion-socios-a-cargo" class="border rounded p-3 mb-3" hidden>'),
-            HTML(
-                '<label for="buscar-socios-a-cargo" class="form-label">'
-                'Buscar socios menores</label>'
-                '<input id="buscar-socios-a-cargo" type="search" '
-                'class="form-control mb-3" placeholder="Buscar por nombre o DNI">'
-            ),
-            Row(
-                Column('socios_a_cargo', css_class="form-group col-md-12 mb-3"),
-            ),
-            HTML('</div></section>'),
-            Row(
-                Column(
-                    Submit('submit', 'GUARDAR SOCIO', css_class='btn btn-success text-uppercase '),
-                    css_class='col-md-6 mx-auto text-center mt-3'
-                )
-            )
-        )
-
     def clean(self):
         cleaned_data = super().clean()
         es_tutor = cleaned_data.get('es_tutor', False)
@@ -924,12 +872,7 @@ class GestionCrearSocioForm(forms.Form):
                 - fecha_nacimiento.year
                 - ((hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
             )
-            if edad < 18 and not tutor_responsable:
-                self.add_error(
-                    'tutor_responsable',
-                    'Los socios menores de edad deben tener un tutor responsable.',
-                )
-            elif edad >= 18 and tutor_responsable:
+            if edad >= 18 and tutor_responsable:
                 self.add_error(
                     'tutor_responsable',
                     'Solo los socios menores de edad deben tener tutor responsable.',
@@ -959,17 +902,14 @@ class FichajeForm(forms.ModelForm):
             widget=forms.DateInput(attrs={
                 'class': 'form-control', 'type': 'date'
                 }))
-    ciclo = forms.ModelChoiceField(
-            queryset=Ciclo.objects.all(), widget=forms.Select(attrs={
-                'class': 'form-control'
-                }))
     class Meta: 
         model = Fichaje
-        fields = ['socio', 'disciplina', 'categoria', 'fecha_fichaje', 'ciclo']   
+        fields = ['socio', 'disciplina', 'categoria', 'fecha_fichaje']
     def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.helper = FormHelper()
             self.helper.form_method = 'post'
+            self.helper.form_tag = False
             self.helper.layout = Layout(
                 Row(
                     Column('socio', css_class='form-group col-md-6 mb-3'),
@@ -979,11 +919,6 @@ class FichajeForm(forms.ModelForm):
                 Row(
                     Column('categoria', css_class='form-group col-md-6 mb-3'),
                     Column('fecha_fichaje', css_class='form-group col-md-6 mb-3'),
-                    css_class='row'
-                ),
-                Row(
-                    Column('is_active', css_class='form-group col-md-6 mb-3'),
-                    Column('ciclo', css_class='form-group col-md-6 mb-3'),
                     css_class='row'
                 ),
                 Row(
@@ -1021,6 +956,119 @@ class FichajeForm(forms.ModelForm):
             )
 
         return cleaned_data
+
+
+class FichajeSocioForm(forms.ModelForm):
+    disciplina = forms.ModelChoiceField(
+        queryset=Disciplina.objects.none(),
+        empty_label='Seleccione una disciplina',
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'data-disciplina-select': 'true',
+        }),
+    )
+    categoria = forms.ModelChoiceField(
+        queryset=Categoria.objects.none(),
+        empty_label='Seleccione una categoría',
+        help_text='Primero seleccione la disciplina.',
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'data-categoria-select': 'true',
+        }),
+    )
+    fecha_fichaje = forms.DateField(
+        initial=date.today,
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date',
+        }),
+    )
+
+    class Meta:
+        model = Fichaje
+        fields = ('disciplina', 'categoria', 'fecha_fichaje')
+
+    def __init__(self, *args, club, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.club = club
+        disciplina_ids = list(
+            club.disciplinas.order_by('nombre').values_list('pk', flat=True)
+        )
+        self.fields['disciplina'].queryset = Disciplina.objects.filter(
+            pk__in=disciplina_ids,
+        ).order_by('nombre')
+
+        self.categorias_por_disciplina = {
+            str(disciplina_id): []
+            for disciplina_id in disciplina_ids
+        }
+        categorias = Categoria.objects.filter(
+            club=club,
+            disciplina__in=disciplina_ids,
+        ).distinct().prefetch_related('disciplina')
+        for categoria in categorias:
+            for disciplina in categoria.disciplina.all():
+                categoria_ids = self.categorias_por_disciplina.get(
+                    str(disciplina.pk)
+                )
+                if categoria_ids is not None:
+                    categoria_ids.append(categoria.pk)
+
+        disciplina_seleccionada = (
+            self.data.get('disciplina')
+            if self.is_bound
+            else self.initial.get('disciplina')
+        )
+        if str(disciplina_seleccionada) in self.categorias_por_disciplina:
+            categorias = categorias.filter(
+                disciplina__pk=disciplina_seleccionada,
+            )
+        self.fields['categoria'].queryset = categorias
+
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Row(
+                Column('disciplina', css_class='form-group col-md-6 mb-3'),
+                Column('categoria', css_class='form-group col-md-6 mb-3'),
+                css_class='row',
+            ),
+            Row(
+                Column('fecha_fichaje', css_class='form-group col-md-6 mb-3'),
+                css_class='row',
+            ),
+            Row(
+                Column(
+                    Submit(
+                        'submit',
+                        'FICHAR SOCIO',
+                        css_class='btn btn-success text-uppercase',
+                    ),
+                    css_class='col-md-6 mx-auto text-center mt-3',
+                ),
+            ),
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        disciplina = cleaned_data.get('disciplina')
+        categoria = cleaned_data.get('categoria')
+
+        if disciplina and categoria:
+            if categoria.club_id != self.club.pk:
+                self.add_error(
+                    'categoria',
+                    'La categoría no pertenece a este club.',
+                )
+            elif not categoria.disciplina.filter(pk=disciplina.pk).exists():
+                self.add_error(
+                    'categoria',
+                    'La categoría no está asociada a la disciplina seleccionada.',
+                )
+
+        return cleaned_data
+
 
 class ParametroEvaluacionForm(forms.ModelForm):
     nombre = forms.CharField(

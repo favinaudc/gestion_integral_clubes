@@ -59,21 +59,60 @@
                     <table id="tabla-socios" class="table data-tables table-hover align-middle dt-responsive nowrap w-100">
                         <thead class="table">
                             <tr>
-                                <th>Apellido</th>
-                                <th>Nombre</th>
-                                <th>DNI</th>
-                                <th>Es deportista</th>
-                                <th>Es tutor</th>
+                                <th class="text-start">Apellido</th>
+                                <th class="text-start">Nombre</th>
+                                <th class="text-center">DNI</th>
+                                <th class="text-center">Es deportista</th>
+                                <th class="text-center">Es tutor</th>
+                                <th class="text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for socio in socios %}
                                 <tr>
-                                    <td>{{ socio.perfil_club.perfil.apellido|default:"-" }}</td>
-                                    <td>{{ socio.perfil_club.perfil.nombre|default:"-" }}</td>
-                                    <td>{{ socio.perfil_club.perfil.dni|default:"-" }}</td>
-                                    <td>{{ socio.es_deportista|yesno:"Sí,No" }}</td>
-                                    <td>{{ socio.es_tutor|yesno:"Sí,No" }}</td>
+                                    <td class="text-start">{{ socio.perfil_club.perfil.apellido|default:"-" }}</td>
+                                    <td class="text-start">{{ socio.perfil_club.perfil.nombre|default:"-" }}</td>
+                                    <td class="text-center">{{ socio.perfil_club.perfil.dni|default:"-" }}</td>
+                                    <td class="text-center">{{ socio.es_deportista|yesno:"Sí,No" }}</td>
+                                    <td class="text-center">{{ socio.es_tutor|yesno:"Sí,No" }}</td>
+                                    <td class="text-center">
+                                        <a
+                                            href="{% url 'clubes:gestion_ver_socio' pk=club.pk socio_pk=socio.pk %}"
+                                            class="btn btn-sm btn-outline-info"
+                                            title="Ver socio"
+                                        >
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a
+                                            href="{% url 'clubes:gestion_editar_socio' pk=club.pk socio_pk=socio.pk %}"
+                                            class="btn btn-sm btn-outline-primary"
+                                            title="Editar socio"
+                                        >
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <div class="dropdown d-inline-block">
+                                            {% comment %} socio-actions-toggle {% endcomment %}
+                                            <button
+                                                class="btn btn-sm btn-outline-secondary"    
+                                                type="button"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false"
+                                                aria-label="Más acciones"
+                                            >
+                                                <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <a
+                                                        class="dropdown-item socio-actions-menu-item"
+                                                        href="{% url 'clubes:gestion_fichar_socio' pk=club.pk socio_pk=socio.pk %}"
+                                                    >
+                                                        Fichar a disciplina
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -106,21 +145,21 @@
                     <table id="tabla-entrenadores" class="table data-tables table-hover align-middle dt-responsive nowrap w-100">
                         <thead class="table">
                             <tr>
-                                <th>Apellido</th>
-                                <th>Nombre</th>
-                                <th>CUIL/CUIT</th>
-                                <th>Experiencia</th>
-                                <th>Disciplinas y categorías</th>
+                                <th class="text-start">Apellido</th>
+                                <th class="text-start">Nombre</th>
+                                <th class="text-center">CUIL/CUIT</th>
+                                <th class="text-center">Experiencia</th>
+                                <th class="text-center">Disciplinas y categorías</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for entrenador in entrenadores %}
                                 <tr>
-                                    <td>{{ entrenador.usuario.perfil.apellido|default:"-" }}</td>
-                                    <td>{{ entrenador.usuario.perfil.nombre|default:"-" }}</td>
-                                    <td>{{ entrenador.usuario.cuit_cuil }}</td>
-                                    <td>{{ entrenador.experiencia }} años</td>
-                                    <td>
+                                    <td class="text-start">{{ entrenador.usuario.perfil.apellido|default:"-" }}</td>
+                                    <td class="text-start">{{ entrenador.usuario.perfil.nombre|default:"-" }}</td>
+                                    <td class="text-center">{{ entrenador.usuario.cuit_cuil }}</td>
+                                    <td class="text-center">{{ entrenador.experiencia }} años</td>
+                                    <td class="text-center">
                                         {% for asignacion in entrenador.asignaciones_del_club %}
                                             <span class="badge rounded-pill text-bg-light border me-1 mb-1">
                                                 {{ asignacion.disciplina.nombre }}: {{ asignacion.categoria.nombre }}
@@ -128,7 +167,7 @@
                                         {% empty %}
                                             <span class="text-muted">Sin asignaciones</span>
                                         {% endfor %}
-                                    </td>
+                                    </td>                                    
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -146,6 +185,49 @@
 
 {% block extra_js %}
     {{ block.super }}
+    <style>
+        .socio-actions-toggle {
+            transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+        }
+
+        .socio-actions-toggle .bi-three-dots-vertical {
+            display: inline-block;
+            transition: transform 0.18s ease;
+        }
+
+        .socio-actions-toggle:hover,
+        .socio-actions-toggle:focus-visible,
+        .socio-actions-toggle[aria-expanded="true"] {
+            color: #fff;
+            background-color: var(--bs-secondary);
+            border-color: var(--bs-secondary);
+        }
+
+        .socio-actions-toggle:hover .bi-three-dots-vertical,
+        .socio-actions-toggle:focus-visible .bi-three-dots-vertical,
+        .socio-actions-toggle[aria-expanded="true"] .bi-three-dots-vertical {
+            transform: rotate(90deg);
+        }
+
+        .socio-actions-menu-item {
+            transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .socio-actions-menu-item:hover,
+        .socio-actions-menu-item:focus-visible {
+            color: var(--primary);
+            background-color: var(--primary-light);
+            box-shadow: inset 3px 0 var(--primary);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .socio-actions-toggle,
+            .socio-actions-toggle .bi-three-dots-vertical,
+            .socio-actions-menu-item {
+                transition: none;
+            }
+        }
+    </style>
     <script>
         document.addEventListener('shown.bs.tab', function (event) {
             const pane = document.querySelector(event.target.dataset.bsTarget);

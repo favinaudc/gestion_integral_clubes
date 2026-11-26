@@ -175,16 +175,19 @@ class GestionCrearSocio(
     FormView,
 ):
     form_class = GestionCrearSocioForm
-    template_name = 'clubes/form_template.html'
+    template_name = 'clubes/socio/gestion_crear_socio_form.html'
     rol_requerido = ['CLUB_ADMIN']
     permission_required = 'clubes.gestionar_club'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        form = context['form']
         context['titulo'] = 'Crear Socio'
         context['club'] = get_object_or_404(Club, pk=self.kwargs['pk'])
         context['url_volver'] = 'clubes:gestionar_club'
         context['url_volver_pk'] = self.kwargs['pk']
+        context['tutores_disponibles'] = form.fields['tutor_responsable'].queryset
+        context['socios_menores_disponibles'] = form.fields['socios_a_cargo'].queryset
         return context
 
     def get_form_kwargs(self):

@@ -1,0 +1,32 @@
+{% with perfil=socio.perfil_club.perfil %}
+    <div class="col-sm-6 col-xl-4" data-socio-card-wrapper>
+        <button type="button"
+                class="socio-choice-card card w-100 h-100 text-start p-3"
+                data-socio-card
+                data-socio-id="{{ socio.pk }}"
+                data-search="{{ perfil.nombre }} {{ perfil.apellido }} {{ perfil.dni|default_if_none:'' }}"
+                aria-pressed="false">
+            <span class="d-flex align-items-start gap-3">
+                <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light text-primary flex-shrink-0"
+                      style="width: 2.75rem; height: 2.75rem;">
+                    <i class="bi bi-person fs-5" aria-hidden="true"></i>
+                </span>
+                <span class="flex-grow-1">
+                    <span class="d-block fw-semibold">{{ perfil.nombre }} {{ perfil.apellido }}</span>
+                    <span class="d-block small text-muted">DNI: {{ perfil.dni|default:"Sin registrar" }}</span>
+                </span>
+                <i class="socio-choice-card__check bi bi-check-circle-fill text-primary" aria-hidden="true"></i>
+            </span>
+            <span class="small text-muted mt-3">
+                Nacimiento: {{ perfil.fecha_nacimiento|date:"d/m/Y" }}
+            </span>
+            {% if socio.tutor_responsable %}
+                <span class="small text-muted mt-1">
+                    Responsable actual: {{ socio.tutor_responsable }}
+                </span>
+            {% elif socio.es_tutor %}
+                <span class="small text-primary mt-1">Ya figura como tutor</span>
+            {% endif %}
+        </button>
+    </div>
+{% endwith %}

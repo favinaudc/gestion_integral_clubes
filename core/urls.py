@@ -17,6 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from .views import home_resolver
+from apps.clubes.views.entrenador_views import (
+    EntrenadorCategoriasView,
+    EntrenadorFichajesView,
+    EntrenadorHomeView,
+)
 
 
 urlpatterns = [
@@ -24,5 +29,16 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('clubes/', include('apps.clubes.urls')),
     path('auth/', include('apps.customauth.urls')),
+    path('entrenador/', EntrenadorHomeView.as_view(), name='entrenador_home'),
+    path(
+        'entrenador/club/<int:club_pk>/disciplina/<int:disciplina_pk>/',
+        EntrenadorCategoriasView.as_view(),
+        name='entrenador_categorias',
+    ),
+    path(
+        'entrenador/club/<int:club_pk>/disciplina/<int:disciplina_pk>/categoria/<int:categoria_pk>/',
+        EntrenadorFichajesView.as_view(),
+        name='entrenador_fichajes',
+    ),
     path('home/', home_resolver, name='home'),  # Ruta para la vista de inicio
 ]

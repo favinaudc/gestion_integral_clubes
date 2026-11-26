@@ -1,9 +1,10 @@
+import re
 from datetime import date
 
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
-from django.test import RequestFactory, TestCase
+from django.test import Client, RequestFactory, TestCase
 from django.urls import reverse
 from django.views import View
 
@@ -15,6 +16,7 @@ from ..models import (
     Club,
     Disciplina,
     Entrenador,
+    Fichaje,
     Socio,
 )
 from apps.clubes.forms import FichajeForm
@@ -217,6 +219,30 @@ class GestionCrearSocioTests(TestCase):
         )
         self.assertContains(listado, "Beatriz")
         self.assertContains(listado, "30123456")
+        socio = Socio.objects.get(perfil_club__perfil__dni="30123456")
+        self.assertContains(
+            listado,
+            reverse(
+                "clubes:gestion_ver_socio",
+                args=[self.club.pk, socio.pk],
+            ),
+        )
+        self.assertContains(
+            listado,
+            reverse(
+                "clubes:gestion_editar_socio",
+                args=[self.club.pk, socio.pk],
+            ),
+        )
+        self.assertContains(
+            listado,
+            reverse(
+                "clubes:gestion_fichar_socio",
+                args=[self.club.pk, socio.pk],
+            ),
+        )
+        self.assertContains(listado, 'aria-label="Más acciones"')
+        self.assertContains(listado, "Fichar a disciplina")
         self.assertContains(
             listado,
             reverse("clubes:gestionar_club", args=[self.club.pk]),
@@ -243,8 +269,10 @@ class GestionCrearSocioTests(TestCase):
         formulario = self.client.get(self.url)
         self.assertContains(formulario, 'id="id_es_tutor"')
         self.assertContains(formulario, 'id="buscar-socios-a-cargo"')
-        self.assertContains(formulario, f'value="{menores[0].pk}"')
-        self.assertContains(formulario, f'value="{menores[1].pk}"')
+        self.assertContains(formulario, f'data-socio-id="{menores[0].pk}"')
+        self.assertContains(formulario, f'data-socio-id="{menores[1].pk}"')
+        self.assertContains(formulario, 'class="form-control mb-3"')
+        self.assertContains(formulario, "Relaciones del socio")
         self.assertNotContains(formulario, 'name="cuit_cuil"')
 
         response = self.client.post(
@@ -266,7 +294,7 @@ class GestionCrearSocioTests(TestCase):
             menor.refresh_from_db()
             self.assertEqual(menor.tutor_responsable, nuevo_tutor)
 
-    def test_minor_member_requires_an_existing_tutor(self):
+    def test_minor_member_can_be_created_without_a_tutor(self):
         response = self.client.post(
             self.url,
             {
@@ -275,12 +303,154 @@ class GestionCrearSocioTests(TestCase):
             },
         )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(Socio.objects.count(), 0)
-        self.assertIn(
-            "Los socios menores de edad deben tener un tutor responsable.",
-            response.context["form"].errors["tutor_responsable"],
+        self.assertRedirects(
+            response,
+            reverse("clubes:gestionar_club", args=[self.club.pk]),
         )
+        menor = Socio.objects.get(perfil_club__perfil__dni="30123456")
+        self.assertIsNone(menor.tutor_responsable)
+
+    def test_club_admin_can_view_socio_details(self):
+        socio = self.crear_socio(
+            "Socio",
+            "Detalle",
+            date(1990, 1, 1),
+            "30123456",
+        )
+
+        response = self.client.get(
+            reverse(
+                "clubes:gestion_ver_socio",
+                args=[self.club.pk, socio.pk],
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Socio Detalle")
+        self.assertContains(response, "Editar socio")
+        self.assertContains(response, "Este socio todavía no tiene fichajes.")
+        self.assertContains(response, "Fichar en disciplina")
+
+    def test_socio_detail_lists_its_fichajes(self):
+        socio = self.crear_socio(
+            "Socio",
+            "Deportista",
+            date(1990, 1, 1),
+            "30123457",
+        )
+        disciplina = Disciplina.objects.create(
+            nombre="Natación",
+            descripcion="Entrenamiento en pileta.",
+        )
+        self.club.disciplinas.add(disciplina)
+        categoria = Categoria.objects.create(
+            club=self.club,
+            nombre="Adultos",
+            edad_minima=18,
+            edad_maxima=40,
+        )
+        categoria.disciplina.add(disciplina)
+        Fichaje.objects.create(
+            socio=socio,
+            disciplina=disciplina,
+            categoria=categoria,
+            fecha_fichaje=date(2026, 9, 5),
+        )
+
+        response = self.client.get(
+            reverse(
+                "clubes:gestion_ver_socio",
+                args=[self.club.pk, socio.pk],
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Natación")
+        self.assertContains(response, "Adultos")
+        self.assertContains(response, "05/09/2026")
+        self.assertContains(response, "Activo")
+
+    def test_club_admin_can_edit_minor_without_tutor(self):
+        menor = self.crear_socio(
+            "Socio",
+            "Menor",
+            date(2015, 4, 4),
+            "30123456",
+        )
+        url = reverse(
+            "clubes:gestion_editar_socio",
+            args=[self.club.pk, menor.pk],
+        )
+
+        response = self.client.post(
+            url,
+            {
+                "nombre": "Socio editado",
+                "apellido": "Menor",
+                "fecha_nacimiento": "2015-04-04",
+                "telefono": "",
+                "direccion": "",
+                "usuario": "",
+                "club": self.club.pk,
+                "es_deportista": "",
+                "es_tutor": "",
+                "apto_medico": "",
+                "tutor_responsable": "",
+            },
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("clubes:gestionar_club", args=[self.club.pk]),
+        )
+        menor.refresh_from_db()
+        self.assertEqual(menor.perfil_club.perfil.nombre, "Socio editado")
+        self.assertIsNone(menor.tutor_responsable)
+
+    def test_cannot_view_socio_from_another_club(self):
+        otro_club = Club.objects.create(
+            nombre="Otro club",
+            direccion="Avenida 456",
+            telefono="987654321",
+            email="otro@example.com",
+            fecha_fundacion=date(2001, 1, 1),
+        )
+        grupo_socio, _ = Group.objects.get_or_create(name="SOCIO")
+        perfil = Perfil.objects.create(
+            nombre="Socio",
+            apellido="Ajeno",
+            dni="30123456",
+            fecha_nacimiento=date(1990, 1, 1),
+        )
+        perfil_club = PerfilClub.objects.create(
+            perfil=perfil,
+            club=otro_club,
+            grupo_rol=grupo_socio,
+        )
+        socio_ajeno = Socio.objects.create(perfil_club=perfil_club)
+
+        for route_name in (
+            "clubes:gestion_ver_socio",
+            "clubes:gestion_editar_socio",
+        ):
+            with self.subTest(route=route_name):
+                response = self.client.get(
+                    reverse(
+                        route_name,
+                        args=[self.club.pk, socio_ajeno.pk],
+                    )
+                )
+                self.assertEqual(response.status_code, 404)
+
+    def test_minor_without_tutor_form_has_confirmation_warning(self):
+        response = self.client.get(self.url)
+
+        self.assertTemplateUsed(
+            response,
+            "clubes/socio/gestion_crear_socio_form.html",
+        )
+        self.assertContains(response, "advertenciaMenorSinResponsable")
+        self.assertContains(response, "Continuar sin responsable")
 
     def test_minor_member_can_select_an_existing_tutor(self):
         tutor = self.crear_socio(
@@ -290,7 +460,7 @@ class GestionCrearSocioTests(TestCase):
             "30000000",
         )
         formulario = self.client.get(self.url)
-        self.assertContains(formulario, f'value="{tutor.pk}"')
+        self.assertContains(formulario, f'data-socio-id="{tutor.pk}"')
         response = self.client.post(
             self.url,
             {
@@ -695,6 +865,159 @@ class FichajeCategoriaValidationTests(TestCase):
         self.assertIn("La categoría no pertenece al club del socio.", form.errors["categoria"])
 
 
+class GestionFichajeSocioTests(TestCase):
+    def setUp(self):
+        self.user = Usuario.objects.create_user(
+            cuit_cuil="20123456789",
+            email="admin@example.com",
+            password="test-password",
+        )
+        self.club = Club.objects.create(
+            nombre="Club de prueba",
+            direccion="Calle 123",
+            telefono="123456789",
+            email="club@example.com",
+            fecha_fundacion=date(2000, 1, 1),
+        )
+        grupo_admin, _ = Group.objects.get_or_create(name="CLUB_ADMIN")
+        self.user.groups.add(grupo_admin)
+        self.user.grupo_activo = grupo_admin
+        self.user.save(update_fields=["grupo_activo"])
+        PerfilClub.objects.create(
+            perfil=self.user.perfil,
+            club=self.club,
+            grupo_rol=grupo_admin,
+        )
+        permiso = Permission.objects.get(
+            content_type__app_label="clubes",
+            codename="gestionar_club",
+        )
+        self.user.user_permissions.add(permiso)
+        self.client.force_login(self.user)
+
+        self.disciplina = Disciplina.objects.create(
+            nombre="Natación",
+            descripcion="Entrenamiento en pileta.",
+        )
+        self.otra_disciplina = Disciplina.objects.create(
+            nombre="Atletismo",
+            descripcion="Entrenamiento de atletismo.",
+        )
+        self.disciplina_no_suscripta = Disciplina.objects.create(
+            nombre="Gimnasia",
+            descripcion="Entrenamiento de gimnasia.",
+        )
+        self.club.disciplinas.add(self.disciplina, self.otra_disciplina)
+        self.categoria = Categoria.objects.create(
+            club=self.club,
+            nombre="Adultos",
+            edad_minima=18,
+            edad_maxima=40,
+        )
+        self.categoria.disciplina.add(self.disciplina)
+        self.otra_categoria = Categoria.objects.create(
+            club=self.club,
+            nombre="Juveniles",
+            edad_minima=13,
+            edad_maxima=18,
+        )
+        self.otra_categoria.disciplina.add(self.otra_disciplina)
+
+        grupo_socio, _ = Group.objects.get_or_create(name="SOCIO")
+        perfil = Perfil.objects.create(
+            nombre="Socio",
+            apellido="Prueba",
+            fecha_nacimiento=date(2000, 1, 1),
+        )
+        perfil_club = PerfilClub.objects.create(
+            perfil=perfil,
+            club=self.club,
+            grupo_rol=grupo_socio,
+        )
+        self.socio = Socio.objects.create(perfil_club=perfil_club)
+        self.url = reverse(
+            "clubes:gestion_fichar_socio",
+            args=[self.club.pk, self.socio.pk],
+        )
+
+    def test_form_only_offers_club_disciplines_and_omits_cycle(self):
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Natación")
+        self.assertContains(response, "Atletismo")
+        self.assertNotContains(response, "Gimnasia")
+        self.assertContains(response, 'data-categoria-select="true"')
+        self.assertNotContains(response, 'name="ciclo"')
+
+    def test_fichaje_saves_and_marks_socio_as_deportista(self):
+        response = self.client.post(
+            self.url,
+            {
+                "disciplina": self.disciplina.pk,
+                "categoria": self.categoria.pk,
+                "fecha_fichaje": date.today().isoformat(),
+            },
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("clubes:gestionar_club", args=[self.club.pk]),
+        )
+        fichaje = Fichaje.objects.get()
+        self.assertEqual(fichaje.socio, self.socio)
+        self.assertEqual(fichaje.disciplina, self.disciplina)
+        self.assertEqual(fichaje.categoria, self.categoria)
+        self.assertIsNone(fichaje.ciclo)
+        self.socio.refresh_from_db()
+        self.assertTrue(self.socio.es_deportista)
+
+    def test_rejects_category_unrelated_to_selected_discipline(self):
+        response = self.client.post(
+            self.url,
+            {
+                "disciplina": self.disciplina.pk,
+                "categoria": self.otra_categoria.pk,
+                "fecha_fichaje": date.today().isoformat(),
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Fichaje.objects.exists())
+        self.socio.refresh_from_db()
+        self.assertFalse(self.socio.es_deportista)
+
+    def test_cannot_fichar_socio_from_another_club(self):
+        otro_club = Club.objects.create(
+            nombre="Otro club",
+            direccion="Calle 456",
+            telefono="987654321",
+            email="otro@example.com",
+            fecha_fundacion=date(2001, 1, 1),
+        )
+        grupo_socio, _ = Group.objects.get_or_create(name="SOCIO")
+        perfil_ajeno = Perfil.objects.create(
+            nombre="Socio",
+            apellido="Ajeno",
+            fecha_nacimiento=date(2000, 1, 1),
+        )
+        membresia_ajena = PerfilClub.objects.create(
+            perfil=perfil_ajeno,
+            club=otro_club,
+            grupo_rol=grupo_socio,
+        )
+        socio_ajeno = Socio.objects.create(perfil_club=membresia_ajena)
+
+        response = self.client.get(
+            reverse(
+                "clubes:gestion_fichar_socio",
+                args=[self.club.pk, socio_ajeno.pk],
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+
 # Pruebas de validación de fechas para CicloClub
 class CicloClubDateValidationTests(TestCase):
     def setUp(self):
@@ -816,6 +1139,9 @@ class GestionCrearEntrenadorTests(TestCase):
         self.assertTrue(usuario.check_password("30123456"))
         self.assertEqual(usuario.perfil.nombre, "Carlos")
         self.assertEqual(usuario.perfil.dni, "30123456")
+        self.assertTrue(usuario.groups.filter(name="ENTRENADOR").exists())
+        self.assertFalse(usuario.groups.filter(name="USUARIO").exists())
+        self.assertEqual(usuario.get_grupo_activo, "ENTRENADOR")
 
         entrenador = Entrenador.objects.get(usuario=usuario)
         self.assertEqual(entrenador.experiencia, 8)
@@ -842,10 +1168,40 @@ class GestionCrearEntrenadorTests(TestCase):
         self.assertEqual(response.status_code, 200)
         for step in range(4):
             self.assertContains(response, f'data-wizard-step="{step}"')
+        self.assertContains(response, 'class="wizard-progress list-unstyled d-flex mb-4"')
+        self.assertContains(response, 'data-entrenador-wizard novalidate')
         self.assertContains(response, 'type="password"')
+        self.assertContains(response, 'class="col-12 col-sm-6 col-lg-3"')
+        self.assertContains(response, 'data-category-option')
         self.assertContains(
             response,
             f'data-disciplinas="{self.disciplina.pk}"',
+        )
+
+    def test_creation_form_posts_with_a_valid_csrf_token(self):
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(self.user)
+        page = client.get(self.url)
+        html = page.content.decode()
+        token = re.search(
+            r'name="csrfmiddlewaretoken" value="([^"]+)"',
+            html,
+        )
+
+        self.assertEqual(html.count("<form"), 1)
+        self.assertIsNotNone(token)
+
+        response = client.post(
+            self.url,
+            {
+                **self.form_data,
+                "csrfmiddlewaretoken": token.group(1),
+            },
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("clubes:gestionar_club", args=[self.club.pk]),
         )
 
     def test_reuses_existing_account_and_trainer_without_overwriting_them(self):
@@ -891,6 +1247,9 @@ class GestionCrearEntrenadorTests(TestCase):
         self.assertEqual(Usuario.objects.filter(cuit_cuil=usuario.cuit_cuil).count(), 1)
         usuario.refresh_from_db()
         self.assertTrue(usuario.check_password("contraseña-anterior"))
+        self.assertTrue(usuario.groups.filter(name="ENTRENADOR").exists())
+        self.assertFalse(usuario.groups.filter(name="USUARIO").exists())
+        self.assertEqual(usuario.get_grupo_activo, "ENTRENADOR")
         self.assertEqual(usuario.perfil.nombre, "Nombre original")
         self.assertEqual(entrenador.experiencia, 12)
         self.assertIn(self.club, entrenador.club.all())
@@ -1034,3 +1393,213 @@ class GestionCrearEntrenadorTests(TestCase):
         self.assertContains(response, "LISTADO DE ENTRENADORES")
         self.assertContains(response, "20111222334")
         self.assertNotContains(response, "20999888776")
+
+
+class EntrenadorPortalTests(TestCase):
+    def setUp(self):
+        self.user = Usuario.objects.create_user(
+            cuit_cuil="20123456789",
+            email="entrenador@example.com",
+            password="test-password",
+        )
+        self.grupo_entrenador, _ = Group.objects.get_or_create(
+            name="ENTRENADOR",
+        )
+        self.user.groups.add(self.grupo_entrenador)
+        self.user.grupo_activo = self.grupo_entrenador
+        self.user.save(update_fields=["grupo_activo"])
+        self.client.force_login(self.user)
+
+        self.club = Club.objects.create(
+            nombre="Club de prueba",
+            direccion="Calle 123",
+            telefono="123456789",
+            email="club@example.com",
+            fecha_fundacion=date(2000, 1, 1),
+        )
+        self.disciplina = Disciplina.objects.create(
+            nombre="Natación",
+            descripcion="Entrenamiento en pileta.",
+        )
+        self.disciplina_unica = Disciplina.objects.create(
+            nombre="Atletismo",
+            descripcion="Entrenamiento de atletismo.",
+        )
+        self.disciplina_sin_asignar = Disciplina.objects.create(
+            nombre="Gimnasia",
+            descripcion="Entrenamiento de gimnasia.",
+        )
+        self.club.disciplinas.add(
+            self.disciplina,
+            self.disciplina_unica,
+            self.disciplina_sin_asignar,
+        )
+
+        self.entrenador = Entrenador.objects.create(
+            usuario=self.user,
+            experiencia=5,
+        )
+        self.entrenador.club.add(self.club)
+        self.membresia_entrenador = PerfilClub.objects.create(
+            perfil=self.user.perfil,
+            club=self.club,
+            grupo_rol=self.grupo_entrenador,
+        )
+
+        self.categoria = self.crear_categoria(
+            "Adultos",
+            self.disciplina,
+        )
+        self.otra_categoria = self.crear_categoria(
+            "Juveniles",
+            self.disciplina,
+        )
+        self.categoria_sin_asignar = self.crear_categoria(
+            "Infantiles",
+            self.disciplina,
+        )
+        self.categoria_disciplina_unica = self.crear_categoria(
+            "Mayores",
+            self.disciplina_unica,
+        )
+        for categoria in (self.categoria, self.otra_categoria):
+            AsignacionEntrenador.objects.create(
+                entrenador=self.entrenador,
+                perfil_club=self.membresia_entrenador,
+                disciplina=self.disciplina,
+                categoria=categoria,
+            )
+        AsignacionEntrenador.objects.create(
+            entrenador=self.entrenador,
+            perfil_club=self.membresia_entrenador,
+            disciplina=self.disciplina_unica,
+            categoria=self.categoria_disciplina_unica,
+        )
+
+        self.socio_a = self.crear_socio("Ana", "Alvarez", "30000001")
+        self.socio_b = self.crear_socio("Bruno", "Benitez", "30000002")
+        Fichaje.objects.create(
+            socio=self.socio_a,
+            disciplina=self.disciplina,
+            categoria=self.categoria,
+            fecha_fichaje=date(2026, 1, 10),
+        )
+        Fichaje.objects.create(
+            socio=self.socio_b,
+            disciplina=self.disciplina,
+            categoria=self.otra_categoria,
+            fecha_fichaje=date(2026, 1, 11),
+        )
+
+    def crear_categoria(self, nombre, disciplina):
+        categoria = Categoria.objects.create(
+            club=self.club,
+            nombre=nombre,
+            edad_minima=10,
+            edad_maxima=40,
+        )
+        categoria.disciplina.add(disciplina)
+        return categoria
+
+    def crear_socio(self, nombre, apellido, dni):
+        grupo_socio, _ = Group.objects.get_or_create(name="SOCIO")
+        perfil = Perfil.objects.create(
+            nombre=nombre,
+            apellido=apellido,
+            dni=dni,
+            fecha_nacimiento=date(2000, 1, 1),
+        )
+        membresia = PerfilClub.objects.create(
+            perfil=perfil,
+            club=self.club,
+            grupo_rol=grupo_socio,
+        )
+        return Socio.objects.create(perfil_club=membresia)
+
+    def test_home_resolver_redirects_active_trainer_to_dashboard(self):
+        response = self.client.get(reverse("home"))
+
+        self.assertRedirects(
+            response,
+            reverse("entrenador_home"),
+        )
+
+    def test_home_lists_only_assigned_disciplines_and_groups_categories(self):
+        response = self.client.get(reverse("entrenador_home"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Natación")
+        self.assertContains(response, "Atletismo")
+        self.assertNotContains(response, "Gimnasia")
+        self.assertContains(response, "2 categorías a cargo")
+
+    def test_discipline_page_lists_only_categories_assigned_to_trainer(self):
+        response = self.client.get(
+            reverse(
+                "entrenador_categorias",
+                kwargs={
+                    "club_pk": self.club.pk,
+                    "disciplina_pk": self.disciplina.pk,
+                },
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Adultos")
+        self.assertContains(response, "Juveniles")
+        self.assertNotContains(response, "Infantiles")
+
+    def test_single_category_skips_category_selection(self):
+        response = self.client.get(
+            reverse(
+                "entrenador_categorias",
+                kwargs={
+                    "club_pk": self.club.pk,
+                    "disciplina_pk": self.disciplina_unica.pk,
+                },
+            )
+        )
+
+        self.assertRedirects(
+            response,
+            reverse(
+                "entrenador_fichajes",
+                kwargs={
+                    "club_pk": self.club.pk,
+                    "disciplina_pk": self.disciplina_unica.pk,
+                    "categoria_pk": self.categoria_disciplina_unica.pk,
+                },
+            ),
+        )
+
+    def test_category_page_lists_its_fichajes_and_placeholder_action(self):
+        response = self.client.get(
+            reverse(
+                "entrenador_fichajes",
+                kwargs={
+                    "club_pk": self.club.pk,
+                    "disciplina_pk": self.disciplina.pk,
+                    "categoria_pk": self.categoria.pk,
+                },
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Ana")
+        self.assertNotContains(response, "Bruno")
+        self.assertContains(response, "Registrar evaluación física")
+        self.assertContains(response, "disabled")
+
+    def test_category_page_rejects_categories_not_assigned_to_trainer(self):
+        response = self.client.get(
+            reverse(
+                "entrenador_fichajes",
+                kwargs={
+                    "club_pk": self.club.pk,
+                    "disciplina_pk": self.disciplina.pk,
+                    "categoria_pk": self.categoria_sin_asignar.pk,
+                },
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)

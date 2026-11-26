@@ -1,10 +1,73 @@
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.db import transaction
+from django.shortcuts import get_object_or_404
 from django.views.generic import CreateView, ListView, UpdateView, DetailView, DeleteView
-from apps.customauth.mixins import LoginRequiredMixinConMensaje
+from apps.customauth.mixins import (
+    LoginRequiredMixinConMensaje,
+    ValidarRolClubMixin,
+)
 from django.urls import reverse_lazy
-from apps.clubes.models import Fichaje
+from apps.clubes.models import Fichaje, Socio
 from ..mixins import SharedFormMixin
-from ..forms import FichajeForm
+from ..forms import FichajeForm, FichajeSocioForm
 from django.urls import reverse
+
+
+class GestionFichajeSocioCreateView(
+    LoginRequiredMixinConMensaje,
+    ValidarRolClubMixin,
+    PermissionRequiredMixin,
+    SharedFormMixin,
+    CreateView,
+):
+    model = Fichaje
+    form_class = FichajeSocioForm
+    template_name = 'clubes/fichaje/gestion_fichaje_form.html'
+    permission_required = 'clubes.gestionar_club'
+    rol_requerido = ['CLUB_ADMIN']
+
+    def get_socio(self):
+        if not hasattr(self, '_socio'):
+            self._socio = get_object_or_404(
+                Socio.objects.select_related(
+                    'perfil_club__perfil',
+                    'perfil_club__club',
+                ),
+                pk=self.kwargs['socio_pk'],
+                perfil_club__club_id=self.kwargs['pk'],
+            )
+        return self._socio
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['club'] = self.get_socio().perfil_club.club
+        return kwargs
+
+    def form_valid(self, form):
+        with transaction.atomic():
+            form.instance.socio = self.get_socio()
+            return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        socio = self.get_socio()
+        club = socio.perfil_club.club
+        context['socio'] = socio
+        context['club'] = club
+        context['titulo'] = (
+            f'Fichar a {socio.perfil_club.perfil.nombre} '
+            f'{socio.perfil_club.perfil.apellido}'
+        )
+        context['url_volver'] = 'clubes:gestionar_club'
+        context['url_volver_pk'] = club.pk
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'clubes:gestionar_club',
+            kwargs={'pk': self.kwargs['pk']},
+        )
+
 
 class FichajeCreateView(LoginRequiredMixinConMensaje, SharedFormMixin, CreateView):
     model = Fichaje

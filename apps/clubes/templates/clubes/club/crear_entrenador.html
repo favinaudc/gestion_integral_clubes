@@ -1,169 +1,260 @@
-{% extends 'base_apps.html' %}
+{% extends 'clubes/form_template.html' %}
 
-{% block title %}Crear entrenador{% endblock %}
+{% block form_attributes %}data-entrenador-wizard novalidate{% endblock %}
 
-{% block contenido_apps %}
-    <div class="card border-0 shadow-sm rounded-4">
-        <div class="card-body p-4">
-            <div class="mb-4">
-                <h1 class="h5 text-uppercase mb-2">Crear entrenador para {{ club.nombre }}</h1>
-                <p class="text-muted mb-0">
-                    Completá cada paso para registrar la cuenta y sus asignaciones.
-                </p>
-            </div>
+{% block form_fields %}
+    <div class="wizard-progress-wrapper">
+        <ol class="wizard-progress list-unstyled d-flex mb-4" aria-label="Pasos para crear un entrenador">
+            <li class="wizard-progress__item is-active" data-step-indicator="0" aria-current="step">
+                <span class="wizard-progress__number">1</span>
+                <span>Usuario</span>
+            </li>
+            <li class="wizard-progress__item" data-step-indicator="1">
+                <span class="wizard-progress__number">2</span>
+                <span>Perfil</span>
+            </li>
+            <li class="wizard-progress__item" data-step-indicator="2">
+                <span class="wizard-progress__number">3</span>
+                <span>Disciplina</span>
+            </li>
+            <li class="wizard-progress__item" data-step-indicator="3">
+                <span class="wizard-progress__number">4</span>
+                <span>Categoría</span>
+            </li>
+        </ol>
 
-            <div class="d-flex flex-wrap gap-2 mb-4" aria-label="Pasos del formulario">
-                <span class="badge rounded-pill bg-primary" data-step-indicator="0">1. Usuario</span>
-                <span class="badge rounded-pill bg-secondary" data-step-indicator="1">2. Perfil</span>
-                <span class="badge rounded-pill bg-secondary" data-step-indicator="2">3. Disciplina</span>
-                <span class="badge rounded-pill bg-secondary" data-step-indicator="3">4. Categoría</span>
-            </div>
+        <div class="ps-4">
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
 
-            <form method="post" data-entrenador-wizard novalidate>
-                {% csrf_token %}
-                {{ form.non_field_errors }}
-
-                <section
-                    class="wizard-step"
-                    data-wizard-step="0"
-                    aria-labelledby="paso-usuario-titulo"
-                >
-                    <h2 id="paso-usuario-titulo" class="h6 fw-bold">Paso 1: Datos de usuario</h2>
-                    <p class="text-muted">
+            <section
+                class="wizard-step"
+                data-wizard-step="0"
+                aria-labelledby="paso-usuario-titulo"
+            >
+                <div class="mb-4">
+                    <h5 class="h5 fw-semibold mb-1" id="paso-usuario-titulo">Datos de usuario</h5>
+                    <p class="text-muted mb-0">
                         Si el CUIL/CUIT ya tiene una cuenta, se reutilizarán esa cuenta y sus credenciales.
                     </p>
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            {{ form.cuit_cuil.label_tag }}
-                            {{ form.cuit_cuil }}
-                            {{ form.cuit_cuil.errors }}
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            {{ form.email.label_tag }}
-                            {{ form.email }}
-                            {{ form.email.errors }}
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            {{ form.dni.label_tag }}
-                            {{ form.dni }}
-                            {% if form.dni.help_text %}
-                                <div class="form-text">{{ form.dni.help_text }}</div>
-                            {% endif %}
-                            {{ form.dni.errors }}
-                        </div>
+                    <hr>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        {{ form.cuit_cuil.label_tag }}
+                        {{ form.cuit_cuil }}
+                        {{ form.cuit_cuil.errors }}
                     </div>
-                    <div class="d-flex justify-content-end">
-                        <button type="button" class="btn btn-primary" data-next-step>
-                            Siguiente
-                        </button>
+                    <div class="col-md-4">
+                        {{ form.email.label_tag }}
+                        {{ form.email }}
+                        {{ form.email.errors }}
                     </div>
-                </section>
+                    <div class="col-md-4">
+                        {{ form.dni.label_tag }}
+                        {{ form.dni }}
+                        {% if form.dni.help_text %}
+                            <div class="form-text">{{ form.dni.help_text }}</div>
+                        {% endif %}
+                        {{ form.dni.errors }}
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="button" class="btn btn-primary px-4" data-next-step>
+                        Continuar <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </section>
 
-                <section
-                    class="wizard-step"
-                    data-wizard-step="1"
-                    aria-labelledby="paso-perfil-titulo"
-                    hidden
-                >
-                    <h2 id="paso-perfil-titulo" class="h6 fw-bold">Paso 2: Datos de perfil</h2>
-                    <p class="text-muted">
+            <section
+                class="wizard-step"
+                data-wizard-step="1"
+                aria-labelledby="paso-perfil-titulo"
+                hidden
+            >
+
+                <div class="mb-4">
+                    <h5 class="h5 fw-semibold mb-1" id="paso-perfil-titulo">Datos de perfil</h5>
+                    <p class="text-muted mb-0">
                         Los datos de perfil existentes no se reemplazan cuando se reutiliza una cuenta.
                     </p>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ form.nombre.label_tag }}
-                            {{ form.nombre }}
-                            {{ form.nombre.errors }}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.apellido.label_tag }}
-                            {{ form.apellido }}
-                            {{ form.apellido.errors }}
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            {{ form.fecha_nacimiento.label_tag }}
-                            {{ form.fecha_nacimiento }}
-                            {{ form.fecha_nacimiento.errors }}
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            {{ form.telefono.label_tag }}
-                            {{ form.telefono }}
-                            {{ form.telefono.errors }}
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            {{ form.direccion.label_tag }}
-                            {{ form.direccion }}
-                            {{ form.direccion.errors }}
-                        </div>
+                    <hr>
+                </div>
+                {% comment %} <h2 id="paso-perfil-titulo" class="h6 fw-bold">Paso 2: Datos de perfil</h2>
+                <p class="text-muted">
+                </p> {% endcomment %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        {{ form.nombre.label_tag }}
+                        {{ form.nombre }}
+                        {{ form.nombre.errors }}
                     </div>
-                    <div class="mb-3">
-                        <h3 class="h6 fw-bold">Datos del entrenador</h3>
-                        {{ form.experiencia.label_tag }}
-                        {{ form.experiencia }}
-                        {{ form.experiencia.errors }}
+                    <div class="col-md-6">
+                        {{ form.apellido.label_tag }}
+                        {{ form.apellido }}
+                        {{ form.apellido.errors }}
                     </div>
-                    <div class="d-flex justify-content-between">
-                        <button type="button" class="btn btn-outline-secondary" data-prev-step>
-                            Anterior
-                        </button>
-                        <button type="button" class="btn btn-primary" data-next-step>
-                            Siguiente
-                        </button>
+                    <div class="col-md-4">
+                        {{ form.fecha_nacimiento.label_tag }}
+                        {{ form.fecha_nacimiento }}
+                        {{ form.fecha_nacimiento.errors }}
                     </div>
-                </section>
+                    <div class="col-md-4">
+                        {{ form.telefono.label_tag }}
+                        {{ form.telefono }}
+                        {{ form.telefono.errors }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.direccion.label_tag }}
+                        {{ form.direccion }}
+                        {{ form.direccion.errors }}
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h3 class="h6 fw-bold">Datos del entrenador</h3>
+                    {{ form.experiencia.label_tag }}
+                    {{ form.experiencia }}
+                    {{ form.experiencia.errors }}
+                </div>
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-prev-step>
+                        <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Volver
+                    </button>
+                    <button type="button" class="btn btn-primary px-4" data-next-step>
+                        Continuar <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </section>
 
-                <section
-                    class="wizard-step"
-                    data-wizard-step="2"
-                    aria-labelledby="paso-disciplina-titulo"
-                    hidden
-                >
-                    <h2 id="paso-disciplina-titulo" class="h6 fw-bold">Paso 3: Elegir disciplina</h2>
-                    <p class="text-muted">{{ form.disciplinas.help_text }}</p>
-                    {{ form.disciplinas }}
-                    {{ form.disciplinas.errors }}
-                    <div class="text-danger small mt-2" data-disciplinas-error hidden>
-                        Seleccioná al menos una disciplina para continuar.
-                    </div>
-                    <div class="d-flex justify-content-between mt-4">
-                        <button type="button" class="btn btn-outline-secondary" data-prev-step>
-                            Anterior
-                        </button>
-                        <button type="button" class="btn btn-primary" data-next-step>
-                            Siguiente
-                        </button>
-                    </div>
-                </section>
+            <section
+                class="wizard-step"
+                data-wizard-step="2"
+                aria-labelledby="paso-disciplina-titulo"
+                hidden
+            >
+                <div class="mb-4">
+                    <h5 class="h5 fw-semibold mb-1" id="paso-disciplina-titulo">Elegir disciplina</h5>
+                    <p class="text-muted mb-0">
+                        {{ form.disciplinas.help_text }}
+                    </p>
+                    <hr>
+                </div>
 
-                <section
-                    class="wizard-step"
-                    data-wizard-step="3"
-                    aria-labelledby="paso-categoria-titulo"
-                    hidden
-                >
-                    <h2 id="paso-categoria-titulo" class="h6 fw-bold">Paso 4: Elegir categoría</h2>
-                    <p class="text-muted">{{ form.categorias.help_text }}</p>
-                    {{ form.categorias }}
-                    {{ form.categorias.errors }}
-                    <div class="text-muted small mt-2" data-categorias-empty hidden>
-                        No hay categorías disponibles para las disciplinas elegidas.
-                    </div>
-                    <div class="text-danger small mt-2" data-categorias-error hidden>
-                        Seleccioná al menos una categoría para continuar.
-                    </div>
-                    <div class="d-flex justify-content-between mt-4">
-                        <button type="button" class="btn btn-outline-secondary" data-prev-step>
-                            Anterior
-                        </button>
-                        <button type="submit" class="btn btn-success">
-                            Guardar entrenador
-                        </button>
-                    </div>
-                </section>
-            </form>
+                {% comment %} <h2 id="paso-disciplina-titulo" class="h6 fw-bold">Paso 3: </h2>
+                <p class="text-muted">{{ form.disciplinas.help_text }}</p> {% endcomment %}
+                <div class="row g-3">
+                    {% for checkbox in form.disciplinas %}
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <div class="form-check">
+                                {{ checkbox.tag }}
+                                <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                                    {{ checkbox.choice_label }}
+                                </label>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                {{ form.disciplinas.errors }}
+                <div class="text-danger small mt-2" data-disciplinas-error hidden>
+                    Seleccioná al menos una disciplina para continuar.
+                </div>
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-prev-step>
+                        <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Volver
+                    </button>
+                    <button type="button" class="btn btn-primary px-4" data-next-step>
+                        Continuar <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </section>
+
+            <section
+                class="wizard-step"
+                data-wizard-step="3"
+                aria-labelledby="paso-categoria-titulo"
+                hidden
+            >
+                <h2 id="paso-categoria-titulo" class="h6 fw-bold">Paso 4: Elegir categoría</h2>
+                <p class="text-muted">{{ form.categorias.help_text }}</p>
+                <div class="row g-3">
+                    {% for checkbox in form.categorias %}
+                        <div class="col-12 col-sm-6 col-lg-3" data-category-option>
+                            <div class="form-check">
+                                {{ checkbox.tag }}
+                                <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                                    {{ checkbox.choice_label }}
+                                </label>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                {{ form.categorias.errors }}
+                <div class="text-muted small mt-2" data-categorias-empty hidden>
+                    No hay categorías disponibles para las disciplinas elegidas.
+                </div>
+                <div class="text-danger small mt-2" data-categorias-error hidden>
+                    Seleccioná al menos una categoría para continuar.
+                </div>
+                <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mt-4">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-prev-step>
+                        <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Volver
+                    </button>
+                    <button type="submit" class="btn btn-success px-4">
+                        GUARDAR ENTRENADOR
+                    </button>
+                </div>
+            </section>
         </div>
     </div>
-{% endblock contenido_apps %}
+{% endblock form_fields %}
+
+{% block base_apps_extra_css %}
+    {{ block.super }}
+    .wizard-progress {
+        gap: 1rem;
+    }
+
+    .wizard-progress__item {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .wizard-progress__number {
+        display: inline-flex;
+        width: 2rem;
+        height: 2rem;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #ced4da;
+        border-radius: 50%;
+        background: #fff;
+    }
+
+    .wizard-progress__item.is-active {
+        color: #0d6efd;
+    }
+
+    .wizard-progress__item.is-active .wizard-progress__number {
+        border-color: #0d6efd;
+        background: #0d6efd;
+        color: #fff;
+    }
+
+    .errorlist {
+        margin: 0.25rem 0 0;
+        padding: 0;
+        color: #dc3545;
+        font-size: 0.875em;
+        list-style: none;
+    }
+{% endblock base_apps_extra_css %}
 
 {% block extra_js %}
     {{ block.super }}
@@ -191,9 +282,9 @@
                     step.hidden = stepIndex !== currentStep;
                 });
                 indicators.forEach(function (indicator, stepIndex) {
-                    indicator.classList.toggle('bg-primary', stepIndex === currentStep);
-                    indicator.classList.toggle('bg-secondary', stepIndex !== currentStep);
-                    if (stepIndex === currentStep) {
+                    const active = stepIndex === currentStep;
+                    indicator.classList.toggle('is-active', active);
+                    if (active) {
                         indicator.setAttribute('aria-current', 'step');
                     } else {
                         indicator.removeAttribute('aria-current');
@@ -203,7 +294,11 @@
             }
 
             function optionContainer(input) {
-                return input.closest('li') || input.closest('div');
+                return (
+                    input.closest('[data-category-option]') ||
+                    input.closest('li') ||
+                    input.closest('div')
+                );
             }
 
             function filterCategories() {
@@ -277,6 +372,11 @@
                 input.addEventListener('change', filterCategories);
             });
             form.addEventListener('submit', function (event) {
+                if (currentStep !== steps.length - 1) {
+                    event.preventDefault();
+                    if (validateStep()) showStep(currentStep + 1);
+                    return;
+                }
                 if (!validateStep()) event.preventDefault();
             });
 

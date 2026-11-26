@@ -1,0 +1,129 @@
+{% extends 'base_apps.html' %}
+
+{% block title %}{{ titulo|upper }}{% endblock %}
+
+{% block contenido_apps %}
+    {% with perfil=socio.perfil_club.perfil %}
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-start gap-3 mb-4">
+                    <div>
+                        <h1 class="h5 text-uppercase mb-1">{{ perfil.nombre }} {{ perfil.apellido }}</h1>
+                        {% comment %} <p class="text-muted mb-0">{{ club.nombre }}</p> {% endcomment %}
+                    </div>
+                    <a
+                        href="{% url 'clubes:gestion_editar_socio' pk=club.pk socio_pk=socio.pk %}"
+                        class="btn btn-sm btn-outline-primary text-uppercase"
+                    >
+                        <i class="bi bi-pencil me-1" aria-hidden="true"></i> Editar socio
+                    </a>
+                </div>
+                        <hr>
+                
+                <div class="row g-4 ps-4">
+                    <div class="col-md-6">
+                        <h2 class="h6 fw-semibold">Datos personales</h2>
+                        <hr>
+                        <dl class="row mb-0">
+                            <dt class="col-sm-5 text-muted">DNI</dt>
+                            <dd class="col-sm-7">{{ perfil.dni|default:"-" }}</dd>
+                            <dt class="col-sm-5 text-muted">Fecha de nacimiento</dt>
+                            <dd class="col-sm-7">{{ perfil.fecha_nacimiento|date:"d/m/Y"|default:"-" }}</dd>
+                            <dt class="col-sm-5 text-muted">Teléfono</dt>
+                            <dd class="col-sm-7">{{ perfil.telefono|default:"-" }}</dd>
+                            <dt class="col-sm-5 text-muted">Dirección</dt>
+                            <dd class="col-sm-7">{{ perfil.direccion|default:"-" }}</dd>
+                            <dt class="col-sm-5 text-muted">Correo electrónico</dt>
+                            <dd class="col-sm-7">{{ perfil.email|default:"-" }}</dd>
+                        </dl>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h2 class="h6 fw-semibold">Información del socio</h2>
+                        <hr>
+                        <dl class="row mb-0">
+                            <dt class="col-sm-5 text-muted">Usuario</dt>
+                            <dd class="col-sm-7">
+                                {% if perfil.usuario %}
+                                    {{ perfil.usuario.cuit_cuil }}
+                                {% else %}
+                                    Sin usuario vinculado
+                                {% endif %}
+                            </dd>
+                            <dt class="col-sm-5 text-muted">Deportista</dt>
+                            <dd class="col-sm-7">{{ socio.es_deportista|yesno:"Sí,No" }}</dd>
+                            <dt class="col-sm-5 text-muted">Tutor</dt>
+                            <dd class="col-sm-7">{{ socio.es_tutor|yesno:"Sí,No" }}</dd>
+                            <dt class="col-sm-5 text-muted">Adulto responsable</dt>
+                            <dd class="col-sm-7">{{ socio.tutor_responsable|default:"Sin asignar" }}</dd>
+                            <dt class="col-sm-5 text-muted">Apto médico</dt>
+                            <dd class="col-sm-7">
+                                {% if socio.apto_medico %}
+                                    <a href="{{ socio.apto_medico.url }}" target="_blank" rel="noopener">
+                                        Ver archivo
+                                    </a>
+                                {% else %}
+                                    No cargado
+                                {% endif %}
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <section aria-labelledby="fichajes-socio-heading">
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+                        <div>
+                            <h2 class="h6 fw-semibold mb-1" id="fichajes-socio-heading">Fichajes deportivos</h2>
+                            <p class="text-muted small mb-0">Disciplinas y categorías en las que participa este socio.</p>
+                        </div>
+                        <a
+                            href="{% url 'clubes:gestion_fichar_socio' pk=club.pk socio_pk=socio.pk %}"
+                            class="btn btn-sm btn-outline-primary text-uppercase"
+                        >
+                            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i> Fichar en disciplina
+                        </a>
+                    </div>
+
+                    {% if fichajes %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">Disciplina</th>
+                                        <th scope="col">Categoría</th>
+                                        <th scope="col">Fecha de fichaje</th>
+                                        <th scope="col" class="text-center">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for fichaje in fichajes %}
+                                        <tr>
+                                            <td>{{ fichaje.disciplina.nombre }}</td>
+                                            <td>{{ fichaje.categoria.nombre }}</td>
+                                            <td>{{ fichaje.fecha_fichaje|date:"d/m/Y" }}</td>
+                                            <td class="text-center">
+                                                {% if fichaje.is_active %}
+                                                    <span class="badge text-bg-success">Activo</span>
+                                                {% else %}
+                                                    <span class="badge text-bg-secondary">Inactivo</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="border rounded-3 bg-light text-center text-muted p-4">
+                            Este socio todavía no tiene fichajes.
+                        </div>
+                    {% endif %}
+                </section>
+            </div>
+        </div>
+    {% endwith %}
+
+    {% include "includes/boton_volver.html" with url_name=url_volver url_pk=url_volver_pk boton_titulo='Volver a la gestión' %}
+{% endblock %}

@@ -23,6 +23,21 @@ urlpatterns = [
 club_gestion = [
     path('club/<int:pk>/gestionar/', GestionarClubView.as_view() , name='gestionar_club'),
     path('club/<int:pk>/gestionar/crear-socio/', GestionCrearSocio.as_view() , name='gestion_crear_socio'),
+    path(
+        'club/<int:pk>/gestionar/socio/<int:socio_pk>/ver/',
+        GestionSocioDetailView.as_view(),
+        name='gestion_ver_socio',
+    ),
+    path(
+        'club/<int:pk>/gestionar/socio/<int:socio_pk>/editar/',
+        GestionSocioUpdateView.as_view(),
+        name='gestion_editar_socio',
+    ),
+    path(
+        'club/<int:pk>/gestionar/socio/<int:socio_pk>/fichar/',
+        GestionFichajeSocioCreateView.as_view(),
+        name='gestion_fichar_socio',
+    ),
     path('club/<int:pk>/gestionar/crear-entrenador/', GestionCrearEntrenador.as_view(), name='gestion_crear_entrenador'),
     path('club/<int:pk>/gestionar/disciplinas/', GestionDisciplinas.as_view() , name='gestion_disciplinas'),
     path('club/<int:pk>/gestionar/categorias/', GestionCategorias.as_view() , name='gestion_categorias'),
