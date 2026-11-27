@@ -39,27 +39,20 @@
                     <h5 class="h5 fw-semibold mb-1" id="paso-usuario-titulo">Datos de usuario</h5>
                     <p class="text-muted mb-0">
                         Si el CUIL/CUIT ya tiene una cuenta, se reutilizarán esa cuenta y sus credenciales.
+                        Para una cuenta nueva, los ocho dígitos centrales del CUIL/CUIT serán la contraseña temporal.
                     </p>
                     <hr>
                 </div>
                 <div class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         {{ form.cuit_cuil.label_tag }}
                         {{ form.cuit_cuil }}
                         {{ form.cuit_cuil.errors }}
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         {{ form.email.label_tag }}
                         {{ form.email }}
                         {{ form.email.errors }}
-                    </div>
-                    <div class="col-md-4">
-                        {{ form.dni.label_tag }}
-                        {{ form.dni }}
-                        {% if form.dni.help_text %}
-                            <div class="form-text">{{ form.dni.help_text }}</div>
-                        {% endif %}
-                        {{ form.dni.errors }}
                     </div>
                 </div>
                 <div class="d-flex justify-content-end mt-4">

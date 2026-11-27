@@ -1,5 +1,3 @@
-import secrets
-
 from apps.clubes.models import (
     AsignacionEntrenador,
     Club,
@@ -21,6 +19,7 @@ from apps.customauth.forms import (
 )
 from apps.customauth.mixins import LoginRequiredMixinConMensaje, ValidarRolClubMixin
 from apps.customauth.models import PerfilClub, Usuario
+from apps.customauth.utils import dni_desde_cuit_cuil
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.db import transaction
@@ -276,11 +275,10 @@ def asociar_usuario_club(request, pk):
             
             # Validamos ambos formularios a la vez
             if form_usuario.is_valid() and form_perfil.is_valid():
-                password_aleatoria = secrets.token_urlsafe(8)            
-                
                 # Crear el Usuario
                 nuevo_usuario = form_usuario.save(commit=False)
-                nuevo_usuario.set_password(password_aleatoria)
+                password_temporal = dni_desde_cuit_cuil(nuevo_usuario.cuit_cuil)
+                nuevo_usuario.set_password(password_temporal)
                 nuevo_usuario.save()
                 
                 grupo_admin = get_object_or_404(Group, name='CLUB_ADMIN')
@@ -289,9 +287,10 @@ def asociar_usuario_club(request, pk):
                 nuevo_usuario.groups.remove(grupo_usuario)
                 
                 
-                # Crear el Perfil y vincularlo al Usuario recién creado
-                nuevo_perfil = form_perfil.save(commit=False)
-                nuevo_perfil.usuario = nuevo_usuario
+                nuevo_perfil, _ = Perfil.objects.get_or_create(usuario=nuevo_usuario)
+                nuevo_perfil.dni = password_temporal
+                for campo, valor in form_perfil.cleaned_data.items():
+                    setattr(nuevo_perfil, campo, valor)
                 nuevo_perfil.save()
 
                 PerfilClub.objects.create(
@@ -303,13 +302,12 @@ def asociar_usuario_club(request, pk):
                 # Enviar correo con credenciales
                 send_mail(
                     subject=f'Bienvenido al {club.nombre}',
-                    message=f'Hola {nuevo_perfil.nombre},\n\nTu cuenta administrativa ha sido creada.\n\nUsuario (CUIT/CUIL): {nuevo_usuario.cuit_cuil}\nContraseña temporal: {password_aleatoria}\n\nPor favor, cámbiala al iniciar sesión.',
+                    message=f'Hola {nuevo_perfil.nombre},\n\nTu cuenta administrativa ha sido creada.\n\nUsuario (CUIT/CUIL): {nuevo_usuario.cuit_cuil}\nContraseña temporal: {password_temporal}\n\nPor favor, cámbiala al iniciar sesión.',
                     from_email='noreply@tuclub.com',
                     recipient_list=[nuevo_usuario.email],
                     fail_silently=False,
                 )
 
-                print(f"Correo enviado a {nuevo_usuario.email} con contraseña temporal: {password_aleatoria} - Para el usuario: {nuevo_usuario.cuit_cuil}")
                 messages.success(request, "Usuario creado, perfil completado y notificado por email.")
                 return redirect('clubes:listar_clubes')
 

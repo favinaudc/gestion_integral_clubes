@@ -1,9 +1,11 @@
 import re
 from datetime import date
+from unittest.mock import patch
 
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
+from django.db.models.signals import post_save
 from django.test import Client, RequestFactory, TestCase
 from django.urls import reverse
 from django.views import View
@@ -22,6 +24,7 @@ from ..models import (
 from apps.clubes.forms import FichajeForm
 from apps.customauth.models import Perfil, PerfilClub, Usuario
 from apps.customauth.mixins import ValidarRolClubMixin
+from apps.customauth.signals import asignar_rol_por_defecto
 
 
 class ClubAdminProbeView(ValidarRolClubMixin, View):
@@ -1117,7 +1120,6 @@ class GestionCrearEntrenadorTests(TestCase):
         self.form_data = {
             "cuit_cuil": "20111222334",
             "email": "entrenador@example.com",
-            "dni": "30123456",
             "nombre": "Carlos",
             "apellido": "Entrenador",
             "fecha_nacimiento": "1980-01-01",
@@ -1136,9 +1138,9 @@ class GestionCrearEntrenadorTests(TestCase):
             reverse("clubes:gestionar_club", args=[self.club.pk]),
         )
         usuario = Usuario.objects.get(cuit_cuil="20111222334")
-        self.assertTrue(usuario.check_password("30123456"))
+        self.assertTrue(usuario.check_password("11122233"))
         self.assertEqual(usuario.perfil.nombre, "Carlos")
-        self.assertEqual(usuario.perfil.dni, "30123456")
+        self.assertEqual(usuario.perfil.dni, "11122233")
         self.assertTrue(usuario.groups.filter(name="ENTRENADOR").exists())
         self.assertFalse(usuario.groups.filter(name="USUARIO").exists())
         self.assertEqual(usuario.get_grupo_activo, "ENTRENADOR")
@@ -1170,7 +1172,7 @@ class GestionCrearEntrenadorTests(TestCase):
             self.assertContains(response, f'data-wizard-step="{step}"')
         self.assertContains(response, 'class="wizard-progress list-unstyled d-flex mb-4"')
         self.assertContains(response, 'data-entrenador-wizard novalidate')
-        self.assertContains(response, 'type="password"')
+        self.assertNotContains(response, 'name="dni"')
         self.assertContains(response, 'class="col-12 col-sm-6 col-lg-3"')
         self.assertContains(response, 'data-category-option')
         self.assertContains(
@@ -1230,7 +1232,6 @@ class GestionCrearEntrenadorTests(TestCase):
             **self.form_data,
             "cuit_cuil": usuario.cuit_cuil,
             "email": "",
-            "dni": "",
             "nombre": "",
             "apellido": "",
             "fecha_nacimiento": "",
@@ -1272,7 +1273,6 @@ class GestionCrearEntrenadorTests(TestCase):
             **self.form_data,
             "cuit_cuil": usuario.cuit_cuil,
             "email": "",
-            "dni": "",
             "nombre": "",
             "apellido": "",
             "fecha_nacimiento": "",
@@ -1603,3 +1603,91 @@ class EntrenadorPortalTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 404)
+
+
+class CrearUsuarioGestionTests(TestCase):
+    def setUp(self):
+        self.user = Usuario.objects.create_user(
+            cuit_cuil="20123456789",
+            email="admin@example.com",
+            password="test-password",
+        )
+        self.permission = Permission.objects.get(
+            content_type__app_label="clubes",
+            codename="asignar_usuario_gestion",
+        )
+        self.user.user_permissions.add(self.permission)
+        self.assertTrue(self.user.has_perm("clubes.asignar_usuario_gestion"))
+        Group.objects.get_or_create(name="CLUB_ADMIN")
+        Group.objects.get_or_create(name="USUARIO")
+        self.client.force_login(self.user)
+        self.club = Club.objects.create(
+            nombre="Club de prueba",
+            direccion="Calle 123",
+            telefono="123456789",
+            email="club@example.com",
+            fecha_fundacion=date(2000, 1, 1),
+        )
+
+    def enviar_formulario_nuevo_usuario(self, cuit_cuil="20445556660"):
+        return self.client.post(
+            reverse("clubes:crear_usuario_gestion_club", args=[self.club.pk]),
+            {
+                "action_type": "nuevo",
+                "cuit_cuil": cuit_cuil,
+                "email": "gestion@example.com",
+                "nombre": "Gestión",
+                "apellido": "Club",
+                "fecha_nacimiento": "1990-01-01",
+                "telefono": "123456789",
+                "direccion": "Calle 456",
+            },
+        )
+
+    def test_rejects_cuit_cuil_that_cannot_provide_a_dni(self):
+        response = self.enviar_formulario_nuevo_usuario("2044555666A")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Usuario.objects.filter(cuit_cuil="2044555666A").exists())
+        self.assertContains(response, "Ingresá los 11 dígitos del CUIL/CUIT")
+
+    @patch("apps.clubes.views.club_views.send_mail")
+    def test_creates_user_and_updates_profile_created_by_signal(self, send_mail_mock):
+        response = self.enviar_formulario_nuevo_usuario()
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], reverse("clubes:listar_clubes"))
+
+        nuevo_usuario = Usuario.objects.get(cuit_cuil="20445556660")
+        self.assertEqual(Perfil.objects.filter(usuario=nuevo_usuario).count(), 1)
+        self.assertEqual(nuevo_usuario.perfil.nombre, "Gestión")
+        self.assertEqual(nuevo_usuario.perfil.apellido, "Club")
+        self.assertEqual(nuevo_usuario.perfil.dni, "44555666")
+        self.assertTrue(nuevo_usuario.check_password("44555666"))
+        self.assertTrue(
+            PerfilClub.objects.filter(
+                perfil=nuevo_usuario.perfil,
+                club=self.club,
+                grupo_rol__name="CLUB_ADMIN",
+            ).exists()
+        )
+        send_mail_mock.assert_called_once()
+        self.assertIn(
+            "Contraseña temporal: 44555666",
+            send_mail_mock.call_args.kwargs["message"],
+        )
+
+    @patch("apps.clubes.views.club_views.send_mail")
+    def test_creates_profile_if_user_signal_did_not_create_it(self, send_mail_mock):
+        post_save.disconnect(receiver=asignar_rol_por_defecto, sender=Usuario)
+        try:
+            response = self.enviar_formulario_nuevo_usuario()
+        finally:
+            post_save.connect(receiver=asignar_rol_por_defecto, sender=Usuario)
+
+        self.assertEqual(response.status_code, 302)
+        nuevo_usuario = Usuario.objects.get(cuit_cuil="20445556660")
+        self.assertEqual(Perfil.objects.filter(usuario=nuevo_usuario).count(), 1)
+        self.assertEqual(nuevo_usuario.perfil.nombre, "Gestión")
+        self.assertTrue(nuevo_usuario.check_password("44555666"))
+        send_mail_mock.assert_called_once()

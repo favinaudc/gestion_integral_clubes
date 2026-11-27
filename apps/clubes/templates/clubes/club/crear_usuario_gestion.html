@@ -50,6 +50,9 @@
                         {{ form_usuario.cuit_cuil.label_tag }}
                         {{ form_usuario.cuit_cuil }}
                         <small class="text-danger">{{ form_usuario.cuit_cuil.errors }}</small>
+                        <div class="form-text">
+                            La contraseña temporal se forma con los ocho dígitos centrales del CUIL/CUIT.
+                        </div>
                     </div>
                     <div class="col-md-6">
                         {{ form_usuario.email.label_tag }}

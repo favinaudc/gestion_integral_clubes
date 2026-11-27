@@ -7,6 +7,7 @@ from django import forms
 from django.core.validators import RegexValidator
 
 from apps.customauth.models import Perfil
+from apps.customauth.utils import dni_desde_cuit_cuil
 
 from .models import (
     Categoria,
@@ -450,19 +451,6 @@ class GestionCrearEntrenadorForm(forms.Form):
         label='Correo electrónico de acceso',
         widget=forms.EmailInput(attrs={'class': 'form-control'}),
     )
-    dni = forms.CharField(
-        max_length=8,
-        required=False,
-        label='DNI',
-        validators=[
-            RegexValidator(
-                regex=r'^[0-9]{7,8}$',
-                message='Ingresá un DNI de 7 u 8 dígitos.',
-            )
-        ],
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
-        help_text='Se usará como contraseña inicial para una cuenta nueva.',
-    )
     nombre = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control'}),
@@ -553,6 +541,7 @@ class GestionCrearEntrenadorForm(forms.Form):
         self.usuario_existente = None
 
         if cuit_cuil:
+            cleaned_data['dni'] = dni_desde_cuit_cuil(cuit_cuil)
             self.usuario_existente = Usuario.objects.filter(
                 cuit_cuil=cuit_cuil
             ).first()
@@ -568,7 +557,7 @@ class GestionCrearEntrenadorForm(forms.Form):
                     self.add_error(campo, 'Este campo es obligatorio.')
 
         if self.usuario_existente is None:
-            for campo in ('email', 'dni', 'nombre', 'apellido'):
+            for campo in ('email', 'nombre', 'apellido'):
                 if not cleaned_data.get(campo):
                     self.add_error(campo, 'Este campo es obligatorio para una cuenta nueva.')
 

@@ -5,6 +5,7 @@ from crispy_forms.layout import Column, Layout, Row, Submit
 from django import forms
 
 from .models import Perfil, Usuario
+from .utils import dni_desde_cuit_cuil
 
 
 class UsuarioExistenteForm(forms.Form):
@@ -25,6 +26,16 @@ class NuevoUsuarioForm(forms.ModelForm):
             ),
             "email": forms.EmailInput(attrs={"class": "form-control"}),
         }
+
+    def clean_cuit_cuil(self):
+        cuit_cuil = self.cleaned_data["cuit_cuil"]
+        try:
+            dni_desde_cuit_cuil(cuit_cuil)
+        except ValueError as error:
+            raise forms.ValidationError(
+                "Ingresá los 11 dígitos del CUIL/CUIT, sin guiones."
+            ) from error
+        return cuit_cuil
 
 
 class NuevoPerfilForm(forms.ModelForm):
